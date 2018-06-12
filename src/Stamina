@@ -1,0 +1,29 @@
+
+public class Stamina {
+		
+	int [] staminaBar = new int [100];
+	int trackedHealth = 0;
+		
+	public Stamina(int coffeeBeans) {
+		for(int i=0;i<coffeeBeans;i++) {
+			staminaBar[i] = 1;
+		}
+		trackedHealth=coffeeBeans; 
+	}
+	
+	public void addHealth() {
+		if() { //Waiting to find the counter class/method to fill in
+			staminaBar[trackedHealth] = 1;
+		}
+		trackedHealth++;
+	}
+	
+	public void loseHealth() {
+		if() { //waiting to find the counter class/method to fill in
+			staminaBar[trackedHealth] = 0;
+		}
+		trackedHealth--;
+	}
+	
+	
+}
