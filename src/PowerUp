@@ -1,0 +1,20 @@
+
+public class PowerUp {
+		
+	boolean speedPU = false;
+	boolean extrabeansPU = false;
+	boolean immunePU = false;
+	
+	public PowerUp(boolean power1, boolean power 2, boolean power3) {
+		speedPU = power1;
+		extrabeansPU = power2;
+		immunePU = power3;
+	}
+	
+	public void speedUp() {
+		if(speedPU) {
+			
+		}
+	}
+		
+}
