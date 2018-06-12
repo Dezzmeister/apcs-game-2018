@@ -1,0 +1,28 @@
+Message Loop information
+
+The Message Loop is a data structure meant for storing various occurences such as a key being pressed, the cursor being moved, 
+the player bumping into something, or a game event such as pausing or the game ending.
+
+Format: "<typeName>:<specification>"
+
+TypeNames:
+
+keypress: for when a key is pressed; characters should be lowercase, and words should be uppercase 
+specification examples: w, ENTER, CTRL
+
+mousemove: for when the mouse is moved; left is negative, right is positive
+specification examples: 100, -100, 20
+
+interaction: for when the player bumps into something
+specification examples: coworker, coffeebean
+
+event: for special game events
+specification examples: pause, win, lose
+
+complete examples:
+"keypress:ENTER"
+"keypress:a"
+"mousemove:-150"
+"mousemove:150"
+"interaction:coworker"
+"event:pause"
