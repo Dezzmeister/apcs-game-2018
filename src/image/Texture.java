@@ -21,6 +21,13 @@ public class Texture {
 	public final int width;
 	public final int height;
 	
+	/**
+	 * Loads an image at the specified path with the specified width and height as a Texture.
+	 * 
+	 * @param _path relative path of image
+	 * @param _width width of image
+	 * @param _height height of image
+	 */
 	public Texture(String _path, int _width, int _height) {
 		path = _path;
 		width = _width;
