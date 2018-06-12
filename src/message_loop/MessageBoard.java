@@ -31,3 +31,26 @@ class MessageBoard extends ArrayList<String>{
 	
 
 }
+/*
+ * How to use:
+ * 
+ * Add message using Messenger.addMessage("message goes here")
+ * Read messages using Messenger.getMessages() to get an ArrayList<String> of them
+ * Check for a message with Messenger.containsMessage("message goes here")
+ * 
+ * Message Format: <type:specification>
+ * 
+ * Types and relevant specification examples:
+ * 
+ * "keypress"
+ * "a", "ENTER", "CTRL" (lowercase for letters, uppercase for words)
+ * 
+ * "mousemove"
+ * "100", "-100" (positive for right, negative for left)
+ * 
+ * "interaction"
+ * "coworker", "coffeebean"
+ * 
+ * "event"
+ * "pause", "win", "lose"
+ */
