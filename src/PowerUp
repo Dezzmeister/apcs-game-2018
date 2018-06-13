@@ -5,7 +5,7 @@ public class PowerUp {
 	boolean extrabeansPU = false;
 	boolean immunePU = false;
 	
-	public PowerUp(boolean power1, boolean power 2, boolean power3) {
+	public PowerUp(boolean power1, boolean power2, boolean power3) {
 		speedPU = power1;
 		extrabeansPU = power2;
 		immunePU = power3;
