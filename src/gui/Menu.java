@@ -12,11 +12,11 @@ package gui;
 	import java.awt.Toolkit;
 	
 	import javax.swing.JButton;
-	import javax.swing.JFrame;
+	import javax.swing.JPanel;
 
 
 	public class Menu{
-	    private JFrame javaCups;
+	    private JPanel javaCups;
 	    protected Container screen;
 	    private JButton instructions;
 	    protected JButton start;
@@ -24,8 +24,8 @@ package gui;
 	    
 	    public Menu()  {
 
-	        javaCups= new JFrame ("javaCups");
-	        screen = javaCups.getContentPane();
+	        javaCups= new JPanel ();
+	        screen = javaCups.getRootPane();
 	        
 	        Toolkit tk = Toolkit.getDefaultToolkit();
 	        int xSize = ((int) tk.getScreenSize().getWidth());
