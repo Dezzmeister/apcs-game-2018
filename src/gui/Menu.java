@@ -23,7 +23,9 @@ package gui;
 	    //private JButton quit;
 	    
 	    public Menu()  {
-
+	    	
+	    	//https://stackoverflow.com/questions/9554636/the-use-of-multiple-jframes-good-or-bad-practice
+	    	//perhaps we can make this a jpanel? because there will be one main jframe
 	        javaCups= new JFrame ("javaCups");
 	        screen = javaCups.getContentPane();
 	        

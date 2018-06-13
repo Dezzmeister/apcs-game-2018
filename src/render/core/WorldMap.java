@@ -2,6 +2,11 @@ package render.core;
 
 import image.Texture;
 
+/**
+ * 
+ *
+ * @author Joe Desmond
+ */
 public class WorldMap {
 	public static Texture DEFAULT_FLOOR = new Texture("assets/textures/floor32.png",32,32);
 	public static Texture DEFAULT_CEILING = new Texture("assets/textures/ceil32.png",32,32);
