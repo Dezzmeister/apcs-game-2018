@@ -1,4 +1,3 @@
-
 public class PowerUp {
 		
 	boolean speedPU = false;
@@ -12,9 +11,32 @@ public class PowerUp {
 	}
 	
 	public void speedUp() {
-		if(speedPU) {
-			
+		if(speedPU){
+			while(speedPU) {
+				
+			}
 		}
+		else speedPU=false;
+	}
+	
+	public void moreBeans() {
+		if(extrabeansPU) {
+			while(extrabeansPU) {
+			
+			}
+		}
+		else 
+			extrabeansPU=false;
+	}
+	
+	public void immunity() {
+		if(immunePU) {
+			while(immunePU){
+				
+			}
+		}
+		else
+			immunePU=false;
 	}
 		
 }
