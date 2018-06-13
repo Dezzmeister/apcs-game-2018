@@ -1,4 +1,6 @@
-	package gui;
+
+package gui;
+//>>>>>>> branch 'GUIteambranch' of https://github.com/Dezzmeister/apcs-game-2018.git
 
 	import java.awt.Color;
 	import java.awt.Container;
@@ -48,7 +50,7 @@
 
 
 	    public void displayMe()  {
-	        javaCups.show();
+	       // javaCups.show();
 	    }
 
 	    private class StartListener implements ActionListener  {
