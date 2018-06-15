@@ -8,8 +8,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import com.dezzy.skorp3.Global;
-
 import image.SquareTexture;
 import render.math.RenderUtils;
 import render.math.Vector2;
