@@ -1,15 +1,16 @@
 package render.core;
 
+import image.SquareTexture;
 import image.Texture;
 
 /**
- * 
+ * Represents a map/level containing Sprites and Blocks to be rendered.
  *
  * @author Joe Desmond
  */
 public class WorldMap {
-	public static Texture DEFAULT_FLOOR = new Texture("assets/textures/floor32.png",32,32);
-	public static Texture DEFAULT_CEILING = new Texture("assets/textures/ceil32.png",32,32);
+	public static SquareTexture DEFAULT_FLOOR = new SquareTexture("assets/textures/floor32.png",32);
+	public static SquareTexture DEFAULT_CEILING = new SquareTexture("assets/textures/ceil32.png",32);
 	
 	private Block[][] blocks;
 	private Texture[][] floorMap;

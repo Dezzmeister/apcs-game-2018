@@ -1,5 +1,6 @@
 package render.core;
 
+import image.GeneralTexture;
 import image.Texture;
 import render.math.Vector2;
 
@@ -11,15 +12,18 @@ import render.math.Vector2;
  * @author Joe Desmond
  */
 public class Wall {
-	public static final Texture DEFAULT_TEXTURE = new Texture("assets/raycast/textures/darkbricks.png",512,512);
+	public static final GeneralTexture DEFAULT_TEXTURE = new GeneralTexture("assets/raycast/textures/darkbricks.png",512,512);
 	
 	/**
-	 * v0 and v1 are the two endpoints of this Wall.
+	 * One endpoint of this Wall
 	 */
 	public Vector2 v0;
+	/**
+	 * One endpoint of this Wall
+	 */
 	public Vector2 v1;
 	public float length;
-	public Texture texture = DEFAULT_TEXTURE;
+	public GeneralTexture texture = DEFAULT_TEXTURE;
 	public float xTiles = 1;
 	public float yTiles = 1;
 	
@@ -27,7 +31,7 @@ public class Wall {
 		
 	}
 	
-	public Wall(float x1, float y1, float x2, float y2, Texture _texture) {
+	public Wall(float x1, float y1, float x2, float y2, GeneralTexture _texture) {
 		v0 = new Vector2(x1,y1);
 		v1 = new Vector2(x2,y2);
 		texture = _texture;
@@ -46,7 +50,7 @@ public class Wall {
 		updateLength();
 	}
 	
-	public Wall setTexture(Texture _texture) {
+	public Wall setTexture(GeneralTexture _texture) {
 		texture = _texture;
 		return this;
 	}

@@ -1,6 +1,6 @@
 package render.core;
 
-import image.Texture;
+import image.SquareTexture;
 
 /**
  * Represents a 1x1 space in a world map. Can be either a full block or a custom "sector" containing custom Walls.
@@ -8,14 +8,14 @@ import image.Texture;
  * @author Joe Desmond
  */
 public class Block {
-	public static final Texture DEFAULT_TEXTURE = new Texture("assets/textures/default32.png",32,32);
+	public static final SquareTexture DEFAULT_TEXTURE = new SquareTexture("assets/textures/default32.png",32);
 	public static final Block SPACE = new Block("space").fakeBlock();
 	
 	public Wall[] walls = null;
 	private boolean solid = true;
 	public String name;
-	public Texture frontTexture = DEFAULT_TEXTURE;
-	public Texture sideTexture = DEFAULT_TEXTURE;
+	public SquareTexture frontTexture = DEFAULT_TEXTURE;
+	public SquareTexture sideTexture = DEFAULT_TEXTURE;
 	
 	public Block(String _name) {
 		name = _name;
@@ -49,21 +49,32 @@ public class Block {
 		return solid;
 	}
 	
+	/**
+	 * Returns true if this block is defined as a collection of Walls instead of a full Block.
+	 * 
+	 * @return true if this Block is Walls
+	 */
 	public boolean isCustom() {
 		return walls != null;
 	}
 	
-	public Block applyFrontTexture(Texture front) {
+	public Block applyFrontTexture(SquareTexture front) {
 		frontTexture = front;
 		return this;
 	}
 	
-	public Block applySideTexture(Texture side) {
+	public Block applySideTexture(SquareTexture side) {
 		sideTexture = side;
 		return this;
 	}
 	
-	public Block applyTexture(Texture texture) {
+	/**
+	 * Applies one texture to all sides of the Block.
+	 * 
+	 * @param texture texture to be applied
+	 * @return this Block, as part of the fluent interface
+	 */
+	public Block applyTexture(SquareTexture texture) {
 		frontTexture = texture;
 		sideTexture = texture;
 		return this;

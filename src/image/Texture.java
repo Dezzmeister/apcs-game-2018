@@ -5,7 +5,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-public class Texture {
+public abstract class Texture {
 	/**
 	 * Some weird purple color
 	 * (242,35,248)
@@ -18,31 +18,12 @@ public class Texture {
 	
 	public int[] pixels;
 	public String path;
-	public final int width;
-	public final int height;
 	
-	/**
-	 * Loads an image at the specified path with the specified width and height as a Texture.
-	 * 
-	 * @param _path relative path of image
-	 * @param _width width of image
-	 * @param _height height of image
-	 */
-	public Texture(String _path, int _width, int _height) {
-		path = _path;
-		width = _width;
-		height = _height;
-		pixels = new int[width * height];
-		load();
+	public Texture() {
+		
 	}
 	
-	public Texture(int[] _pixels, int _width, int _height) {
-		pixels = _pixels;
-		width = _width;
-		height = _height;
-	}
-	
-	private void load() {
+	protected void load() {
 		try {
 			BufferedImage image = ImageIO.read(new File(path));
 			int w = image.getWidth();

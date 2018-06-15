@@ -1,6 +1,6 @@
 package main;
 
-import java.awt.Graphics;
+import java.awt.Container;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
@@ -11,13 +11,14 @@ public class Game extends JFrame implements Runnable {
 	private Raycaster raycaster;
 	private int renderWidth;
 	private int renderHeight;
+	public Container pane;
 	public final AtomicBoolean isRunning = new AtomicBoolean(false);
 	
 	public Game(int resolutionWidth, int resolutionHeight, int _renderWidth, int _renderHeight) {
 		setSize(resolutionWidth,resolutionHeight);
 		renderWidth = _renderWidth;
 		renderHeight = _renderHeight;
-		//TODO: Initialize raycaster
+		pane = getContentPane();
 	}
 	
 	@Override
