@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import image.SquareTexture;
 import render.math.RenderUtils;
@@ -39,6 +40,7 @@ public final class Raycaster {
 	private ThreadPoolExecutor executor;
 	private LatchRef latchref;
 	private double[] wallDistLUT;
+	private AtomicBoolean enabled = new AtomicBoolean(false);
 	
 	public Raycaster(int resWidth, int resHeight, int renderWidth, int renderHeight, Camera _camera, WorldMap _worldMap, int threads) {
 		camera = _camera;
@@ -114,8 +116,10 @@ public final class Raycaster {
 	 * @param graphics
 	 */
 	public void render(Graphics graphics) {
-		updateGraphics(graphics);
-		render();
+		if (enabled.get()) {
+			updateGraphics(graphics);
+			render();
+		}
 	}
 	
 	private void resetZBuffer() {
@@ -131,6 +135,14 @@ public final class Raycaster {
 			int y = i + (HALF_HEIGHT);
 			wallDistLUT[i] = HEIGHT/((2.0 * y) - HEIGHT);
 		}
+	}
+	
+	public void start() {
+		enabled.set(true);
+	}
+	
+	public void stop() {
+		enabled.set(false);
 	}
 	
 	private class ThreadRenderer implements Runnable {
