@@ -13,10 +13,10 @@
 				movement = new BufferedImage[5];
 				
 				movement[1] = self;
-				movement[2] = self;
+				/*movement[2] = self;
 				movement[3] = self;
 				movement[4] = self;
-				movement[5] = self;	
+				movement[5] = self;	*/
 			}
 
 			
