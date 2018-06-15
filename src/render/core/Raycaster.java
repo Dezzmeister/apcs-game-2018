@@ -12,7 +12,7 @@ import render.math.RenderUtils;
 import render.math.Vector2;
 
 /**
- * Uses multiple threads to render an image.
+ * Uses multiple threads to render a map. Uses a Camera holding player data such as position, direction, and FoV.
  *
  * @author Joe Desmond
  */
@@ -278,8 +278,8 @@ public class Raycaster {
 		        
 		        if (drawEnd < 0) drawEnd = HEIGHT;
 		        
-		        SquareTexture floortex = world.floorTexture();
-		        SquareTexture ceilingtex = world.ceilingTexture();
+		        SquareTexture floortex;
+		        SquareTexture ceilingtex;
 		        
 		        for (int y = drawEnd + 1; y < HEIGHT; y++) {
 		        	currentDist = wallDistLUT[y - HALF_HEIGHT];
@@ -288,6 +288,9 @@ public class Raycaster {
 		        	
 		        	double currentFloorX = weight * floorXWall + (1.0 - weight) * pos.x;
 		        	double currentFloorY = weight * floorYWall + (1.0 - weight) * pos.y;
+		        	
+		        	floortex = world.getFloorAt((int)currentFloorX,(int)currentFloorY);
+		        	ceilingtex = world.getCeilingAt((int)currentFloorX, (int)currentFloorY);
 		        	
 		        	int floorTexX;
 		        	int floorTexY;
