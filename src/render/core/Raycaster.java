@@ -1,11 +1,14 @@
 package render.core;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+
+import com.dezzy.skorp3.Global;
 
 import image.SquareTexture;
 import render.math.RenderUtils;
@@ -16,7 +19,7 @@ import render.math.Vector2;
  *
  * @author Joe Desmond
  */
-public class Raycaster {
+public final class Raycaster {
 	private int WIDTH, HEIGHT, HALF_HEIGHT;
 	private int actualWidth, actualHeight;
 	private double[] zbuf;
@@ -26,6 +29,7 @@ public class Raycaster {
 	private Vector2 plane;
 	private BufferedImage img;
 	private Graphics2D g2;
+	private Graphics g;
 	private Camera camera;
 	private WorldMap world;
 	
@@ -36,8 +40,6 @@ public class Raycaster {
 	private ThreadRenderer[] renderers;
 	private ThreadPoolExecutor executor;
 	private LatchRef latchref;
-	private Wall perpWall = new Wall();
-	private float[] fisheyeLUT;
 	private double[] wallDistLUT;
 	
 	public Raycaster(int resWidth, int resHeight, int renderWidth, int renderHeight, Camera _camera, WorldMap _worldMap, int threads) {
@@ -48,6 +50,89 @@ public class Raycaster {
 		HEIGHT = renderHeight;
 		actualWidth = resWidth;
 		actualHeight = resHeight;
+		
+		init();
+	}
+	
+	private void init() {
+		resetZBuffer();
+		populateWallDistLUT();
+	}
+	
+	private void preRender() {
+		pos = camera.pos;
+	    dir = camera.dir;
+	    plane = camera.plane;
+	    
+	    g2 = (Graphics2D) g;
+		g2.setBackground(Color.BLACK);
+		g2.clearRect(0, 0, actualWidth, actualHeight);
+		
+		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);	
+	}
+	
+	private void postRender() {
+		resetZBuffer();
+		drawCoordinates();
+	}
+	
+	//TODO: Remove this when we have a proper HUD
+	private void drawCoordinates() {
+		g.setColor(Color.GREEN);
+	    g.drawString("x: "+pos.x,5, 20);
+	    g.drawString("y: "+pos.y,5, 35);
+	}
+	
+	private void finalizeRender() {
+		g2.drawImage(img,  0,  0, actualWidth, actualHeight, null);
+	}
+	
+	/**
+	 * Uses multiple threads to render the scene.
+	 */
+	private void parallelRender() {
+		latchref.update(rendererCount);
+		for (int i = 0; i < renderers.length; i++) {
+			executor.execute(renderers[i]);
+		}
+		
+		try {
+			latchref.latch.await();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void render() {
+		preRender();
+		parallelRender();
+		finalizeRender();
+		postRender();
+	}
+	
+	/**
+	 * Render this Raycaster's WorldMap to a Graphics object.
+	 * 
+	 * @param graphics
+	 */
+	public void render(Graphics graphics) {
+		updateGraphics(graphics);
+		render();
+	}
+	
+	private void resetZBuffer() {
+		for (int i = 0; i < WIDTH; i++) {
+			zbuf[i] = Double.POSITIVE_INFINITY;
+		}
+	}
+	
+	private void populateWallDistLUT() {
+		wallDistLUT = new double[HALF_HEIGHT];
+		wallDistLUT[0] = Double.POSITIVE_INFINITY;
+		for (int i = 1; i < HALF_HEIGHT; i++) {
+			int y = i + (HALF_HEIGHT);
+			wallDistLUT[i] = HEIGHT/((2.0 * y) - HEIGHT);
+		}
 	}
 	
 	private class ThreadRenderer implements Runnable {
@@ -312,19 +397,6 @@ public class Raycaster {
 		}
 	}
 	
-	public void render() {
-		latchref.latch = new CountDownLatch(rendererCount);
-		for (int i = 0; i < renderers.length; i++) {
-			executor.execute(renderers[i]);
-		}
-		
-		try {
-			latchref.latch.await();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private class LatchRef {
 		CountDownLatch latch = new CountDownLatch(0);
 		
@@ -363,7 +435,7 @@ public class Raycaster {
 		renderers[renderers.length-1] = new ThreadRenderer(step,WIDTH,rendererCount-1);
 	}
 	
-	public void render(Graphics g) {
-		
+	public void updateGraphics(Graphics graphics) {
+		g = graphics;
 	}
 }
