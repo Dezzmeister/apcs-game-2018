@@ -2,6 +2,7 @@ package main;
 
 import static render.core.Block.SPACE;
 
+import message_loop.Messenger;
 import render.core.Block;
 import render.core.Camera;
 import render.core.Raycaster;
@@ -35,8 +36,9 @@ public class Main {
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();
-		game.run();
-		//game.startAndRun();
+		//Messenger.post("RENDER_ENABLE");
+		//game.run();
+		game.startAndRun();
 	}
 
 }

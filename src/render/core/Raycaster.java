@@ -48,7 +48,7 @@ public final class Raycaster extends JPanel {
 	private ThreadPoolExecutor executor;
 	private LatchRef latchref;
 	private double[] wallDistLUT;
-	private AtomicBoolean enabled = new AtomicBoolean(true);
+	public AtomicBoolean enabled = new AtomicBoolean(true);
 	private double delta;
 	private Game parentGame;
 	
@@ -161,7 +161,8 @@ public final class Raycaster extends JPanel {
 	}
 	
 	public synchronized void start() {
-		requestFocus();
+		setVisible(true);
+		requestFocusInWindow();
 		enabled.set(true);
 	}
 	
@@ -175,25 +176,6 @@ public final class Raycaster extends JPanel {
 	    	camera.rotateLeft(Math.abs(parentGame.mouse.dx()));
 	    } else if (parentGame.mouse.dx() > 0) {
 	    	camera.rotateRight(parentGame.mouse.dx());
-	    }
-	}
-	
-	private void handleKeyboardInput() {
-		
-		//Movement
-	    float sprintfactor = (float) (delta * ((parentGame.keys[KeyEvent.VK_SHIFT]) ? 2 : 1));
-	    
-	    if (parentGame.keys['W'] || parentGame.keys[KeyEvent.VK_UP]) {
-	    	camera.moveForward(world,sprintfactor);
-	    }
-	    if (parentGame.keys['S'] || parentGame.keys[KeyEvent.VK_DOWN]) {
-	    	camera.moveBackward(world,sprintfactor);
-	    }
-	    if (parentGame.keys['A'] || parentGame.keys[KeyEvent.VK_LEFT]) {
-	    	camera.moveLeft(world,sprintfactor);
-	    }
-	    if (parentGame.keys['D'] || parentGame.keys[KeyEvent.VK_RIGHT]) {
-	    	camera.moveRight(world,sprintfactor);
 	    }
 	}
 	

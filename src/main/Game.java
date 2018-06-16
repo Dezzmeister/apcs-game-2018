@@ -54,6 +54,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public Game setRaycaster(Raycaster _raycaster) {
 		raycaster = _raycaster;
 		pane.add(raycaster, BorderLayout.CENTER);
+		setVisible(true);
 		return this;
 	}
 	
@@ -96,12 +97,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			}
 			
 			if (raycaster != null) {
-				raycaster.setDelta(delta);
-				messageLoop();
 				raycaster.repaint();
 			}
 			
-			//repaint();
 			frames++;
 			
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -128,24 +126,6 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	    if (keys['D'] || keys[KeyEvent.VK_RIGHT]) {
 	    	raycaster.camera.moveRight(raycaster.world,sprintfactor);
 	    }
-	}
-	
-	private void messageLoop() {
-		for (String s : Messenger.getMessages()) {
-			
-			switch (s) {
-			case "RENDER_ENABLE":
-				raycaster.start();
-				break;
-			case "RENDER_DISABLE":
-				raycaster.stop();
-				break;
-			}
-		}
-	}
-	
-	private void update() {
-		
 	}
 
 	@Override
