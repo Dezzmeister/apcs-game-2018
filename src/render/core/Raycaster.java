@@ -363,12 +363,12 @@ public final class Raycaster extends JPanel {
 		        
 		        lineHeight = (int)(HEIGHT/perpWallDist);
 		          
-		        drawStart = -(lineHeight >> 1) + HALF_HEIGHT + camera.yOffset;
+		        drawStart = -(lineHeight >> 1) + HALF_HEIGHT;
 		        trueDrawStart = drawStart;
 		        if (drawStart < 0) {
 		        	  drawStart = 0;
 		        }
-		        drawEnd = (lineHeight >> 1) + HALF_HEIGHT + camera.yOffset;
+		        drawEnd = (lineHeight >> 1) + HALF_HEIGHT;
 		        if (drawEnd >= HEIGHT) {
 		        	  drawEnd = HEIGHT -1;
 		        }

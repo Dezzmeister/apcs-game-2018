@@ -154,18 +154,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		if (e.getKeyCode() < 256) {
 			keys[e.getKeyCode()] = false;
 		}
+		
 		if (e.getKeyChar() == 'p') {
-			Rectangle screen = getBounds();
-			Date date = new Date();
-			String dateString = SCREENSHOT_DATE_FORMAT.format(date);
-			File file = new File("screenshots/screenshot-"+dateString+".png");
-			try {
-				BufferedImage image = new Robot().createScreenCapture(screen);
-				ImageIO.write(image, "png", file);
-				System.out.println("Screenshot saved as screenshots/screenshot-"+dateString+".");
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
+			saveScreenShot();
 		}
 	}
 
@@ -181,5 +172,28 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		SwingUtilities.convertPointFromScreen(p, pane);
 		mouse.x((int) p.x);
 		mouse.y((int) p.y);		
+	}
+	
+	public void saveScreenShot() {
+		Rectangle screen = getBounds();
+		Date date = new Date();
+		String dateString = SCREENSHOT_DATE_FORMAT.format(date);
+		String fileName = "screenshots/screenshot-"+dateString+".png";
+		File file = new File(fileName);
+		
+		int copyIndex = 0;
+		while (file.exists()) {
+			fileName = "screenshots/screenshot-"+dateString+"("+copyIndex+")"+".png";
+			file = new File(fileName);
+			copyIndex++;
+		}
+		
+		try {
+			BufferedImage image = new Robot().createScreenCapture(screen);
+			ImageIO.write(image, "png", file);
+			System.out.println("Screenshot saved as "+fileName);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 	}
 }

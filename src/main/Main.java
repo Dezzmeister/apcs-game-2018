@@ -58,20 +58,20 @@ public class Main {
 		SquareTexture[][] ceilMap = {
 				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
 				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
-				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
+				{DEFAULT_CEILING,DEFAULT_CEILING,michael,michael,DEFAULT_CEILING,DEFAULT_CEILING},
 				{DEFAULT_CEILING,DEFAULT_CEILING,michael,michael,DEFAULT_CEILING,DEFAULT_CEILING},
 				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
 				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING}
 		};
 		
 		WorldMap world = new WorldMap(worldArray,floorMap,ceilMap).setBorder(block);
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();
 		//Messenger.post("RENDER_ENABLE");
 		//game.run();
-		game.startAndRun();
+		Thread gameThread = game.startAndRun();
 	}
 
 }
