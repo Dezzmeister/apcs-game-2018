@@ -3,6 +3,7 @@ package render.core;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -10,6 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import image.SquareTexture;
+import main.Game;
 import render.math.RenderUtils;
 import render.math.Vector2;
 
@@ -41,8 +43,11 @@ public final class Raycaster {
 	private LatchRef latchref;
 	private double[] wallDistLUT;
 	private AtomicBoolean enabled = new AtomicBoolean(false);
+	private double delta;
+	private Game parentGame;
 	
-	public Raycaster(int resWidth, int resHeight, int renderWidth, int renderHeight, Camera _camera, WorldMap _worldMap, int threads) {
+	public Raycaster(Game _parentGame, Camera _camera, WorldMap _worldMap, int resWidth, int resHeight, int renderWidth, int renderHeight, int threads) {
+		parentGame = _parentGame;
 		camera = _camera;
 		world = _worldMap;
 		rendererCount = threads;
@@ -55,6 +60,9 @@ public final class Raycaster {
 	}
 	
 	private void init() {
+		zbuf = new double[WIDTH];
+		HALF_HEIGHT = HEIGHT/2;
+		
 		resetZBuffer();
 		populateWallDistLUT();
 	}
@@ -68,7 +76,10 @@ public final class Raycaster {
 		g2.setBackground(Color.BLACK);
 		g2.clearRect(0, 0, actualWidth, actualHeight);
 		
-		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);	
+		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		
+		handleMouseInput();
+		handleKeyboardInput();
 	}
 	
 	private void postRender() {
@@ -103,7 +114,7 @@ public final class Raycaster {
 		}
 	}
 	
-	public void render() {
+	private void render() {
 		preRender();
 		parallelRender();
 		finalizeRender();
@@ -115,8 +126,9 @@ public final class Raycaster {
 	 * 
 	 * @param graphics
 	 */
-	public void render(Graphics graphics) {
+	public void render(double _delta, Graphics graphics) {
 		if (enabled.get()) {
+			setDelta(_delta);
 			updateGraphics(graphics);
 			render();
 		}
@@ -143,6 +155,42 @@ public final class Raycaster {
 	
 	public void stop() {
 		enabled.set(false);
+	}
+	
+	private void handleMouseInput() {
+	    if (parentGame.mouse.dx() < 0) {
+	    	camera.rotateLeft(Math.abs(parentGame.mouse.dx()));
+	    } else if (parentGame.mouse.dx() > 0) {
+	    	camera.rotateRight(parentGame.mouse.dx());
+	    }
+	}
+	
+	private void handleKeyboardInput() {
+		
+		//Movement
+	    float sprintfactor = (float) (delta * ((parentGame.keys[KeyEvent.VK_SHIFT]) ? 2 : 1));
+	    
+	    if (parentGame.keys['W'] || parentGame.keys[KeyEvent.VK_UP]) {
+	    	camera.moveForward(world,sprintfactor);
+	    }
+	    if (parentGame.keys['S'] || parentGame.keys[KeyEvent.VK_DOWN]) {
+	    	camera.moveBackward(world,sprintfactor);
+	    }
+	    if (parentGame.keys['A'] || parentGame.keys[KeyEvent.VK_LEFT]) {
+	    	camera.moveLeft(world,sprintfactor);
+	    }
+	    if (parentGame.keys['D'] || parentGame.keys[KeyEvent.VK_RIGHT]) {
+	    	camera.moveRight(world,sprintfactor);
+	    }
+	}
+	
+	/**
+	 * Set the number used to synchronize game speed to constant real time.
+	 * 
+	 * @param _delta
+	 */
+	public void setDelta(double _delta) {
+		delta = _delta;
 	}
 	
 	private class ThreadRenderer implements Runnable {

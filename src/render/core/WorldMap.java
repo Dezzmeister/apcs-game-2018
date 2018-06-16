@@ -27,6 +27,24 @@ public class WorldMap {
 		ceilMap = _ceilMap;
 	}
 	
+	/**
+	 * Replaces all border Blocks with <code>block</code>.
+	 * @param block Block to set border to
+	 */
+	public WorldMap setBorder(Block block) {
+		for (int col = 0; col < blocks[0].length; col++) {
+			blocks[0][col] = block;
+			blocks[blocks.length-1][col] = block;
+		}
+		
+		for (int row = 0; row < blocks.length; row++) {
+			blocks[row][0] = block;
+			blocks[row][blocks[0].length-1] = block;
+		}
+		
+		return this;
+	}
+	
 	public Block getBlockAt(int x, int y) {
 		return blocks[y][x];
 	}

@@ -9,9 +9,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 
+import message_loop.Messenger;
 import render.core.Raycaster;
 
+/**
+ * Represents a Game object. Has a Raycaster, mouse data, and keyboard data.
+ *
+ * @author Joe Desmond
+ */
 public class Game extends JFrame implements Runnable, MouseMotionListener, KeyListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -16764364630071584L;
 	private Raycaster raycaster;
 	public Container pane;
 	public final AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -24,21 +34,30 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	}
 	
 	public Game(int resolutionWidth, int resolutionHeight) {
+		pack();
 		setSize(resolutionWidth,resolutionHeight);
+		setVisible(true);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
 		pane = getContentPane();
 		mouse = new MouseRobot(resolutionWidth, resolutionHeight, pane);
-	}
-	
-	public Game(int resolutionWidth, int resolutionHeight, Raycaster _raycaster) {
-		setSize(resolutionWidth,resolutionHeight);
-		pane = getContentPane();
-		mouse = new MouseRobot(resolutionWidth, resolutionHeight, pane);
-		raycaster = _raycaster;
 	}
 	
 	public Game setRaycaster(Raycaster _raycaster) {
 		raycaster = _raycaster;
 		return this;
+	}
+	
+	/**
+	 * Creates a new Thread and starts this Game on it.
+	 * 
+	 * @return the Thread running this Game
+	 */
+	public Thread startAndRun() {
+		Thread gameThread = new Thread(this,"Coffee Bean Game Thread");
+		gameThread.start();
+		
+		return gameThread;
 	}
 	
 	@Override
@@ -50,15 +69,22 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		double delta = 0;
 		long timer = System.currentTimeMillis();
 		int frames = 0;
+		isRunning.set(true);
 		
 		while (isRunning.get()) {
 			long now = System.nanoTime();
 			delta += (now - last) / ns;
 			last = now;
+			System.out.println(Thread.currentThread().getName());
 			
 			while (delta >= 1) {
 				update();
 				delta--;
+			}
+			
+			if (raycaster != null) {
+				raycaster.setDelta(delta);
+				messageLoop();
 			}
 			repaint();
 			frames++;
@@ -66,6 +92,20 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				frames = 0;
+			}
+		}
+	}
+	
+	private void messageLoop() {
+		for (String s : Messenger.getMessages()) {
+			
+			switch (s) {
+			case "RENDER_ENABLE":
+				raycaster.start();
+				break;
+			case "RENDER_DISABLE":
+				raycaster.stop();
+				break;
 			}
 		}
 	}

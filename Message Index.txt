@@ -1,0 +1,2 @@
+RENDER_ENABLE: The raycaster will start rendering to the main JFrame, and the mouse will be locked to the center of the screen.
+RENDER_DISABLE: The raycaster will stop rendering and the mouse will be unlocked.
