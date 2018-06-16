@@ -410,9 +410,19 @@ public final class Raycaster extends JPanel {
 		        	floorTexX = (int)(currentFloorX * floortex.SIZE) % floortex.SIZE;
 		        	floorTexY = (int)(currentFloorY * floortex.SIZE) % floortex.SIZE;
 		        	
+		        	int ceilTexX;
+		        	int ceilTexY;
+		        	if (floortex.SIZE == ceilingtex.SIZE) {
+		        		ceilTexX = floorTexX;
+		        		ceilTexY = floorTexY;
+		        	} else {
+		        		ceilTexX = (int)(currentFloorX * ceilingtex.SIZE) % ceilingtex.SIZE;
+			        	ceilTexY = (int)(currentFloorY * ceilingtex.SIZE) % ceilingtex.SIZE;
+		        	}
+		        	
 		        	int color = (floortex.pixels[floortex.SIZE * floorTexY + floorTexX]);
 		        	//int color = 0xFF323232;
-		        	int ceilColor = (ceilingtex.pixels[ceilingtex.SIZE * floorTexY + floorTexX]);
+		        	int ceilColor = (ceilingtex.pixels[ceilingtex.SIZE * ceilTexY + ceilTexX]);
 		        	//int ceilColor = 0xFF505050;
 		        	float normValue = (float) (currentDist/FULL_FOG_DISTANCE);
 					color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
@@ -444,7 +454,7 @@ public final class Raycaster extends JPanel {
 	        	texY = ((((y << 1) - HEIGHT + lineHeight) * block.frontTexture.SIZE)/lineHeight) >> 1;
 	        
 	        	int color;
-	        	if ((customHit != null || !side) && (texX + (texY * block.frontTexture.SIZE)) < block.frontTexture.pixels.length && (texX + (texY * block.frontTexture.SIZE)) >= 0) {
+	        	if (!side && (texX + (texY * block.frontTexture.SIZE)) < block.frontTexture.pixels.length && (texX + (texY * block.frontTexture.SIZE)) >= 0) {
 	        		color = block.frontTexture.pixels[(int) (texX + (texY * block.frontTexture.SIZE))];
 	        	} else if ((texX + (texY * block.sideTexture.SIZE)) < block.sideTexture.pixels.length && (texX + (texY * block.sideTexture.SIZE)) >= 0){
 	        		color = (block.sideTexture.pixels[(int) (texX + (texY * block.sideTexture.SIZE))]);

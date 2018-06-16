@@ -1,6 +1,7 @@
 package main;
 
 import static render.core.Block.SPACE;
+import static render.core.WorldMap.DEFAULT_CEILING;
 
 import image.GeneralTexture;
 import image.SquareTexture;
@@ -24,7 +25,9 @@ public class Main {
 			      .setPlane(new Vector2(0,0.5f));
 		
 		GeneralTexture customTexture = new GeneralTexture("assets/textures/sos1024.png",1024,1024);
-		Block block = new Block("test");
+		SquareTexture michael = new SquareTexture("assets/textures/radon411.png",411);
+		
+		Block block = new Block("test").applyTexture(michael);
 		Block custom = new Block("custom test").customize(new Wall(0.25f,0.25f,0.75f,0.25f).setTexture(customTexture).tile(3, 3),
 				   										  new Wall(0.75f,0.25f,0.75f,0.75f).setTexture(customTexture),
 				   										  new Wall(0.75f,0.75f,0.25f,0.75f).setTexture(customTexture),
@@ -52,7 +55,16 @@ public class Main {
 				{gray,gray,gray,blue,gray,gray},
 		};
 		
-		WorldMap world = new WorldMap(worldArray).setFloorMap(floorMap).setBorder(block);
+		SquareTexture[][] ceilMap = {
+				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
+				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
+				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
+				{DEFAULT_CEILING,DEFAULT_CEILING,michael,michael,DEFAULT_CEILING,DEFAULT_CEILING},
+				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING},
+				{DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING,DEFAULT_CEILING}
+		};
+		
+		WorldMap world = new WorldMap(worldArray,floorMap,ceilMap).setBorder(block);
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
 		
 		game.setRaycaster(raycaster);
