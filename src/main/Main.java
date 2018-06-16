@@ -2,6 +2,7 @@ package main;
 
 import static render.core.Block.SPACE;
 
+import image.GeneralTexture;
 import image.SquareTexture;
 import render.core.Block;
 import render.core.Camera;
@@ -22,12 +23,12 @@ public class Main {
 			      .setDir(new Vector2(-0.75f,0))
 			      .setPlane(new Vector2(0,0.5f));
 		
-		SquareTexture customTexture = new SquareTexture("assets/textures/sos1024.png",1024);
+		GeneralTexture customTexture = new GeneralTexture("assets/textures/sos1024.png",1024,1024);
 		Block block = new Block("test");
-		Block custom = new Block("custom test").applyTexture(customTexture).customize(new Wall(0.25f,0.25f,0.75f,0.25f),
-				   										  							  new Wall(0.75f,0.25f,0.75f,0.75f),
-				   										  							  new Wall(0.75f,0.75f,0.25f,0.75f),
-				   										  							  new Wall(0.25f,0.75f,0.25f,0.25f));
+		Block custom = new Block("custom test").customize(new Wall(0.25f,0.25f,0.75f,0.25f).setTexture(customTexture).tile(3, 3),
+				   										  new Wall(0.75f,0.25f,0.75f,0.75f).setTexture(customTexture),
+				   										  new Wall(0.75f,0.75f,0.25f,0.75f).setTexture(customTexture),
+				   										  new Wall(0.25f,0.75f,0.25f,0.25f).setTexture(customTexture));
 		
 		Block[][] worldArray = {
 				{SPACE,SPACE,SPACE,SPACE,SPACE,SPACE},
@@ -52,7 +53,7 @@ public class Main {
 		};
 		
 		WorldMap world = new WorldMap(worldArray).setFloorMap(floorMap).setBorder(block);
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();

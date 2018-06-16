@@ -104,6 +104,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
+				
 				frames = 0;
 			}
 		}

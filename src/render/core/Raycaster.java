@@ -3,7 +3,6 @@ package render.core;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -12,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
 
+import image.GeneralTexture;
 import image.SquareTexture;
 import main.Game;
 import render.math.RenderUtils;
@@ -91,11 +91,11 @@ public final class Raycaster extends JPanel {
 	
 	private void postRender() {
 		resetZBuffer();
-		drawCoordinates();
+		drawDebugInfo();
 	}
 	
 	//TODO: Remove this when we have a proper HUD
-	private void drawCoordinates() {
+	private void drawDebugInfo() {
 		g.setColor(Color.GREEN);
 	    g.drawString("x: "+pos.x,5, 20);
 	    g.drawString("y: "+pos.y,5, 35);
@@ -205,35 +205,48 @@ public final class Raycaster extends JPanel {
 			latchref.latch.countDown();
 		}
 		
+		private double adjMapX;
+		private double adjMapY;
+		private int adjStepX;
+		private int adjStepY;
+		private boolean side = false;
+		private double xNorm;
+		private double rdirx;
+		private double rdiry;
+		private int mapX;
+		private int mapY;
+		private Vector2 customHit;
+		private int drawStart;
+		private int drawEnd;
+		private int trueDrawStart;
+		private int lineHeight;
+		private double perpWallDist = 0;
+		private Block block;
+		private Wall hitWall;
+		private double wallX;
+		
 		private void render() {
 			for (int x = startX; x < endX; x++) {
-		    	Block element = null;
+		    	block = null;
 		    	
-		    	double camX = 2 * x/(double)WIDTH - 1.0;
+		    	xNorm = 2 * x/(double)WIDTH - 1.0;
 		    	
-		        double rdirx = dir.x + plane.x * camX;
-		        double rdiry = dir.y + plane.y * camX;
+		        rdirx = dir.x + plane.x * xNorm;
+		        rdiry = dir.y + plane.y * xNorm;
 		        
-		        int mapX = (int)pos.x;
-		        int mapY = (int)pos.y;
+		        mapX = (int)pos.x;
+		        mapY = (int)pos.y;
 		        
 		        double sideDistX;
 		        double sideDistY;
 		        
 		        double deltaDistX = Math.sqrt(1 + (rdiry * rdiry)/(rdirx * rdirx));
 		        double deltaDistY = Math.sqrt(1 + (rdirx * rdirx)/(rdiry * rdiry));
-		        double perpWallDist;
 		        
 		        int stepX;
 		        int stepY;
 		        
 		        boolean hit = false;
-		        boolean side = false;
-		        
-		        double adjMapX;
-		        double adjMapY;
-		        int adjStepX;
-		        int adjStepY;
 		        
 		        if (rdirx < 0) {
 		            stepX = -1;
@@ -251,9 +264,9 @@ public final class Raycaster extends JPanel {
 		        	sideDistY = (mapY + 1.0 - pos.y) * deltaDistY;
 		        }
 		        Vector2 currentLoc;
-		        Vector2 customHit = null;
+		        customHit = null;
 		        Vector2 tested = null;
-		        Wall hitWall = null;
+		        hitWall = null;
 		        
 		        dda:  while (!hit) {
 		        	if (sideDistX < sideDistY) {
@@ -265,13 +278,13 @@ public final class Raycaster extends JPanel {
 		        		mapY += stepY;
 		        		side = true;
 		        	}
-		            element = world.getBlockAt(mapX, mapY);
-		        	if (element.isSolid()) {
-		        		if (element.isCustom()) {
+		            block = world.getBlockAt(mapX, mapY);
+		        	if (block.isSolid()) {
+		        		if (block.isCustom()) {
 		        			currentLoc = new Vector2(mapX,mapY);
 		        			Vector2 rayDirection = new Vector2((float)rdirx + pos.x,(float)rdiry + pos.y);
-		        			for (Wall l : element.walls) {
-		        				Wall testing = new Wall(l.v0.add(currentLoc),l.v1.add(currentLoc));
+		        			for (Wall l : block.walls) {
+		        				Wall testing = new Wall(l.v0.add(currentLoc),l.v1.add(currentLoc)).tile(l.xTiles, l.yTiles);
 		        				tested = RenderUtils.rayHitSegment(pos, rayDirection, testing);
 		        				
 		        				if (tested != null) {
@@ -331,60 +344,22 @@ public final class Raycaster extends JPanel {
 		        	
 		        }
 		        */
-		        int lineHeight = (int)(HEIGHT/perpWallDist);
+		        lineHeight = (int)(HEIGHT/perpWallDist);
 		          
-		        int drawStart = -(lineHeight >> 1) + HALF_HEIGHT;
-		        int trueDrawStart = drawStart;
+		        drawStart = -(lineHeight >> 1) + HALF_HEIGHT;
+		        trueDrawStart = drawStart;
 		        if (drawStart < 0) {
 		        	  drawStart = 0;
 		        }
-		        int drawEnd = (lineHeight >> 1) + HALF_HEIGHT;
+		        drawEnd = (lineHeight >> 1) + HALF_HEIGHT;
 		        if (drawEnd >= HEIGHT) {
 		        	  drawEnd = HEIGHT -1;
 		        }
 		        
-		        //Texturing
-		        double wallX;
 		        if (customHit == null) {
-		        	if (side) {
-		        		wallX = (pos.x + ((adjMapY - pos.y + (1 - adjStepY)/2)/rdiry) * rdirx);
-		        	} else {
-		        		wallX = (pos.y + ((adjMapX - pos.x + (1 - adjStepX)/2)/rdirx) * rdiry);
-		        	}
+		        	textureBlock(x);
 		        } else {
-		        	wallX = hitWall.getNorm(customHit);
-		        }
-		        
-		        wallX -= Math.floor(wallX);
-		        
-		        int texX;
-		        
-		        if (customHit == null) {
-		        	texX = (int)(wallX * element.frontTexture.SIZE);
-		        } else {
-		        	//TODO change to wall texture
-		        	texX = (int)(element.frontTexture.SIZE * wallX);
-		        }
-		        if((!side && rdirx > 0) || (side && rdiry < 0)) texX = element.frontTexture.SIZE - texX - 1;
-		        
-		        for (int y = drawStart; y < drawEnd; y++) {
-		        	int texY;
-		        	if (customHit == null) {
-		        		texY = ((((y << 1) - HEIGHT + lineHeight) * element.frontTexture.SIZE)/lineHeight) >> 1;
-		        	} else {
-		        		texY = (int) (((y - trueDrawStart)/(float)lineHeight) * element.frontTexture.SIZE);
-		        	}
-		        	int color;
-		        	if ((customHit != null || !side) && (texX + (texY * element.frontTexture.SIZE)) < element.frontTexture.pixels.length && (texX + (texY * element.frontTexture.SIZE)) >= 0) {
-		        		color = element.frontTexture.pixels[(int) (texX + (texY * element.frontTexture.SIZE))];
-		        	} else if ((texX + (texY * element.sideTexture.SIZE)) < element.sideTexture.pixels.length && (texX + (texY * element.sideTexture.SIZE)) >= 0){
-		        		color = (element.sideTexture.pixels[(int) (texX + (texY * element.sideTexture.SIZE))]);
-		        	} else {
-		        		color = 0;
-		        	}
-		        	float normValue = (float) (perpWallDist/FULL_FOG_DISTANCE);
-					color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
-		        	img.setRGB(x, y, color);
+		        	textureCustomBlock(x);
 		        }
 		        //img.setRGB(x, drawStart, 0xFFFF0000);
 		        //img.setRGB(x, drawEnd, 0xFFFF0000);
@@ -447,6 +422,98 @@ public final class Raycaster extends JPanel {
 		        }
 		        		        
 		    }
+		}
+		
+		private void textureBlock(int x) {
+	        if (side) {
+	        	wallX = (pos.x + ((adjMapY - pos.y + (1 - adjStepY)/2)/rdiry) * rdirx);
+	        } else {
+	        	wallX = (pos.y + ((adjMapX - pos.x + (1 - adjStepX)/2)/rdirx) * rdiry);
+	        }
+	        
+	        wallX -= Math.floor(wallX);
+	        
+	        int texX;
+	        
+	        texX = (int)(wallX * block.frontTexture.SIZE);
+	        if((!side && rdirx > 0) || (side && rdiry < 0)) texX = block.frontTexture.SIZE - texX - 1;
+	        
+	        for (int y = drawStart; y < drawEnd; y++) {
+	        	int texY;
+	        	
+	        	texY = ((((y << 1) - HEIGHT + lineHeight) * block.frontTexture.SIZE)/lineHeight) >> 1;
+	        
+	        	int color;
+	        	if ((customHit != null || !side) && (texX + (texY * block.frontTexture.SIZE)) < block.frontTexture.pixels.length && (texX + (texY * block.frontTexture.SIZE)) >= 0) {
+	        		color = block.frontTexture.pixels[(int) (texX + (texY * block.frontTexture.SIZE))];
+	        	} else if ((texX + (texY * block.sideTexture.SIZE)) < block.sideTexture.pixels.length && (texX + (texY * block.sideTexture.SIZE)) >= 0){
+	        		color = (block.sideTexture.pixels[(int) (texX + (texY * block.sideTexture.SIZE))]);
+	        	} else {
+	        		color = 0;
+	        	}
+	        	float normValue = (float) (perpWallDist/FULL_FOG_DISTANCE);
+				color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
+	        	img.setRGB(x, y, color);
+	        }
+		}
+		
+		private void textureCustomBlock(int x) {
+	        wallX = hitWall.getNorm(customHit);
+	        
+	        wallX -= Math.floor(wallX);
+	        
+	        int texX;
+	        GeneralTexture texture = hitWall.texture;
+	        
+	        texX = (int)((texture.width * wallX) * hitWall.xTiles) % texture.width;
+	        
+	        for (int y = drawStart; y < drawEnd; y++) {
+	        	int texY;
+	        	texY = (int) ((((y - trueDrawStart)/(float)lineHeight) * texture.height) * hitWall.yTiles) % texture.height;
+	        	
+	        	int color = 0;
+	        	
+	        	int index = (texX + texY * texture.width);
+	        	
+	        	if (index >= 0 && index < texture.pixels.length) {
+	        		color = texture.pixels[index];
+	        	}
+	        	
+	        	float normValue = (float) (perpWallDist/FULL_FOG_DISTANCE);
+				color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
+	        	img.setRGB(x, y, color);
+	        }
+		}
+		
+		@Deprecated
+		private void oldTextureCustomBlock(int x) {
+	        wallX = hitWall.getNorm(customHit);
+	        
+	        wallX -= Math.floor(wallX);
+	        
+	        int texX;
+	        
+	        //TODO change to wall texture
+	        texX = (int)(block.frontTexture.SIZE * wallX);
+	        
+	        if((!side && rdirx > 0) || (side && rdiry < 0)) texX = block.frontTexture.SIZE - texX - 1;
+	        
+	        for (int y = drawStart; y < drawEnd; y++) {
+	        	int texY;
+	        	texY = (int) (((y - trueDrawStart)/(float)lineHeight) * block.frontTexture.SIZE);
+	        	
+	        	int color;
+	        	if ((customHit != null || !side) && (texX + (texY * block.frontTexture.SIZE)) < block.frontTexture.pixels.length && (texX + (texY * block.frontTexture.SIZE)) >= 0) {
+	        		color = block.frontTexture.pixels[(int) (texX + (texY * block.frontTexture.SIZE))];
+	        	} else if ((texX + (texY * block.sideTexture.SIZE)) < block.sideTexture.pixels.length && (texX + (texY * block.sideTexture.SIZE)) >= 0){
+	        		color = (block.sideTexture.pixels[(int) (texX + (texY * block.sideTexture.SIZE))]);
+	        	} else {
+	        		color = 0;
+	        	}
+	        	float normValue = (float) (perpWallDist/FULL_FOG_DISTANCE);
+				color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
+	        	img.setRGB(x, y, color);
+	        }
 		}
 	}
 	
