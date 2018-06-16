@@ -28,7 +28,7 @@ public class Main {
 		SquareTexture michael = new SquareTexture("assets/textures/radon411.png",411);
 		
 		Block block = new Block("test").applyTexture(michael);
-		Block custom = new Block("custom test").customize(new Wall(0.25f,0.25f,0.75f,0.25f).setTexture(customTexture).tile(3, 3),
+		Block custom = new Block("custom test").customize(new Wall(0.25f,0.25f,0.75f,0.25f).setTexture(michael.asGeneralTexture()).tile(2, 4),
 				   										  new Wall(0.75f,0.25f,0.75f,0.75f).setTexture(customTexture),
 				   										  new Wall(0.75f,0.75f,0.25f,0.75f).setTexture(customTexture),
 				   										  new Wall(0.25f,0.75f,0.25f,0.25f).setTexture(customTexture));

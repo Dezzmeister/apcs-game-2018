@@ -4,18 +4,24 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import message_loop.Messenger;
 import render.core.Raycaster;
 
 /**
@@ -35,6 +41,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public final AtomicBoolean isRunning = new AtomicBoolean(false);
 	public final boolean[] keys = new boolean[256];
 	public final MouseRobot mouse;
+	private static final DateFormat SCREENSHOT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	
 	{
 		addMouseMotionListener(this);
@@ -146,6 +153,19 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() < 256) {
 			keys[e.getKeyCode()] = false;
+		}
+		if (e.getKeyChar() == 'p') {
+			Rectangle screen = getBounds();
+			Date date = new Date();
+			String dateString = SCREENSHOT_DATE_FORMAT.format(date);
+			File file = new File("screenshots/screenshot-"+dateString+".png");
+			try {
+				BufferedImage image = new Robot().createScreenCapture(screen);
+				ImageIO.write(image, "png", file);
+				System.out.println("Screenshot saved as screenshots/screenshot-"+dateString+".");
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 

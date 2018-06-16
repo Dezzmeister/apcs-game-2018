@@ -51,7 +51,35 @@ public final class Raycaster extends JPanel {
 	public AtomicBoolean enabled = new AtomicBoolean(true);
 	private double delta;
 	private Game parentGame;
+	private int upDownEnabled = 0;
 	
+	/**
+	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The <code>_parentGame</code> object should be whatever Game will have
+	 * control of this Raycaster.
+	 * <p>
+	 * Raycaster needs a Camera(<code>_camera</code>) and a WorldMap(<code>_worldMap</code>) to render: the Camera holds important player data, and the WorldMap holds
+	 * data about the appearance of the world.
+	 * <p>
+	 * Raycaster also needs to know the resolution of the final image (<code>resWidth</code>,<code>resHeight</code>): i. e., the width and height of the
+	 * window in which this game will be run. This resolution <b>DOES NOT</b> affect rendering speed.
+	 * <p>
+	 * Raycaster needs to know the resolution of the image it will render to(<code>renderWidth</code>,<code>renderHeight</code>). This resolution <b>DOES</b> 
+	 * affect rendering speed; larger images will take more time to render. This image will be scaled to fit the resolution defined
+	 * by <code>resWidth</code> and <code>resHeight</code>, so this resolution should be <b>SMALLER</b> than the final
+	 * resolution.
+	 * <p>
+	 * Raycaster uses multiple threads to render a scene, so it needs to know how many threads it should use.
+	 * Ideally, this number should correspond to the number of logical cores in your CPU.
+	 * 
+	 * @param _parentGame Game object that uses this Raycaster
+	 * @param _camera Camera used by this Raycaster to determine player position, FoV, and direction
+	 * @param _worldMap Initial map to be rendered by this Raycaster
+	 * @param resWidth Width of the final image
+	 * @param resHeight Height of the final image
+	 * @param renderWidth Width of the rendered image
+	 * @param renderHeight Height of the rendered image
+	 * @param threads Threads to be used when rendering
+	 */
 	public Raycaster(Game _parentGame, Camera _camera, WorldMap _worldMap, int resWidth, int resHeight, int renderWidth, int renderHeight, int threads) {
 		parentGame = _parentGame;
 		camera = _camera;
@@ -68,6 +96,7 @@ public final class Raycaster extends JPanel {
 	private void init() {
 		zbuf = new double[WIDTH];
 		HALF_HEIGHT = HEIGHT/2;
+		camera.setVerticalMouselookLimit(HEIGHT/8);
 		
 		resetZBuffer();
 		populateWallDistLUT();
@@ -130,19 +159,16 @@ public final class Raycaster extends JPanel {
 	
 	/**
 	 * Render this Raycaster's WorldMap to a Graphics object.
+	 * <b>DO NOT CALL THIS METHOD, IT IS HANDLED BY REPAINTMANAGER.</b>
 	 * 
 	 * @param graphics
 	 */
-	public void render(Graphics graphics) {
+	@Override
+	public void paintComponent(Graphics graphics) {
 		if (enabled.get()) {
 			updateGraphics(graphics);
 			render();
 		}
-	}
-	
-	@Override
-	public void paintComponent(Graphics g) {
-		render(g);
 	}
 	
 	private void resetZBuffer() {
@@ -177,6 +203,12 @@ public final class Raycaster extends JPanel {
 	    } else if (parentGame.mouse.dx() > 0) {
 	    	camera.rotateRight(parentGame.mouse.dx());
 	    }
+	    
+	    if (parentGame.mouse.dy() < 0) {
+			camera.cheapRotateUp(Math.abs(parentGame.mouse.dy()) & upDownEnabled, HEIGHT);
+		} else if (parentGame.mouse.dy() > 0) {
+			camera.cheapRotateDown(parentGame.mouse.dy() & upDownEnabled, HEIGHT);
+		}
 	}
 	
 	/**
@@ -327,31 +359,16 @@ public final class Raycaster extends JPanel {
 	        		perpWallDist = ((adjMapX - pos.x + (1 - adjStepX)/2))/rdirx;
 	        	} else {
 	        		perpWallDist = ((adjMapY - pos.y + (1 - adjStepY)/2))/rdiry;
-	        	} /*
-		        if (customHit == null) {
-		        	if (!side) {
-		        		perpWallDist = ((mapX - pos.x + (1 - stepX)/2))/rdirx;
-		        	} else {
-		        		perpWallDist = ((mapY - pos.y + (1 - stepY)/2))/rdiry;
-		        	}
-		        } else {
-		        	//perpWallDist = Vector2.distance(pos, customHit);
-		        	if (!side) {
-		        		perpWallDist = ((customHit.x - pos.x + (1 - Math.abs(stepX))/2))/rdirx;
-		        	} else {
-		        		perpWallDist = ((customHit.y - pos.y + (1 - Math.abs(stepY))/2))/rdiry;
-		        	}
-		        	
-		        }
-		        */
+	        	}
+		        
 		        lineHeight = (int)(HEIGHT/perpWallDist);
 		          
-		        drawStart = -(lineHeight >> 1) + HALF_HEIGHT;
+		        drawStart = -(lineHeight >> 1) + HALF_HEIGHT + camera.yOffset;
 		        trueDrawStart = drawStart;
 		        if (drawStart < 0) {
 		        	  drawStart = 0;
 		        }
-		        drawEnd = (lineHeight >> 1) + HALF_HEIGHT;
+		        drawEnd = (lineHeight >> 1) + HALF_HEIGHT + camera.yOffset;
 		        if (drawEnd >= HEIGHT) {
 		        	  drawEnd = HEIGHT -1;
 		        }
@@ -366,70 +383,7 @@ public final class Raycaster extends JPanel {
 		        
 		        zbuf[x] = perpWallDist;
 		        
-		        //Floor casting
-		        double floorXWall;
-		        double floorYWall;
-		        
-		        if (customHit != null) {
-		        	floorXWall = adjMapX;
-		        	floorYWall = adjMapY;
-		        } else if (!side && rdirx > 0) {
-		        	floorXWall = mapX;
-		        	floorYWall = mapY + wallX;
-		        } else if (!side && rdirx < 0) {
-		        	floorXWall = mapX + 1.0;
-		        	floorYWall = mapY + wallX;
-		        } else if(side && rdiry > 0) {
-		        	floorXWall = mapX + wallX;
-		        	floorYWall = mapY;
-		        } else {
-		        	floorXWall = mapX + wallX;
-		        	floorYWall = mapY + 1.0;
-		        }
-		        
-		        double currentDist;
-		        
-		        if (drawEnd < 0) drawEnd = HEIGHT;
-		        
-		        SquareTexture floortex;
-		        SquareTexture ceilingtex;
-		        
-		        for (int y = drawEnd + 1; y < HEIGHT; y++) {
-		        	currentDist = wallDistLUT[y - HALF_HEIGHT];
-		        	
-		        	double weight = (currentDist)/(perpWallDist);
-		        	
-		        	double currentFloorX = weight * floorXWall + (1.0 - weight) * pos.x;
-		        	double currentFloorY = weight * floorYWall + (1.0 - weight) * pos.y;
-		        	
-		        	floortex = world.getFloorAt((int)currentFloorX,(int)currentFloorY);
-		        	ceilingtex = world.getCeilingAt((int)currentFloorX, (int)currentFloorY);
-		        	
-		        	int floorTexX;
-		        	int floorTexY;
-		        	floorTexX = (int)(currentFloorX * floortex.SIZE) % floortex.SIZE;
-		        	floorTexY = (int)(currentFloorY * floortex.SIZE) % floortex.SIZE;
-		        	
-		        	int ceilTexX;
-		        	int ceilTexY;
-		        	if (floortex.SIZE == ceilingtex.SIZE) {
-		        		ceilTexX = floorTexX;
-		        		ceilTexY = floorTexY;
-		        	} else {
-		        		ceilTexX = (int)(currentFloorX * ceilingtex.SIZE) % ceilingtex.SIZE;
-			        	ceilTexY = (int)(currentFloorY * ceilingtex.SIZE) % ceilingtex.SIZE;
-		        	}
-		        	
-		        	int color = (floortex.pixels[floortex.SIZE * floorTexY + floorTexX]);
-		        	//int color = 0xFF323232;
-		        	int ceilColor = (ceilingtex.pixels[ceilingtex.SIZE * ceilTexY + ceilTexX]);
-		        	//int ceilColor = 0xFF505050;
-		        	float normValue = (float) (currentDist/FULL_FOG_DISTANCE);
-					color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
-					ceilColor = RenderUtils.darkenWithThreshold(ceilColor,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
-		        	img.setRGB(x, y, color);
-		        	img.setRGB(x, (HEIGHT - y), ceilColor);
-		        }
+		        textureFloorAndCeiling(x);
 		        		        
 		    }
 		}
@@ -495,34 +449,69 @@ public final class Raycaster extends JPanel {
 	        }
 		}
 		
-		@Deprecated
-		private void oldTextureCustomBlock(int x) {
-	        wallX = hitWall.getNorm(customHit);
+		private void textureFloorAndCeiling(int x) {
+			double floorXWall;
+	        double floorYWall;
 	        
-	        wallX -= Math.floor(wallX);
+	        if (customHit != null) {
+	        	floorXWall = adjMapX;
+	        	floorYWall = adjMapY;
+	        } else if (!side && rdirx > 0) {
+	        	floorXWall = mapX;
+	        	floorYWall = mapY + wallX;
+	        } else if (!side && rdirx < 0) {
+	        	floorXWall = mapX + 1.0;
+	        	floorYWall = mapY + wallX;
+	        } else if(side && rdiry > 0) {
+	        	floorXWall = mapX + wallX;
+	        	floorYWall = mapY;
+	        } else {
+	        	floorXWall = mapX + wallX;
+	        	floorYWall = mapY + 1.0;
+	        }
 	        
-	        int texX;
+	        double currentDist;
 	        
-	        //TODO change to wall texture
-	        texX = (int)(block.frontTexture.SIZE * wallX);
+	        if (drawEnd < 0) drawEnd = HEIGHT;
 	        
-	        if((!side && rdirx > 0) || (side && rdiry < 0)) texX = block.frontTexture.SIZE - texX - 1;
+	        SquareTexture floortex;
+	        SquareTexture ceilingtex;
 	        
-	        for (int y = drawStart; y < drawEnd; y++) {
-	        	int texY;
-	        	texY = (int) (((y - trueDrawStart)/(float)lineHeight) * block.frontTexture.SIZE);
+	        for (int y = drawEnd + 1; y < HEIGHT; y++) {
+	        	currentDist = wallDistLUT[y - HALF_HEIGHT];
 	        	
-	        	int color;
-	        	if ((customHit != null || !side) && (texX + (texY * block.frontTexture.SIZE)) < block.frontTexture.pixels.length && (texX + (texY * block.frontTexture.SIZE)) >= 0) {
-	        		color = block.frontTexture.pixels[(int) (texX + (texY * block.frontTexture.SIZE))];
-	        	} else if ((texX + (texY * block.sideTexture.SIZE)) < block.sideTexture.pixels.length && (texX + (texY * block.sideTexture.SIZE)) >= 0){
-	        		color = (block.sideTexture.pixels[(int) (texX + (texY * block.sideTexture.SIZE))]);
+	        	double weight = (currentDist)/(perpWallDist);
+	        	
+	        	double currentFloorX = weight * floorXWall + (1.0 - weight) * pos.x;
+	        	double currentFloorY = weight * floorYWall + (1.0 - weight) * pos.y;
+	        	
+	        	floortex = world.getFloorAt((int)currentFloorX,(int)currentFloorY);
+	        	ceilingtex = world.getCeilingAt((int)currentFloorX, (int)currentFloorY);
+	        	
+	        	int floorTexX;
+	        	int floorTexY;
+	        	floorTexX = (int)(currentFloorX * floortex.SIZE) % floortex.SIZE;
+	        	floorTexY = (int)(currentFloorY * floortex.SIZE) % floortex.SIZE;
+	        	
+	        	int ceilTexX;
+	        	int ceilTexY;
+	        	if (floortex.SIZE == ceilingtex.SIZE) {
+	        		ceilTexX = floorTexX;
+	        		ceilTexY = floorTexY;
 	        	} else {
-	        		color = 0;
+	        		ceilTexX = (int)(currentFloorX * ceilingtex.SIZE) % ceilingtex.SIZE;
+		        	ceilTexY = (int)(currentFloorY * ceilingtex.SIZE) % ceilingtex.SIZE;
 	        	}
-	        	float normValue = (float) (perpWallDist/FULL_FOG_DISTANCE);
+	        	
+	        	int color = (floortex.pixels[floortex.SIZE * floorTexY + floorTexX]);
+	        	//int color = 0xFF323232;
+	        	int ceilColor = (ceilingtex.pixels[ceilingtex.SIZE * ceilTexY + ceilTexX]);
+	        	//int ceilColor = 0xFF505050;
+	        	float normValue = (float) (currentDist/FULL_FOG_DISTANCE);
 				color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
+				ceilColor = RenderUtils.darkenWithThreshold(ceilColor,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
 	        	img.setRGB(x, y, color);
+	        	img.setRGB(x, (HEIGHT - y), ceilColor);
 	        }
 		}
 	}
@@ -563,6 +552,14 @@ public final class Raycaster extends JPanel {
 		}
 
 		renderers[renderers.length-1] = new ThreadRenderer(step,WIDTH,rendererCount-1);
+	}
+	
+	public void enableVerticalMouselook() {
+		upDownEnabled = 0xFFFFFFFF;
+	}
+	
+	public void disableVerticalMouselook() {
+		upDownEnabled = 0;
 	}
 	
 	public void updateGraphics(Graphics graphics) {

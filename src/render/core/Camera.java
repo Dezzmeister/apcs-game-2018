@@ -3,6 +3,7 @@ package render.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import render.math.RenderUtils;
 import render.math.Vector2;
 
 public class Camera {
@@ -17,6 +18,7 @@ public class Camera {
 	public float fogDistance = 10;
 	
 	public int yOffset = 0;
+	private int upDownLimit;
 	
 	private static final float HALF_PI = (float)Math.PI/2.0f;
 	private static final float TWO_PI = (float)Math.PI*2.0f;
@@ -39,6 +41,15 @@ public class Camera {
 	public Camera setPlane(Vector2 _plane) {
 		plane = _plane;
 		return this;
+	}
+	
+	/**
+	 * Sets the maximum value (in pixels) for vertical mouselook (y-shearing).
+	 * 
+	 * @param limit maximum 
+	 */
+	public void setVerticalMouselookLimit(int limit) {
+		upDownLimit = limit;
 	}
 	
 	public double getRotationSpeed() {
@@ -218,5 +229,19 @@ public class Camera {
 	    if (!map.getBlockAt((int)pos.x,(int)(pos.y - yTimesSpeed)).isSolid()) {
 	    	pos.y -= yTimesSpeed;
 	    }
+	}
+	
+	public void cheapRotateUp(float factor, int height) {
+		float speed = factor * this.rotSpeed;
+		
+		yOffset += (int)(speed * height);
+		yOffset = (int)RenderUtils.clamp(yOffset, -upDownLimit, upDownLimit);
+	}
+	
+	public void cheapRotateDown(float factor, int height) {
+		float speed = factor * this.rotSpeed;
+		
+		yOffset -= (int)(speed * height);
+		yOffset = (int)RenderUtils.clamp(yOffset, -upDownLimit, upDownLimit);
 	}
 }
