@@ -12,7 +12,7 @@ import render.math.Vector2;
  * @author Joe Desmond
  */
 public class Wall {
-	public static final GeneralTexture DEFAULT_TEXTURE = new GeneralTexture("assets/raycast/textures/darkbricks.png",512,512);
+	public static final GeneralTexture DEFAULT_TEXTURE = new GeneralTexture("assets/textures/default32.png",32,32);
 	
 	/**
 	 * One endpoint of this Wall

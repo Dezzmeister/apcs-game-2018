@@ -161,8 +161,8 @@ public final class Raycaster extends JPanel {
 	}
 	
 	public synchronized void start() {
-		setVisible(true);
-		requestFocusInWindow();
+		//setVisible(true);
+		//requestFocusInWindow();
 		enabled.set(true);
 	}
 	

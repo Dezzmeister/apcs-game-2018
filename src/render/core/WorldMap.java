@@ -30,6 +30,16 @@ public class WorldMap {
 		ceilMap = _ceilMap;
 	}
 	
+	public WorldMap setFloorMap(SquareTexture[][] _floorMap) {
+		floorMap = _floorMap;
+		return this;
+	}
+	
+	public WorldMap setCeilingMap(SquareTexture[][] _ceilMap) {
+		ceilMap = _ceilMap;
+		return this;
+	}
+	
 	/**
 	 * Replaces all border Blocks with <code>block</code>.
 	 * @param block Block to set border to
