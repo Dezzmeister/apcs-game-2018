@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.JPanel;
+
 import image.SquareTexture;
 import main.Game;
 import render.math.RenderUtils;
@@ -20,7 +22,11 @@ import render.math.Vector2;
  *
  * @author Joe Desmond
  */
-public final class Raycaster {
+public final class Raycaster extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7071993726323961319L;
 	private int WIDTH, HEIGHT, HALF_HEIGHT;
 	private int actualWidth, actualHeight;
 	private double[] zbuf;
@@ -31,8 +37,8 @@ public final class Raycaster {
 	private BufferedImage img;
 	private Graphics2D g2;
 	private Graphics g;
-	private Camera camera;
-	private WorldMap world;
+	public Camera camera;
+	public WorldMap world;
 	
 	public static final float FULL_FOG_DISTANCE = 5f;
 	public static final int SHADE_THRESHOLD = 100;
@@ -42,7 +48,7 @@ public final class Raycaster {
 	private ThreadPoolExecutor executor;
 	private LatchRef latchref;
 	private double[] wallDistLUT;
-	private AtomicBoolean enabled = new AtomicBoolean(false);
+	private AtomicBoolean enabled = new AtomicBoolean(true);
 	private double delta;
 	private Game parentGame;
 	
@@ -65,6 +71,7 @@ public final class Raycaster {
 		
 		resetZBuffer();
 		populateWallDistLUT();
+		createThreadPoolRenderers();
 	}
 	
 	private void preRender() {
@@ -79,7 +86,7 @@ public final class Raycaster {
 		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		
 		handleMouseInput();
-		handleKeyboardInput();
+		//handleKeyboardInput();
 	}
 	
 	private void postRender() {
@@ -126,12 +133,16 @@ public final class Raycaster {
 	 * 
 	 * @param graphics
 	 */
-	public void render(double _delta, Graphics graphics) {
+	public void render(Graphics graphics) {
 		if (enabled.get()) {
-			setDelta(_delta);
 			updateGraphics(graphics);
 			render();
 		}
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) {
+		render(g);
 	}
 	
 	private void resetZBuffer() {
@@ -149,15 +160,17 @@ public final class Raycaster {
 		}
 	}
 	
-	public void start() {
+	public synchronized void start() {
+		requestFocus();
 		enabled.set(true);
 	}
 	
-	public void stop() {
+	public synchronized void stop() {
 		enabled.set(false);
 	}
 	
 	private void handleMouseInput() {
+		//System.out.println(parentGame.mouse.dx());
 	    if (parentGame.mouse.dx() < 0) {
 	    	camera.rotateLeft(Math.abs(parentGame.mouse.dx()));
 	    } else if (parentGame.mouse.dx() > 0) {

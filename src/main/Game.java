@@ -1,13 +1,19 @@
 package main;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import message_loop.Messenger;
 import render.core.Raycaster;
@@ -22,6 +28,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	 * 
 	 */
 	private static final long serialVersionUID = -16764364630071584L;
+	public static final BufferedImage cursorImg = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
+	public static final Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0,0), "blank cursor");
 	private Raycaster raycaster;
 	public Container pane;
 	public final AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -45,6 +53,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	
 	public Game setRaycaster(Raycaster _raycaster) {
 		raycaster = _raycaster;
+		pane.add(raycaster, BorderLayout.CENTER);
 		return this;
 	}
 	
@@ -58,6 +67,11 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		gameThread.start();
 		
 		return gameThread;
+	}
+	
+	public Game noCursor() {
+		pane.setCursor(blankCursor);
+		return this;
 	}
 	
 	@Override
@@ -75,18 +89,19 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			long now = System.nanoTime();
 			delta += (now - last) / ns;
 			last = now;
-			System.out.println(Thread.currentThread().getName());
 			
 			while (delta >= 1) {
-				update();
+				handleKeyboardInput(delta);
 				delta--;
 			}
 			
 			if (raycaster != null) {
 				raycaster.setDelta(delta);
 				messageLoop();
+				raycaster.repaint();
 			}
-			repaint();
+			
+			//repaint();
 			frames++;
 			
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -94,6 +109,25 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				frames = 0;
 			}
 		}
+	}
+	
+	private void handleKeyboardInput(double delta) {
+		
+		//Movement
+	    float sprintfactor = (float) (delta * ((keys[KeyEvent.VK_SHIFT]) ? 2 : 1));
+	    
+	    if (keys['W'] || keys[KeyEvent.VK_UP]) {
+	    	raycaster.camera.moveForward(raycaster.world,sprintfactor);
+	    }
+	    if (keys['S'] || keys[KeyEvent.VK_DOWN]) {
+	    	raycaster.camera.moveBackward(raycaster.world,sprintfactor);
+	    }
+	    if (keys['A'] || keys[KeyEvent.VK_LEFT]) {
+	    	raycaster.camera.moveLeft(raycaster.world,sprintfactor);
+	    }
+	    if (keys['D'] || keys[KeyEvent.VK_RIGHT]) {
+	    	raycaster.camera.moveRight(raycaster.world,sprintfactor);
+	    }
 	}
 	
 	private void messageLoop() {
@@ -142,7 +176,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		mouse.x((int) e.getX());
-		mouse.y((int) e.getY());		
+		Point p = new Point((int)e.getX(),(int)e.getY());
+		SwingUtilities.convertPointFromScreen(p, pane);
+		mouse.x((int) p.x);
+		mouse.y((int) p.y);		
 	}
 }

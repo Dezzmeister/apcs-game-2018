@@ -16,7 +16,7 @@ public class Messenger {
 	 * @param String s The message to be appended
 	 * @retun Nothing
 	 */
-	public static void addMessage(String s){
+	public static void post(String s){
 		m.add(s);
 	}
 	/**

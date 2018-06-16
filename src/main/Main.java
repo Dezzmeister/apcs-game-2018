@@ -14,7 +14,7 @@ public class Main {
 		int width = 1000;
 		int height = 1000;
 		
-		Game game = new Game(width,height);
+		Game game = new Game(width,height).noCursor();
 		Camera camera = new Camera()
 			      .setPos(new Vector2(2,2))
 			      .setDir(new Vector2(-0.75f,0))
@@ -31,11 +31,12 @@ public class Main {
 		};
 		
 		WorldMap world = new WorldMap(worldArray).setBorder(block);
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 1000, 1000, 4);
 		
 		game.setRaycaster(raycaster);
-		
-		game.startAndRun();
+		raycaster.start();
+		game.run();
+		//game.startAndRun();
 	}
 
 }

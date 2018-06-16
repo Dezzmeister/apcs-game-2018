@@ -19,6 +19,9 @@ public class WorldMap {
 		blocks = _blocks;
 		floorMap = new SquareTexture[blocks.length][blocks[0].length];
 		ceilMap = new SquareTexture[blocks.length][blocks[0].length];
+		
+		initDefaultFloorMap();
+		initDefaultCeilingMap();
 	}
 	
 	public WorldMap(Block[][] _blocks, SquareTexture[][] _floorMap, SquareTexture[][] _ceilMap) {
@@ -43,6 +46,22 @@ public class WorldMap {
 		}
 		
 		return this;
+	}
+	
+	private void initDefaultFloorMap() {
+		for (int row = 0; row < floorMap.length; row++) {
+			for (int col = 0; col < floorMap[row].length; col++) {
+				floorMap[row][col] = DEFAULT_FLOOR;
+			}
+		}
+	}
+	
+	private void initDefaultCeilingMap() {
+		for (int row = 0; row < ceilMap.length; row++) {
+			for (int col = 0; col < ceilMap[row].length; col++) {
+				ceilMap[row][col] = DEFAULT_CEILING;
+			}
+		}
 	}
 	
 	public Block getBlockAt(int x, int y) {
