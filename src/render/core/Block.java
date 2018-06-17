@@ -16,6 +16,10 @@ public class Block {
 	public String name;
 	public SquareTexture frontTexture = DEFAULT_TEXTURE;
 	public SquareTexture sideTexture = DEFAULT_TEXTURE;
+	public float frontXTiles = 1;
+	public float frontYTiles = 1;
+	public float sideXTiles = 1;
+	public float sideYTiles = 1;
 	
 	public Block(String _name) {
 		name = _name;
@@ -58,6 +62,20 @@ public class Block {
 		return walls != null;
 	}
 	
+	public Block tileFront(float _xTiles, float _yTiles) {
+		frontXTiles = _xTiles;
+		frontYTiles = _yTiles;
+		
+		return this;
+	}
+	
+	public Block tileSide(float _xTiles, float _yTiles) {
+		sideXTiles = _xTiles;
+		sideYTiles = _yTiles;
+		
+		return this;
+	}
+	
 	public Block applyFrontTexture(SquareTexture front) {
 		frontTexture = front;
 		return this;
@@ -78,5 +96,9 @@ public class Block {
 		frontTexture = texture;
 		sideTexture = texture;
 		return this;
+	}
+	
+	public static class CubicleWalls {
+		
 	}
 }

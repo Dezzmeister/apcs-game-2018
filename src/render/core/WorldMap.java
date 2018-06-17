@@ -78,6 +78,12 @@ public class WorldMap {
 		return blocks[y][x];
 	}
 	
+	public Block setBlockAt(int x, int y, Block block) {
+		Block old = blocks[x][y];
+		blocks[x][y] = block;
+		return old;
+	}
+	
 	public SquareTexture getFloorAt(int x, int y) {
 		return floorMap[x][y];
 	}

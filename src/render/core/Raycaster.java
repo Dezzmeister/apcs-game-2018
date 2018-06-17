@@ -311,7 +311,7 @@ public final class Raycaster extends JPanel {
 		        		side = true;
 		        	}
 		            block = world.getBlockAt(mapX, mapY);
-		        	if (block.isSolid()) {
+		        	if (block != Block.SPACE) {
 		        		if (block.isCustom()) {
 		        			currentLoc = new Vector2(mapX,mapY);
 		        			Vector2 rayDirection = new Vector2((float)rdirx + pos.x,(float)rdiry + pos.y);
@@ -400,12 +400,25 @@ public final class Raycaster extends JPanel {
 	        int texX;
 	        
 	        texX = (int)(wallX * block.frontTexture.SIZE);
+	        
+	        if (side) {
+	        	texX = (int) ((texX * block.sideXTiles) % block.sideTexture.SIZE);
+	        } else {
+	        	texX = (int) ((texX * block.frontXTiles) % block.frontTexture.SIZE);
+	        }
+	        
 	        if((!side && rdirx > 0) || (side && rdiry < 0)) texX = block.frontTexture.SIZE - texX - 1;
 	        
 	        for (int y = drawStart; y < drawEnd; y++) {
 	        	int texY;
 	        	
 	        	texY = ((((y << 1) - HEIGHT + lineHeight) * block.frontTexture.SIZE)/lineHeight) >> 1;
+	        	
+	        	if (side) {
+		        	texY = (int) ((texY * block.sideYTiles) % block.sideTexture.SIZE);
+		        } else {
+		        	texY = (int) ((texY * block.frontYTiles) % block.frontTexture.SIZE);
+		        }
 	        
 	        	int color;
 	        	if (!side && (texX + (texY * block.frontTexture.SIZE)) < block.frontTexture.pixels.length && (texX + (texY * block.frontTexture.SIZE)) >= 0) {
@@ -429,7 +442,7 @@ public final class Raycaster extends JPanel {
 	        int texX;
 	        GeneralTexture texture = hitWall.texture;
 	        
-	        texX = (int)((texture.width * wallX) * hitWall.xTiles) % texture.width;
+	        texX = (int)(texture.width * wallX * hitWall.xTiles) % texture.width;
 	        
 	        for (int y = drawStart; y < drawEnd; y++) {
 	        	int texY;

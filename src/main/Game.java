@@ -99,7 +99,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			last = now;
 			
 			while (delta >= 1) {
-				handleKeyboardInput(delta);
+				if (raycaster != null) {
+					handleKeyboardInput(delta);
+				}
 				delta--;
 			}
 			
