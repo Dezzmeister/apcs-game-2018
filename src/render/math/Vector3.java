@@ -1,4 +1,4 @@
-package render.light;
+package render.math;
 
 public class Vector3 {
 	public int x;

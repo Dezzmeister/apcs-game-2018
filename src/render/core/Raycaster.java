@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import image.GeneralTexture;
 import image.SquareTexture;
 import main.Game;
+import render.light.Side;
 import render.math.RenderUtils;
 import render.math.Vector2;
 
@@ -28,7 +29,7 @@ public final class Raycaster extends JPanel {
 	 */
 	private static final long serialVersionUID = 7071993726323961319L;
 	private int WIDTH, HEIGHT, HALF_HEIGHT;
-	private int actualWidth, actualHeight;
+	private int FINAL_WIDTH, FINAL_HEIGHT;
 	private double[] zbuf;
 	
 	//private Sprite[] sprites;
@@ -88,8 +89,8 @@ public final class Raycaster extends JPanel {
 		rendererCount = threads;
 		WIDTH = renderWidth;
 		HEIGHT = renderHeight;
-		actualWidth = resWidth;
-		actualHeight = resHeight;
+		FINAL_WIDTH = resWidth;
+		FINAL_HEIGHT = resHeight;
 		
 		init();
 	}
@@ -113,7 +114,7 @@ public final class Raycaster extends JPanel {
 	private void resetImage() {
 		g2 = (Graphics2D) g;
 		g2.setBackground(Color.BLACK);
-		g2.clearRect(0, 0, actualWidth, actualHeight);
+		g2.clearRect(0, 0, FINAL_WIDTH, FINAL_HEIGHT);
 		
 		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	}
@@ -125,8 +126,14 @@ public final class Raycaster extends JPanel {
 	    g.drawString("y: "+pos.y,5, 35);
 	}
 	
+	private void drawCrosshair() {		
+		g.setColor(Color.GREEN);
+		g.drawLine(FINAL_WIDTH/2, (FINAL_HEIGHT/2)-10, FINAL_WIDTH/2, (FINAL_HEIGHT/2)+10);
+		g.drawLine((FINAL_WIDTH/2)-10, FINAL_HEIGHT/2, (FINAL_WIDTH/2)+10, FINAL_HEIGHT/2);
+	}
+	
 	private void finalizeRender() {
-		g2.drawImage(img,  0,  0, actualWidth, actualHeight, null);
+		g2.drawImage(img,  0,  0, FINAL_WIDTH, FINAL_HEIGHT, null);
 	}
 	
 	/**
@@ -161,6 +168,7 @@ public final class Raycaster extends JPanel {
 	private void postRender() {
 		resetZBuffer();
 		drawDebugInfo();
+		drawCrosshair();
 	}
 	
 	/**
@@ -268,6 +276,7 @@ public final class Raycaster extends JPanel {
 		private Block block;
 		private Wall hitWall;
 		private double wallX;
+		private Side sideHit;
 		
 		/**
 		 * Uses 2D raycasting. It casts a ray into the scene for every x-value from <code>startX</code> to
@@ -355,6 +364,7 @@ public final class Raycaster extends JPanel {
 		        				break dda;
 		        			}
 		        		} else {
+		        			determineSideHit(stepX,stepY);
 		        			hit = true;
 		        		}
 		        	}
@@ -401,8 +411,26 @@ public final class Raycaster extends JPanel {
 		        zbuf[x] = perpWallDist;
 		        
 		        textureFloorAndCeiling(x);
-		        		        
+		        if (x == (WIDTH/2))	{
+		        	System.out.println(sideHit);
+		        }
 		    }
+		}
+		
+		private void determineSideHit(int stepX, int stepY) {
+			if (side) {
+				if (stepY < 0) {
+					sideHit = Side.POSY;
+				} else {
+					sideHit = Side.NEGY;
+				}
+			} else {
+				if (stepX < 0) {
+					sideHit = Side.POSX;
+				} else {
+					sideHit = Side.NEGX;
+				}
+			}
 		}
 		
 		private void textureBlock(int x) {
