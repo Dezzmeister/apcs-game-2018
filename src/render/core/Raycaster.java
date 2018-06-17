@@ -30,6 +30,7 @@ public final class Raycaster extends JPanel {
 	private int WIDTH, HEIGHT, HALF_HEIGHT;
 	private int actualWidth, actualHeight;
 	private double[] zbuf;
+	
 	//private Sprite[] sprites;
 	private Vector2 pos;
 	private Vector2 dir;

@@ -1,5 +1,6 @@
 package render.core;
 
+import image.GeneralTexture;
 import image.SquareTexture;
 
 /**
@@ -99,6 +100,24 @@ public class Block {
 	}
 	
 	public static class CubicleWalls {
+		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png",32,32);
+		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png",2,20);
 		
+		private static float thickness = 0.1f;
+		/**
+		 * A Cubicle Wall aligned on the Y axis.
+		 */
+		public static final Block CUBICLE_Y = new Block("cubicle y").customize(new Wall(0.5f-thickness/2.0f,0.0f,0.5f-thickness/2.0f,1.0f).setTexture(CUBICLE),
+																			   new Wall(0.5f+thickness/2.0f,0.0f,0.5f+thickness/2.0f,1.0f).setTexture(CUBICLE),
+																			   new Wall(0.5f-thickness/2.0f,0.0f,0.5f+thickness/2.0f,0.0f).setTexture(SIDE),
+																			   new Wall(0.5f-thickness/2.0f,1.0f,0.5f+thickness/2.0f,1.0f).setTexture(SIDE));
+		
+		/**
+		 * A Cubicle wall aligned on the X axis.
+		 */
+		public static final Block CUBICLE_X = new Block("cubicle x").customize(new Wall(0.0f,0.5f-thickness/2.0f,0.0f,0.5f+thickness/2.0f).setTexture(SIDE),
+																			   new Wall(1.0f,0.5f-thickness/2.0f,1.0f,0.5f+thickness/2.0f).setTexture(SIDE),
+																			   new Wall(0.0f,0.5f-thickness/2.0f,1.0f,0.5f-thickness/2.0f).setTexture(CUBICLE),
+																			   new Wall(0.0f,0.5f+thickness/2.0f,1.0f,0.5f+thickness/2.0f).setTexture(CUBICLE));
 	}
 }
