@@ -16,7 +16,7 @@ import render.math.Vector2;
 public class Main {
 
 	public static void main(String[] args) {
-		cubicleTest();
+		test();
 	}
 	
 	static void cubicleTest() {
