@@ -51,7 +51,6 @@ public final class Raycaster extends JPanel {
 	private LatchRef latchref;
 	private double[] wallDistLUT;
 	public AtomicBoolean enabled = new AtomicBoolean(true);
-	private double delta;
 	private Game parentGame;
 	private int upDownEnabled = 0;
 	
@@ -223,15 +222,6 @@ public final class Raycaster extends JPanel {
 		} else if (parentGame.mouse.dy() > 0) {
 			camera.cheapRotateDown(parentGame.mouse.dy() & upDownEnabled, HEIGHT);
 		}
-	}
-	
-	/**
-	 * Set the number used to synchronize game speed to constant real time.
-	 * 
-	 * @param _delta
-	 */
-	public void setDelta(double _delta) {
-		delta = _delta;
 	}
 	
 	/**

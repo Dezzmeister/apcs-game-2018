@@ -1,6 +1,7 @@
 package render.core;
 
 import image.SquareTexture;
+import render.light.PointLight;
 
 /**
  * Represents a map/level containing Sprites and Blocks to be rendered.
@@ -14,6 +15,7 @@ public class WorldMap {
 	private Block[][] blocks;
 	private SquareTexture[][] floorMap;
 	private SquareTexture[][] ceilMap;
+	private PointLight[] lights;
 	
 	public WorldMap(Block[][] _blocks) {
 		blocks = _blocks;

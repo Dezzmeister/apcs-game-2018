@@ -1,8 +1,10 @@
 package main;
 
 import static render.core.Block.SPACE;
+import static render.core.Block.CubicleWalls.CUBICLE_X;
+import static render.core.Block.CubicleWalls.CUBICLE_Y;
 import static render.core.WorldMap.DEFAULT_CEILING;
-import static render.core.Block.CubicleWalls.*;
+import static render.math.Vector3.ORIGIN;
 
 import image.GeneralTexture;
 import image.SquareTexture;
@@ -12,11 +14,20 @@ import render.core.Raycaster;
 import render.core.Wall;
 import render.core.WorldMap;
 import render.math.Vector2;
+import render.math.Vector3;
 
 public class Main {
 
 	public static void main(String[] args) {
-		cubicleTest();
+		//cubicleTest();
+		vectorTest();
+	}
+	
+	static void vectorTest() {
+		Vector3 vec = new Vector3(3,8,5);
+		System.out.println(Vector3.distance(ORIGIN, vec));
+		vec = vec.normalize();
+		System.out.println(Vector3.distance(ORIGIN,vec));
 	}
 	
 	static void cubicleTest() {
