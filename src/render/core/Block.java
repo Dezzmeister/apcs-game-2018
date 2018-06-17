@@ -12,6 +12,9 @@ public class Block {
 	public static final SquareTexture DEFAULT_TEXTURE = new SquareTexture("assets/textures/default32.png",32);
 	public static final Block SPACE = new Block("space").fakeBlock();
 	
+	/**
+	 * If this Block is custom, this will contain this Block's custom Walls.
+	 */
 	public Wall[] walls = null;
 	private boolean solid = true;
 	public String name;
@@ -77,11 +80,23 @@ public class Block {
 		return this;
 	}
 	
+	/**
+	 * Apply this texture to the front and back (x-facing sides) of the block.
+	 * 
+	 * @param front Texture to be applied
+	 * @return this Block, as part of the fluent interface
+	 */
 	public Block applyFrontTexture(SquareTexture front) {
 		frontTexture = front;
 		return this;
 	}
 	
+	/**
+	 * Apply this texture to the y-facing sides of the block.
+	 * 
+	 * @param side Texture to be applied
+	 * @return this Block, as part of the fluent interface
+	 */
 	public Block applySideTexture(SquareTexture side) {
 		sideTexture = side;
 		return this;
@@ -90,7 +105,7 @@ public class Block {
 	/**
 	 * Applies one texture to all sides of the Block.
 	 * 
-	 * @param texture texture to be applied
+	 * @param texture Texture to be applied
 	 * @return this Block, as part of the fluent interface
 	 */
 	public Block applyTexture(SquareTexture texture) {
@@ -99,6 +114,12 @@ public class Block {
 		return this;
 	}
 	
+	/**
+	 * Contains Blocks defined as cubicle walls, for use in our office-themed maps.
+	 * The CUBICLE and SIDE textures are not final.
+	 *
+	 * @author Joe Desmond
+	 */
 	public static class CubicleWalls {
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png",32,32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png",2,20);

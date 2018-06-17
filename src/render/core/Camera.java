@@ -6,6 +6,11 @@ import java.util.Map;
 import render.math.RenderUtils;
 import render.math.Vector2;
 
+/**
+ * Holds player data as 4 Vectors.
+ *
+ * @author Joe Desmond
+ */
 public class Camera {
 	public Vector2 pos;
 	public Vector2 dir;

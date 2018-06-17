@@ -79,8 +79,8 @@ public class WorldMap {
 	}
 	
 	public Block setBlockAt(int x, int y, Block block) {
-		Block old = blocks[x][y];
-		blocks[x][y] = block;
+		Block old = blocks[y][x];
+		blocks[y][x] = block;
 		return old;
 	}
 	

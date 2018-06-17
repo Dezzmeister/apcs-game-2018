@@ -34,8 +34,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	 * 
 	 */
 	private static final long serialVersionUID = -16764364630071584L;
-	public static final BufferedImage cursorImg = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
-	public static final Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0,0), "blank cursor");
+	public static final BufferedImage CURSOR_IMG = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
+	public static final Cursor BLANK_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(CURSOR_IMG, new Point(0,0), "blank cursor");
 	private Raycaster raycaster;
 	public Container pane;
 	public final AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -78,7 +78,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	}
 	
 	public Game noCursor() {
-		pane.setCursor(blankCursor);
+		pane.setCursor(BLANK_CURSOR);
 		return this;
 	}
 	

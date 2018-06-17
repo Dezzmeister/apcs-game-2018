@@ -104,24 +104,18 @@ public final class Raycaster extends JPanel {
 		createThreadPoolRenderers();
 	}
 	
-	private void preRender() {
+	private void getCameraVectors() {
 		pos = camera.pos;
 	    dir = camera.dir;
 	    plane = camera.plane;
-	    
-	    g2 = (Graphics2D) g;
+	}
+	
+	private void resetImage() {
+		g2 = (Graphics2D) g;
 		g2.setBackground(Color.BLACK);
 		g2.clearRect(0, 0, actualWidth, actualHeight);
 		
 		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-		
-		handleMouseInput();
-		//handleKeyboardInput();
-	}
-	
-	private void postRender() {
-		resetZBuffer();
-		drawDebugInfo();
 	}
 	
 	//TODO: Remove this when we have a proper HUD
@@ -151,6 +145,12 @@ public final class Raycaster extends JPanel {
 		}
 	}
 	
+	private void preRender() {
+		getCameraVectors();	    
+	    resetImage();		
+		handleMouseInput();
+	}
+	
 	private void render() {
 		preRender();
 		parallelRender();
@@ -158,9 +158,14 @@ public final class Raycaster extends JPanel {
 		postRender();
 	}
 	
+	private void postRender() {
+		resetZBuffer();
+		drawDebugInfo();
+	}
+	
 	/**
 	 * Render this Raycaster's WorldMap to a Graphics object.
-	 * <b>DO NOT CALL THIS METHOD, IT IS HANDLED BY REPAINTMANAGER.</b>
+	 * <b>DO NOT CALL THIS METHOD; IT IS HANDLED BY REPAINTMANAGER.</b>
 	 * 
 	 * @param graphics
 	 */
@@ -221,6 +226,12 @@ public final class Raycaster extends JPanel {
 		delta = _delta;
 	}
 	
+	/**
+	 * Renders a portion of the image from a given starting point to a given ending point.
+	 * Should be run on a separate Thread.
+	 *
+	 * @author Joe Desmond
+	 */
 	private class ThreadRenderer implements Runnable {
 		int startX;
 		int endX;
@@ -258,6 +269,11 @@ public final class Raycaster extends JPanel {
 		private Wall hitWall;
 		private double wallX;
 		
+		/**
+		 * Uses 2D raycasting. It casts a ray into the scene for every x-value from <code>startX</code> to
+		 * <code>endX</code>, checking for intersections with "renderable" objects in the World using 
+		 * digital differential analysis (DDA). The speed of this algorithm does not vary with the size of the world.
+		 */
 		private void render() {
 			for (int x = startX; x < endX; x++) {
 		    	block = null;
@@ -536,6 +552,11 @@ public final class Raycaster extends JPanel {
 		public void update(int value) {
 			latch = new CountDownLatch(value);
 		}
+	}
+	
+	public void resetCameraAndMap(Camera _camera, WorldMap _worldMap) {
+		camera = _camera;
+		world = _worldMap;
 	}
 	
 	private void createThreadPoolRenderers() {

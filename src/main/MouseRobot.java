@@ -7,6 +7,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
 
+/**
+ * Used to hold data about a cursor's position on the screen. Can also move cursor to the center of a Container, with
+ * <code>dx()</code> and <code>dy()</code>.
+ *
+ * @author Joe Desmond
+ */
 public class MouseRobot {
 	private AtomicInteger x = new AtomicInteger(0);
 	private AtomicInteger y = new AtomicInteger(0);
@@ -65,16 +71,6 @@ public class MouseRobot {
 		y.set(_y);
 	}
 	
-	@SuppressWarnings("unused")
-	private void forceToCenterX() {
-		robot.mouseMove(width/2, y());
-	}
-	
-	@SuppressWarnings("unused")
-	private void forceToCenterY() {
-		robot.mouseMove(x(), height/2);
-	}
-	
 	private void forceToCenter() {
 		Point p = new Point(width/2,height/2);
 		SwingUtilities.convertPointToScreen(p, pane);
@@ -89,20 +85,42 @@ public class MouseRobot {
 		height = _height;
 	}
 	
+	/**
+	 * Returns the position of the mouse on the x-axis from the previous frame.
+	 * 
+	 * @return previous x-position
+	 */
 	public int px() {
 		return px.get();
 	}
 	
+	/**
+	 * Returns the position of the mouse on the y-axis from the previous frame.
+	 * 
+	 * @return previous y-position
+	 */
 	public int py() {
 		return py.get();
 	}
 	
+	/**
+	 * Returns the difference in position on the x axis from the center of the Container, then moves
+	 * the cursor to the center of the Container.
+	 * 
+	 * @return difference on x axis
+	 */
 	public int dx() {
 		int ret = x() - (width/2);
 		forceToCenter();
 		return ret;
 	}
 	
+	/**
+	 * Returns the difference in position on the y axis from the center of the Container, then moves
+	 * the cursor to the center of the Container.
+	 * 
+	 * @return difference on y axis
+	 */
 	public int dy() {
 		int ret = y() - (height/2);
 		forceToCenter();
