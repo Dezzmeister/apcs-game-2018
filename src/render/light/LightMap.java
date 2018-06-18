@@ -7,6 +7,8 @@ package render.light;
  * @author Joe Desmond
  */
 public class LightMap {
+	public static final LightMap EMPTY_MAP = new LightMap(1,1,new int[] {0});
+	
 	public int[] values;
 	public final int WIDTH;
 	public final int HEIGHT;
