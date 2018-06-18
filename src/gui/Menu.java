@@ -12,6 +12,7 @@ package gui;
 	import java.awt.Toolkit;
 	
 	import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -25,7 +26,6 @@ import javax.swing.JPanel;
 	
 	    
 	    public Menu()  {
-
 	        javaCups= new JPanel ();
 	        screen = javaCups.getRootPane();
 	        
@@ -35,7 +35,6 @@ import javax.swing.JPanel;
 	      
 	        javaCups.setSize(xSize, ySize);
 	        screen.setLayout(new FlowLayout(FlowLayout.CENTER));
-
 	        instructions= new JButton ("Instructions");
 	        instructions.setFont(new Font("Cambria", Font.BOLD, 30));
 	        instructions.addActionListener(new IListener()); 
@@ -55,7 +54,7 @@ import javax.swing.JPanel;
 
 
 	    public void displayMe()  {
-	       // javaCups.show();
+	       javaCups.show();
 	    }
 
 	    private class StartListener implements ActionListener  {

@@ -11,7 +11,7 @@ public class Actor implements Entity {
 		
 		try {
 		   
-		   enemies = ImageIO.read(getClass().getResource("E:/choichirlpix.png"));
+		   enemies = ImageIO.read(getClass().getResource("dwight.png"));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
