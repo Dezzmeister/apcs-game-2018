@@ -50,10 +50,10 @@ import javax.swing.JPanel;
 	        
 	        start = new JButton ("Start");
 	        start.addActionListener(new StartListener()); 
-	        start.setFont(new Font("Cambria", Font.BOLD, 30));
+	        start.setFont(new Font("Consolas", Font.BOLD, 30));
 	        
 	        instructions= new JButton ("Instructions");
-	        instructions.setFont(new Font("Cambria", Font.BOLD, 30));
+	        instructions.setFont(new Font("Consolas", Font.BOLD, 30));
 	        
 	        back = new JButton("Back");
 	        back.addActionListener(new BListener()); 
@@ -65,9 +65,9 @@ import javax.swing.JPanel;
 
 	       
 	        
-	        
-	        screen.add(instructions);
 	        screen.add(start);
+	        screen.add(instructions);
+	       
 	      
 	    }
 	    
@@ -90,8 +90,8 @@ import javax.swing.JPanel;
 		    
 	        public void actionPerformed (ActionEvent event)  {
 	        	screen.removeAll();
-	        	screen.add(back);
 	        	screen.add(writtenInstructions);
+	        	screen.add(back);
 	        	screen.validate();
 	        	screen.repaint();
 	        	
@@ -101,11 +101,11 @@ import javax.swing.JPanel;
 	    private class BListener implements ActionListener  {
 			    
 		     public void actionPerformed (ActionEvent event)  {
-		        screen.removeAll();
+		    	displayMe();
+		    	screen.removeAll();
 		        screen.validate();
 		        screen.repaint();
-		        displayMe();
-		     
+		      
 		      }
 	    }
 	    
