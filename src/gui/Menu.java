@@ -35,8 +35,10 @@ import javax.swing.JPanel;
 	      
 	        javaCups.setSize(xSize, ySize);
 	        screen.setLayout(new FlowLayout(FlowLayout.CENTER));
+	        
 	        instructions= new JButton ("Instructions");
 	        instructions.setFont(new Font("Cambria", Font.BOLD, 30));
+	        
 	        instructions.addActionListener(new IListener()); 
 	        
 	        
