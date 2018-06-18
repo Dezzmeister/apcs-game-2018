@@ -87,9 +87,10 @@ public class Main {
 			      .setPlane(new Vector2(0,0.5f));
 		
 		GeneralTexture customTexture = new GeneralTexture("assets/textures/sos1024.png",1024,1024);
-		SquareTexture michael = new SquareTexture("assets/textures/radon411.png",411);
+		SquareTexture joj = new SquareTexture("assets/textures/unnamed.jpg",2365);
+		SquareTexture michael = new SquareTexture("assets/textures/g-dawg!!!!!!!.jpg",1633);
 		
-		Block block = new Block("test").applyTexture(michael);
+		Block block = new Block("test").applyTexture(michael).tileFront(10, 10).tileSide(20, 20);
 		Block fake = new Block("fake block").applyTexture(michael).fakeBlock().tileSide(3,3);
 		
 		Block custom = new Block("custom test").customize(new Wall(0.25f,0.25f,0.75f,0.25f).setTexture(michael.asGeneralTexture()).tile(2, 4),
