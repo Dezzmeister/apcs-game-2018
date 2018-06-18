@@ -12,7 +12,8 @@ package gui;
 	import java.awt.Toolkit;
 	
 	import javax.swing.JButton;
-	import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 
 	public class Menu{
@@ -20,6 +21,7 @@ package gui;
 	    protected Container screen;
 	    private JButton instructions;
 	    protected JButton start;
+	    private JLabel writtenInstructions;
 	
 	    
 	    public Menu()  {
@@ -36,9 +38,12 @@ package gui;
 
 	        instructions= new JButton ("Instructions");
 	        instructions.setFont(new Font("Cambria", Font.BOLD, 30));
+	        instructions.addActionListener(new IListener()); 
+	        
+	        
+	        writtenInstructions = new JLabel ("INSTRUCTIONS FOR HOW TO PLAY HERE");
 
 	        start = new JButton ("Start");
-	        
 	        start.addActionListener(new StartListener()); 
 	        
 	        
@@ -64,6 +69,16 @@ package gui;
 	        }    
 
 	    }
+	    private class IListener implements ActionListener  {
+		    
+	        public void actionPerformed (ActionEvent event)  {
+	        	screen.removeAll();
+	        	screen.add(writtenInstructions);
+	        	screen.validate();
+	        	screen.repaint();
+	        	
 
+	        }
+	    }
 	    
 }
