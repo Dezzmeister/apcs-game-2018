@@ -3,6 +3,7 @@ package render.core;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -402,7 +403,7 @@ public final class Raycaster extends JPanel {
 		        
 		        textureFloorAndCeiling(x);
 		        if (x == (WIDTH/2))	{
-		        	System.out.println(sideHit);
+		        	//System.out.println(sideHit);
 		        }
 		    }
 		}
@@ -465,6 +466,7 @@ public final class Raycaster extends JPanel {
 	        	}
 	        	float normValue = (float) (perpWallDist/FULL_FOG_DISTANCE);
 				color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
+				
 	        	img.setRGB(x, y, color);
 	        }
 		}

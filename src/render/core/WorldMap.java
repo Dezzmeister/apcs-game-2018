@@ -1,10 +1,6 @@
 package render.core;
 
 import image.SquareTexture;
-import render.light.BlockMap;
-import render.light.CustomBlockMap;
-import render.light.LightMap;
-import render.light.PointLight;
 
 /**
  * Represents a map/level containing Sprites and Blocks to be rendered.
@@ -18,11 +14,6 @@ public class WorldMap {
 	private Block[][] blocks;
 	private SquareTexture[][] floorMap;
 	private SquareTexture[][] ceilMap;
-	private PointLight[] lights;
-	public BlockMap[] blockLightMaps;
-	public CustomBlockMap[] customBlockLightMaps;
-	public LightMap[] floorLightMaps;
-	public LightMap[] ceilLightMaps;
 	
 	public WorldMap(Block[][] _blocks) {
 		blocks = _blocks;
@@ -47,19 +38,6 @@ public class WorldMap {
 	public WorldMap setCeilingMap(SquareTexture[][] _ceilMap) {
 		ceilMap = _ceilMap;
 		return this;
-	}
-	
-	private void createDefaultLightMaps() {
-		floorLightMaps = new LightMap[blocks.length * blocks[0].length];
-		ceilLightMaps = new LightMap[floorLightMaps.length];
-		
-		for (int y = 0; y < blocks.length; y++) {
-			for (int x = 0; x < blocks[y].length; x++) {
-				if (blocks[y][x] == Block.SPACE) {
-					
-				}
-			}
-		}
 	}
 	
 	/**
@@ -107,10 +85,10 @@ public class WorldMap {
 	}
 	
 	public SquareTexture getFloorAt(int x, int y) {
-		return floorMap[x][y];
+		return floorMap[y][x];
 	}
 	
 	public SquareTexture getCeilingAt(int x, int y) {
-		return ceilMap[x][y];
+		return ceilMap[y][x];
 	}
 }

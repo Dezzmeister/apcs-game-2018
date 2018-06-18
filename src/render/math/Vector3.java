@@ -59,7 +59,7 @@ public class Vector3 {
 	}
 	
 	/**
-	 * Returns a Vector with the same direction as this one, but with a length of 1.
+	 * Returns a Vector with the same direction as this one, but with a length of 1.0.
 	 * Ensure that the length of this Vector is updated for accurate results.
 	 * 
 	 * @return
