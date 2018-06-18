@@ -26,8 +26,16 @@ import javax.swing.JPanel;
 	
 	    
 	    public Menu()  {
+//<<<<<<< HEAD
 	        javaCups= new JPanel ();
 	        screen = javaCups.getRootPane();
+
+	    	
+	    	//https://stackoverflow.com/questions/9554636/the-use-of-multiple-jframes-good-or-bad-practice
+	    	//perhaps we can make this a jpanel? because there will be one main jframe
+	        javaCups= new JFrame ("javaCups");
+	        screen = javaCups.getContentPane();
+//>>>>>>> branch 'master' of https://github.com/Dezzmeister/apcs-game-2018.git
 	        
 	        Toolkit tk = Toolkit.getDefaultToolkit();
 	        int xSize = ((int) tk.getScreenSize().getWidth());
