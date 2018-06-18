@@ -24,8 +24,9 @@ import javax.swing.JPanel;
 	    private JButton instructions;
 	    protected JButton start;
 	    private JLabel writtenInstructions;
+	    private JButton back;
 	
-	    
+		
 	    public Menu()  {
 	    	
 	    	gameLoad = new JFrame("JavaCups");
@@ -44,7 +45,7 @@ import javax.swing.JPanel;
 	        //screen = javaCups.getRootPane();
 	        
 	      
-	    
+
 	        screen.setLayout(new FlowLayout(FlowLayout.CENTER));
 	        
 	        start = new JButton ("Start");
@@ -53,6 +54,9 @@ import javax.swing.JPanel;
 	        
 	        instructions= new JButton ("Instructions");
 	        instructions.setFont(new Font("Cambria", Font.BOLD, 30));
+	        
+	        back = new JButton("Back");
+	        back.addActionListener(new BListener()); 
 	        
 	        instructions.addActionListener(new IListener()); 
 	        
@@ -77,18 +81,16 @@ import javax.swing.JPanel;
 	    private class StartListener implements ActionListener  {
 	    
 	        public void actionPerformed (ActionEvent event)  {
-	        
-	            screen.setBackground(new Color ((int)(Math.random()*16777216)));
-	            // the background should be the game //ask joe
-	            
-	            //start game from beginning
-	        }    
+	        	 Messenger.addMessage("start");
+	    
 
+	        }
 	    }
 	    private class IListener implements ActionListener  {
 		    
 	        public void actionPerformed (ActionEvent event)  {
 	        	screen.removeAll();
+	        	screen.add(back);
 	        	screen.add(writtenInstructions);
 	        	screen.validate();
 	        	screen.repaint();
@@ -96,5 +98,16 @@ import javax.swing.JPanel;
 
 	        }
 	    }
+	    private class BListener implements ActionListener  {
+			    
+		     public void actionPerformed (ActionEvent event)  {
+		        screen.removeAll();
+		        screen.validate();
+		        screen.repaint();
+		        displayMe();
+		     
+		      }
+	    }
 	    
 }
+	    
