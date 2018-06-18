@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 
 	public class Menu{
+		private JFrame gameLoad;
 	    private JPanel javaCups;
 	    protected Container screen;
 	    private JButton instructions;
@@ -26,15 +27,29 @@ import javax.swing.JPanel;
 	
 	    
 	    public Menu()  {
+	    	
+	    	gameLoad = new JFrame("JavaCups");
+	    	
+	    	screen = gameLoad.getContentPane();
+	    	
+	    	Toolkit tk = Toolkit.getDefaultToolkit();
+		    int xSize = ((int) tk.getScreenSize().getWidth());
+		    int ySize = ((int) tk.getScreenSize().getHeight());
+		      
+		    gameLoad.setSize(xSize, ySize);
+
+			
 	        javaCups= new JPanel ();
-	        screen = javaCups.getRootPane();
+	        gameLoad.add(javaCups);
+	        //screen = javaCups.getRootPane();
 	        
-	        Toolkit tk = Toolkit.getDefaultToolkit();
-	        int xSize = ((int) tk.getScreenSize().getWidth());
-	        int ySize = ((int) tk.getScreenSize().getHeight());
 	      
-	        javaCups.setSize(xSize, ySize);
+	    
 	        screen.setLayout(new FlowLayout(FlowLayout.CENTER));
+	        
+	        start = new JButton ("Start");
+	        start.addActionListener(new StartListener()); 
+	        start.setFont(new Font("Cambria", Font.BOLD, 30));
 	        
 	        instructions= new JButton ("Instructions");
 	        instructions.setFont(new Font("Cambria", Font.BOLD, 30));
@@ -44,8 +59,7 @@ import javax.swing.JPanel;
 	        
 	        writtenInstructions = new JLabel ("INSTRUCTIONS FOR HOW TO PLAY HERE");
 
-	        start = new JButton ("Start");
-	        start.addActionListener(new StartListener()); 
+	       
 	        
 	        
 	        screen.add(instructions);
@@ -55,8 +69,9 @@ import javax.swing.JPanel;
 	    
 
 
-	    public void displayMe()  {
-	       javaCups.show();
+	    @SuppressWarnings("deprecation")
+		public void displayMe()  {
+	       gameLoad.show();
 	    }
 
 	    private class StartListener implements ActionListener  {
