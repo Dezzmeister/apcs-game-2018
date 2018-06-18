@@ -2,19 +2,19 @@
 package gui;
 //>>>>>>> branch 'GUIteambranch' of https://github.com/Dezzmeister/apcs-game-2018.git
 
-	import java.awt.Color;
 	import java.awt.Container;
-	import java.awt.FlowLayout;
-	import java.awt.Font;
-	import java.awt.event.ActionEvent;
-	import java.awt.event.ActionListener;
-	
-	import java.awt.Toolkit;
-	
-	import javax.swing.JButton;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import message_loop.Messenger;
 
 
 	public class Menu{
@@ -81,7 +81,7 @@ import javax.swing.JPanel;
 	    private class StartListener implements ActionListener  {
 	    
 	        public void actionPerformed (ActionEvent event)  {
-	        	 Messenger.addMessage("start");
+	        	 Messenger.post("start");
 	    
 
 	        }
@@ -101,8 +101,8 @@ import javax.swing.JPanel;
 	    private class BListener implements ActionListener  {
 			    
 		     public void actionPerformed (ActionEvent event)  {
-		    	displayMe();
 		    	screen.removeAll();
+		    	displayMe();
 		        screen.validate();
 		        screen.repaint();
 		      
