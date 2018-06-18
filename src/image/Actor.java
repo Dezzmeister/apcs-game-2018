@@ -24,9 +24,15 @@ public class Actor implements Entity {
 	        drawImage(enemies);
 		}
 		
+		public void displayImage() {
+			java.awt.EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					setVisible(true);
+				}
+			});
 
-		private void drawImage(BufferedImage image2) {
+		/*private void drawImage(BufferedImage image2) {
 			// TODO Auto-generated method stub
 			
-		}
+		}*/
 }
