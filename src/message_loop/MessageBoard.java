@@ -31,6 +31,7 @@ class MessageBoard extends ArrayList<String>{
 	
 
 }
+
 /**
  * How to use:
  * 
