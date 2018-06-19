@@ -5,6 +5,7 @@ import javax.imageio.ImageIO;
 
 public class Actor implements Entity {
 	
+
 		private GeneralTexture [] enemies;
 		
 		/*public BufferedImage getImage() {
@@ -12,11 +13,18 @@ public class Actor implements Entity {
 		try {
 		   
 		   return ImageIO.read(getClass().getResource("dwight.png"));
+
+		private BufferedImage enemies = null;
+		
+		public BufferedImage getImage() {
+		
+		try {
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
+
 		return null;
 		
 	}
@@ -37,5 +45,10 @@ public class Actor implements Entity {
 		}
 		public GeneralTexture getTexture(int input) {
 			return enemies[input];
+
+		
+
+		private void drawImage(BufferedImage image2) {
+			// TODO Auto-generated method stub
 		}
 }
