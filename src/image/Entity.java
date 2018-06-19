@@ -4,7 +4,7 @@ package image;
 
 public interface Entity{
     
-       // return the active texture  
+       // function of children classes are to return the active texture  
 	public GeneralTexture getTexture();
 }
 

@@ -5,9 +5,9 @@ import javax.imageio.ImageIO;
 
 public class Actor implements Entity {
 	
-		private BufferedImage enemies = null;
+		private GeneralTexture [] enemies;
 		
-		public BufferedImage getImage() {
+		/*public BufferedImage getImage() {
 		
 		try {
 		   
@@ -23,7 +23,7 @@ public class Actor implements Entity {
 		public void draw() {
 	        drawImage(enemies);
 		}
-		
+		*/
 		/*public void displayImage() {
 			java.awt.EventQueue.invokeLater(new Runnable() {
 				public void run() {
@@ -31,8 +31,11 @@ public class Actor implements Entity {
 				}
 			});*/
 
-		private void drawImage(BufferedImage image2) {
-			// TODO Auto-generated method stub
-			
+		//the actors in the array must be in a certain order, which will be set TBD
+		public Actor (GeneralTexture [] actors) {
+			enemies = actors;
+		}
+		public GeneralTexture getTexture(int input) {
+			return enemies[input];
 		}
 }
