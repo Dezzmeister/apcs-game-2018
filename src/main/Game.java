@@ -106,7 +106,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			}
 			
 			if (raycaster != null) {
-				raycaster.repaint();
+				repaint();
 			}
 			
 			frames++;

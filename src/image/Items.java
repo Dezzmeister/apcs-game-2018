@@ -1,80 +1,46 @@
 package image;
 
-import java.awt.image.BufferedImage;
+/*
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-
-public class Items implements Entity{
-	private BufferedImage bean = null;
-	private BufferedImage speedUp = null;
-	private BufferedImage immunity = null;
-	private BufferedImage extraBean = null;
-	
-	
-	public BufferedImage getImage() { //returns a bean
-		
-		try {		   
-		  bean = ImageIO.read(getClass().getResource("E:/choichirlpix.png"));		 
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		return bean;
-		
+*/
+public  class Items implements Entity{
+	private GeneralTexture item;
+	public Items (String _path, int _width, int _height) {
+		item = new GeneralTexture(_path,_width, _height);
+	}
+	public GeneralTexture getTexture() {
+		return item;
 	}
 	
-	public BufferedImage getSpeedUpImage() {
-		
-		try {
-		  speedUp = ImageIO.read(getClass().getResource("E:/choichirlpix.png"));
-		  immunity = ImageIO.read(getClass().getResource("E:/choichirlpix.png"));
-		  extraBean = ImageIO.read(getClass().getResource("E:/choichirlpix.png"));		
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		return speedUp;
-		
-	}
-	public BufferedImage getImmunityImage() {
-		
-		try {
-		  immunity = ImageIO.read(getClass().getResource("E:/choichirlpix.png"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		return immunity;
-		
-	}
-	public BufferedImage getExtraBeanImage() {
-		
-		try {
-		  extraBean = ImageIO.read(getClass().getResource("E:/choichirlpix.png"));		
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		return extraBean;
-		
-	}
-	
-	
-		public void draw() { 
-	        drawImage(bean);
-	        drawImage(speedUp);
-	        drawImage(immunity);
-	        drawImage(extraBean);
-	        
+public class BeanThing extends Items {
+	public BeanThing (String _path, int _width, int _height) {
+		super(_path,_width, _height);
 		}
-		
 
-		private void drawImage(BufferedImage image2) {
-			// TODO Auto-generated method stub
-			
+	} 
+
+public class SpeedUpThing extends Items {
+	public SpeedUpThing (String _path, int _width, int _height) {
+		super(_path,_width, _height);
 		}
+
+	}       
+
+public class ImmunityThing extends Items {
+	public ImmunityThing (String _path, int _width, int _height) {
+		super(_path,_width, _height);
+		}
+
+
+	}
+public class ExtraBeanThing extends Items {
+	public ExtraBeanThing (String _path, int _width, int _height) {
+		super(_path,_width, _height);
+		}
+
+	}	
 
 }
-	
