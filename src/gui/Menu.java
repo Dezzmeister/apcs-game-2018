@@ -28,7 +28,6 @@ import message_loop.Messenger;
 	
 		
 	    public Menu()  {
-	    	
 	    	gameLoad = new JFrame("JavaCups");
 	    	
 	    	screen = gameLoad.getContentPane();
@@ -68,6 +67,7 @@ import message_loop.Messenger;
 	        screen.add(start);
 	        screen.add(instructions);
 	       
+	    
 	      
 	    }
 	    
@@ -101,13 +101,18 @@ import message_loop.Messenger;
 	    private class BListener implements ActionListener  {
 			    
 		     public void actionPerformed (ActionEvent event)  {
+		    	 
+		    	
 		    	screen.removeAll();
-		    	displayMe();
+		    	Menu main = new Menu();
+		    	main. displayMe();
 		        screen.validate();
 		        screen.repaint();
 		      
 		      }
 	    }
+	    
+	 
 	    
 }
 	    
