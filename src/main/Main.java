@@ -89,9 +89,12 @@ public class Main {
 		GeneralTexture customTexture = new GeneralTexture("assets/textures/sos1024.png",1024,1024);
 		SquareTexture joj = new SquareTexture("assets/textures/unnamed.jpg",2365);
 		SquareTexture michael = new SquareTexture("assets/textures/g-dawg!!!!!!!.jpg",1633);
+		SquareTexture java = new SquareTexture("assets/textures/got java_.png",100);
 		
-		Block block = new Block("test").applyTexture(michael).tileFront(10, 10).tileSide(20, 20);
+		Block block = new Block("test").applyTexture(michael).tileFront(10, 10).tileSide(4, 4);
+		Block gendron = new Block("gendron").applyTexture(joj).tileFront(7,3);
 		Block fake = new Block("fake block").applyTexture(michael).fakeBlock().tileSide(3,3);
+		Block soup = new Block("soup").applyTexture(java);
 		
 		Block custom = new Block("custom test").customize(new Wall(0.25f,0.25f,0.75f,0.25f).setTexture(michael.asGeneralTexture()).tile(2, 4),
 				   										  new Wall(0.75f,0.25f,0.75f,0.75f).setTexture(customTexture),
@@ -100,9 +103,9 @@ public class Main {
 		
 		Block[][] worldArray = {
 				{SPACE,SPACE,SPACE,SPACE,SPACE,SPACE},
+				{SPACE,SPACE,soup,SPACE,SPACE,SPACE},
 				{SPACE,SPACE,SPACE,SPACE,SPACE,SPACE},
-				{SPACE,SPACE,SPACE,SPACE,SPACE,SPACE},
-				{SPACE,SPACE,SPACE,SPACE,custom,SPACE},
+				{SPACE,SPACE,gendron,SPACE,custom,SPACE},
 				{SPACE,SPACE,SPACE,SPACE,SPACE,SPACE},
 				{SPACE,SPACE,SPACE,SPACE,SPACE,SPACE},
 		};
@@ -114,7 +117,7 @@ public class Main {
 		SquareTexture[][] floorMap = {
 				{gray,gray,blue,gray,gray,gray},
 				{gray,gray,blue,red,red,gray},
-				{blue,blue,blue,red,red,gray},
+				{blue,blue,java,red,red,gray},
 				{gray,red,red,blue,blue,blue},
 				{gray,red,red,blue,gray,gray},
 				{gray,gray,gray,blue,gray,gray},
@@ -130,7 +133,7 @@ public class Main {
 		};
 		
 		WorldMap world = new WorldMap(worldArray,floorMap,ceilMap).setBorder(block);
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();
