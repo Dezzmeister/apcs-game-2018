@@ -1,14 +1,10 @@
 package gui;
 
-public class StartMenu extends Menu{
-	
+public class StartMenu extends Menu {
+
 	public StartMenu() {
 		super();
-		
+
 	}
 	
-	
-	
-	
-
 }

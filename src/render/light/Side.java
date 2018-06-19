@@ -1,8 +1,5 @@
 package render.light;
 
 public enum Side {
-	POSX,
-	NEGX,
-	POSY,
-	NEGY
+	POSX, NEGX, POSY, NEGY
 }
