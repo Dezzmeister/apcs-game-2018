@@ -1,0 +1,34 @@
+Message Loop information
+
+The Message Loop is a data structure meant for storing various occurences such as the player bumping into something or a game event
+such as pausing or the game ending.
+
+Format: "<type>:<specification>"
+
+Types:
+
+interaction: for when the player bumps into something
+specification examples: coworker, coffeebean
+
+event: for special game events
+specification examples: pause, unpause, win, lose
+
+complete examples:
+
+"interaction:coworker"
+"event:pause"
+
+To add a message, use Messenger.addMessage(String s).
+To see messages, use Messenger.getMessages() to get an ArrayList<String> representing the messages.
+To see if a specific message exists, use Messenger.containsMessage(String message).
+To see all messages of a specific type, use Messenger.getOfType(String type) to get an ArrayList<String> of the specifications of 
+  all of the messages of that type.
+
+Example:
+
+The messages are:
+  ["event:pause","event:unpause","interaction:coffeebean","interaction:coworker","event:lose"]
+
+Messenger.getOfType("event") returns ["pause","unpause","lose"]
+Messenger.getOfType("interaction") returns ["coffeebean","coworker"]
+Messenger.getOfType("snek kek pek") returns []
