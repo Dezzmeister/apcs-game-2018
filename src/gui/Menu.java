@@ -1,4 +1,6 @@
+
 package gui;
+//>>>>>>> branch 'GUIteambranch' of https://github.com/Dezzmeister/apcs-game-2018.git
 
 	import java.awt.Color;
 	import java.awt.Container;
@@ -10,24 +12,20 @@ package gui;
 	import java.awt.Toolkit;
 	
 	import javax.swing.JButton;
-	import javax.swing.JFrame;
-	//import javax.swing.JLabel;
-	//import javax.swing.JTextField;
+	import javax.swing.JPanel;
+
 
 	public class Menu{
-	    private JFrame javaCups;
+	    private JPanel javaCups;
 	    protected Container screen;
 	    private JButton instructions;
 	    protected JButton start;
-	    //private JButton resume;
-	    //private JButton quit;
+	
 	    
 	    public Menu()  {
-	    	
-	    	//https://stackoverflow.com/questions/9554636/the-use-of-multiple-jframes-good-or-bad-practice
-	    	//perhaps we can make this a jpanel? because there will be one main jframe
-	        javaCups= new JFrame ("javaCups");
-	        screen = javaCups.getContentPane();
+
+	        javaCups= new JPanel ();
+	        screen = javaCups.getRootPane();
 	        
 	        Toolkit tk = Toolkit.getDefaultToolkit();
 	        int xSize = ((int) tk.getScreenSize().getWidth());
@@ -40,23 +38,19 @@ package gui;
 	        instructions.setFont(new Font("Cambria", Font.BOLD, 30));
 
 	        start = new JButton ("Start");
-	        //resume  = new JButton ("Resume");
-	        //quit = new JButton ("Quit");
-	 
-	        start.addActionListener(new StartListener()); //?
-	        //resume.addActionListener(new ResumeListener()); //?
-	        //quit.addActionListener(new QuitListener()); //?
+	        
+	        start.addActionListener(new StartListener()); 
+	        
 	        
 	        screen.add(instructions);
 	        screen.add(start);
-	        //screen.add(resume);
-	        //screen.add(quit);
+	      
 	    }
 	    
 
 
 	    public void displayMe()  {
-	        javaCups.show();
+	       // javaCups.show();
 	    }
 
 	    private class StartListener implements ActionListener  {
@@ -71,24 +65,5 @@ package gui;
 
 	    }
 
-	   /* private class ResumeListener implements ActionListener  {
-
-	        public void actionPerformed (ActionEvent event)  {
-
-	            //resume game from current point
-	            
-	        }
-
-	    }
-
-	    private class QuitListener implements ActionListener  {
-
-	        public void actionPerformed (ActionEvent event)  {
-	            
-	            //quit the game
-
-	        }
-
-	    }*/
 	    
 }
