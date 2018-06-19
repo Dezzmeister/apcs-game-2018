@@ -6,6 +6,7 @@ import static render.core.Block.CubicleWalls.CUBICLE_Y;
 import static render.core.WorldMap.DEFAULT_CEILING;
 import static render.math.Vector3.ORIGIN;
 
+import gui.Menu;
 import image.GeneralTexture;
 import image.SquareTexture;
 import render.core.Block;
@@ -130,12 +131,17 @@ public class Main {
 		};
 		
 		WorldMap world = new WorldMap(worldArray,floorMap,ceilMap).setBorder(block);
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 2);
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();
 		//Messenger.post("RENDER_ENABLE");
 		//game.run();
+		
+		//Had trouble with this!!!!
+		//Menu start = new Menu();
+		//game.pane.add(start.getPanel());	
 		Thread gameThread = game.startAndRun();
+		
 	}
 }

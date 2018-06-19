@@ -142,7 +142,9 @@ import message_loop.Messenger;
 
 	    
 
-
+	    public JPanel getPanel() {
+	    	return javaCups;
+	    }
 
 
 
