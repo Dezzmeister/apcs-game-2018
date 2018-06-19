@@ -43,12 +43,21 @@ public class Actor implements Entity {
 		public Actor (GeneralTexture [] actors) {
 			enemies = actors;
 		}
+		
+		/*
 		public GeneralTexture getTexture(int input) {
 			return enemies[input];
-
+		}
+		*/
 		
 
 		private void drawImage(BufferedImage image2) {
 			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public GeneralTexture getTexture() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 }

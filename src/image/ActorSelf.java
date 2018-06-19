@@ -45,5 +45,12 @@
 				// TODO Auto-generated method stub
 				
 			}
+
+
+			@Override
+			public GeneralTexture getTexture() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 	}
 
