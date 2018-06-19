@@ -1,5 +1,6 @@
 package render.math;
 
+import render.core.Pillar;
 import render.core.Wall;
 
 /**
@@ -42,6 +43,11 @@ public class RenderUtils {
 		if (s >= 0 && s <= 1 && t >= 0) {
 		  return new Vector2(r0.x + (t * s1.x), r0.y + (t * s1.y));
 		}
+		return null;
+	}
+	
+	//TODO: do this
+	public static Vector2 rayHitCircle(Vector2 rayStart, Vector2 rayDirection, Pillar circle) {
 		return null;
 	}
 	

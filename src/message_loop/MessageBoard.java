@@ -1,7 +1,7 @@
 package message_loop;
 
 import java.util.ArrayList;
-/*
+/**
  * Package-private class containing messages regarding inputs, interactions, and game 
  * events, such as pausing or losing.
  * 
@@ -31,7 +31,8 @@ class MessageBoard extends ArrayList<String>{
 	
 
 }
-/*
+
+/**
  * How to use:
  * 
  * Add message using Messenger.addMessage("message goes here")

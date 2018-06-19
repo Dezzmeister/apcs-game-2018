@@ -1,7 +1,9 @@
 package render.core;
 
+import image.GeneralTexture;
 import image.Texture;
 import render.math.Vector2;
+import render.math.Vector3;
 
 /**
  * This represents a Wall as opposed to a Block in the game. In the game, there can be either a 4-sided block or a block that is actually a sector
@@ -11,15 +13,23 @@ import render.math.Vector2;
  * @author Joe Desmond
  */
 public class Wall {
-	public static final Texture DEFAULT_TEXTURE = new Texture("assets/raycast/textures/darkbricks.png",512,512);
+	public static final Vector3 VERTICAL = new Vector3(0,0,1);
+	public static final GeneralTexture DEFAULT_TEXTURE = new GeneralTexture("assets/textures/default32.png",32,32);
 	
 	/**
-	 * v0 and v1 are the two endpoints of this Wall.
+	 * One endpoint of this Wall
 	 */
 	public Vector2 v0;
+	/**
+	 * One endpoint of this Wall
+	 */
 	public Vector2 v1;
+	/**
+	 * Vector perpendicular to this Wall.
+	 */
+	public Vector3 normal;
 	public float length;
-	public Texture texture = DEFAULT_TEXTURE;
+	public GeneralTexture texture = DEFAULT_TEXTURE;
 	public float xTiles = 1;
 	public float yTiles = 1;
 	
@@ -27,26 +37,29 @@ public class Wall {
 		
 	}
 	
-	public Wall(float x1, float y1, float x2, float y2, Texture _texture) {
+	public Wall(float x1, float y1, float x2, float y2, GeneralTexture _texture) {
 		v0 = new Vector2(x1,y1);
 		v1 = new Vector2(x2,y2);
 		texture = _texture;
 		updateLength();
+		calculateNormalVector();
 	}
 	
 	public Wall(float x1, float y1, float x2, float y2) {
 		v0 = new Vector2(x1,y1);
 		v1 = new Vector2(x2,y2);
 		updateLength();
+		calculateNormalVector();
 	}
 	
 	public Wall(Vector2 _v0, Vector2 _v1) {
 		v0 = _v0;
 		v1 = _v1;
 		updateLength();
+		calculateNormalVector();
 	}
 	
-	public Wall setTexture(Texture _texture) {
+	public Wall setTexture(GeneralTexture _texture) {
 		texture = _texture;
 		return this;
 	}
@@ -101,5 +114,15 @@ public class Wall {
 	 */
 	public float getNorm(Vector2 v) {
 		return Vector2.distance(v, v0)/length;
+	}
+	
+	public void calculateNormalVector() {
+		float x = v1.x-v0.x;
+		float y = v1.y-v0.y;
+		float z = 0;
+		
+		Vector3 perp = Vector3.cross(VERTICAL, new Vector3(x,y,z));
+		
+		normal = perp.normalize();
 	}
 }
