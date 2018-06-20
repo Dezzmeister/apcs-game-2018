@@ -64,6 +64,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		raycaster = _raycaster;
 		pane.add(raycaster, BorderLayout.CENTER);
 		setVisible(true);
+		raycaster.setDoubleBuffered(true);
 		return this;
 	}
 
@@ -100,16 +101,14 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			delta += (now - last) / ns;
 			last = now;
 
-			while (delta >= 1) {
+			while (delta >= 1 && raycaster.finished) {
 				if (raycaster != null) {
 					handleKeyboardInput(delta);
 				}
 				delta--;
 			}
 
-			if (raycaster != null) {
-				repaint();
-			}
+			repaint();
 
 			frames++;
 

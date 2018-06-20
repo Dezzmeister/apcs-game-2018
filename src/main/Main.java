@@ -128,7 +128,7 @@ public class Main {
 		SquareTexture[][] floorMap = {{gray, gray, blue, gray, gray, gray}, {gray, gray, blue, red, red, gray},
 				{blue, blue, java, red, red, gray}, {gray, red, red, blue, blue, blue},
 				{gray, red, red, blue, gray, gray}, {gray, gray, gray, blue, gray, gray},};
-
+		
 		SquareTexture[][] ceilMap = {
 				{DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING},
 				{DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING},
@@ -139,7 +139,7 @@ public class Main {
 
 		WorldMap world = new WorldMap(worldArray, floorMap, ceilMap).setBorder(block);
 		
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 400, 400, 4);
 
 		game.setRaycaster(raycaster);
 		raycaster.start();

@@ -55,6 +55,7 @@ public final class Raycaster extends JPanel {
 	public AtomicBoolean enabled = new AtomicBoolean(true);
 	private Game parentGame;
 	private int upDownEnabled = 0;
+	public boolean finished = true;
 
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -171,11 +172,12 @@ public final class Raycaster extends JPanel {
 	}
 
 	private void preRender() {
+		finished = false;
+		handleMouseInput();
 		getCameraVectors();
 		resetImage();
-		handleMouseInput();
 	}
-
+	
 	private void render() {
 		preRender();
 		parallelRender();
@@ -187,6 +189,7 @@ public final class Raycaster extends JPanel {
 		resetZBuffer();
 		drawDebugInfo();
 		drawCrosshair();
+		finished = true;
 	}
 
 	/**
