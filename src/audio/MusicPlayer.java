@@ -1,11 +1,16 @@
 package audio;
 
+import java.io.FileInputStream;
+
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequencer;
 
+import javazoom.jl.player.advanced.AdvancedPlayer;
+
 /**
- * Used with Song for playing music (.mid)
+ * Used with Song for playing music (.mid). Can load .mp3 as well,
+ * by means of the static <code>loadAndGetMP3()</code> method.
  * 
  * @author Dan Hagborg //not Austin
  * @version 1.0
@@ -41,6 +46,19 @@ public class MusicPlayer {
 		if (player.isRunning()) {
 			player.stop();
 		}
+	}
+	
+	public static AdvancedPlayer loadAndGetMP3(String path) {
+		AdvancedPlayer player = null;
+		
+		try {
+			FileInputStream file = new FileInputStream(path);
+			player = new AdvancedPlayer(file);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return player;
 	}
 	
 	public static MusicPlayer m = new MusicPlayer();

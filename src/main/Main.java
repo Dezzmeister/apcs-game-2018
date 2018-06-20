@@ -6,8 +6,10 @@ import static render.core.Block.CubicleWalls.CUBICLE_Y;
 import static render.core.WorldMap.DEFAULT_CEILING;
 import static render.math.Vector3.ORIGIN;
 
+import audio.MusicPlayer;
 import image.GeneralTexture;
 import image.SquareTexture;
+import javazoom.jl.player.advanced.AdvancedPlayer;
 import render.core.Block;
 import render.core.Camera;
 import render.core.Raycaster;
@@ -19,9 +21,9 @@ import render.math.Vector3;
 public class Main {
 	
 	public static void main(String[] args) {
-		test();
-		// cubicleTest();
-		// vectorTest();
+		//test();
+		cubicleTest();
+		//vectorTest();
 	}
 
 	static void vectorTest() {
@@ -34,6 +36,8 @@ public class Main {
 	static void cubicleTest() {
 		int width = 1000;
 		int height = 1000;
+		
+		AdvancedPlayer macrobinson = MusicPlayer.loadAndGetMP3("assets/music/macrobinson.mp3");
 
 		Game game = new Game(width, height).noCursor();
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
@@ -91,6 +95,12 @@ public class Main {
 		game.setRaycaster(raycaster);
 		raycaster.start();
 		Thread gameThread = game.startAndRun();
+		try {
+			macrobinson.play();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	static void test() {
