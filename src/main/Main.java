@@ -36,12 +36,14 @@ public class Main {
 		int width = 1000;
 		int height = 1000;
 		
-		SoundManager manager = new SoundManager(1);
+		SoundManager manager = new SoundManager();
 		
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
 		manager.addSound("mac", "assets/music/macrobinson.ogg");
-		manager.play("mac");
+		manager.addSound("hitman", "assets/music/exploration.ogg");
+		manager.play("hitman");
+		//manager.play("mac");
 		
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
@@ -100,12 +102,6 @@ public class Main {
 		
 		Thread gameThread = game.startAndRun();
 		
-		sleep(1);
-		manager.pause("mac");
-		
-		sleep(5);
-		manager.resume("mac");
-		//manager.end("mac");
 	}
 
 	static void test() {

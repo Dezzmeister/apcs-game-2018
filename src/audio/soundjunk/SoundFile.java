@@ -27,6 +27,12 @@ public interface SoundFile extends Runnable {
 	
 	void resume();
 	
+	void setGain(float norm);
+	
+	float maxGain();
+	
+	float minGain();
+	
 	default void run() {
 		play();
 	}

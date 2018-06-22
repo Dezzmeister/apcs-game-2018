@@ -102,6 +102,11 @@ public class SoundManager {
 		}
 	}
 	
+	/**
+	 * Stops sound without destroying its thread.
+	 * 
+	 * @param name
+	 */
 	public synchronized void end(String name) {
 		try {
 			sounds.get(name).end();
@@ -126,6 +131,9 @@ public class SoundManager {
 		}
 	}
 	
+	/**
+	 * Stops all sound and destroys all threads.
+	 */
 	public void shutdown() {
 		executor.shutdownNow();
 		System.out.println("Shutting down all sound threads.");

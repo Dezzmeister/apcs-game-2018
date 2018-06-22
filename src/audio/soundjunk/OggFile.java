@@ -8,6 +8,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.FloatControl.Type;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
@@ -55,13 +57,12 @@ class OggFile implements SoundFile {
 	}
 	
 	@Override
-	public synchronized void end() {
+	public void end() {
 		ended = true;
 	}
 	
 	@Override
 	public void pause() {
-		System.out.println("Pausing audio.");
 		if (line != null) {
 			line.stop();
 		}
@@ -77,9 +78,40 @@ class OggFile implements SoundFile {
 		paused.set(false);
 	}
 	
+	/**
+	 * Sets the gain of the audio, taking maximum and minimun gain values into account.
+	 * Accepts a normalized value.
+	 */
+	@Override
+	public void setGain(float norm) {
+		if (norm <= 1.0f && norm >=0.0f) {
+			FloatControl gain = (FloatControl) line.getControl(Type.MASTER_GAIN);
+			float min = gain.getMinimum();
+			float max = gain.getMaximum();
+			
+			norm *= Math.abs(max-min);
+			norm += min;
+			
+			gain.setValue(norm);			
+		} else {
+			System.out.println("Volume "+norm+" is too high! Must be between 0 and 1!");
+		}
+	}
+	
+	@Override
+	public float maxGain() {
+		return ((FloatControl) line.getControl(Type.MASTER_GAIN)).getMaximum();
+	}
+	
+	@Override
+	public float minGain() {
+		return ((FloatControl) line.getControl(Type.MASTER_GAIN)).getMinimum();
+	}
+	
 	private void rawPlay(AudioFormat targetFormat) throws IOException, LineUnavailableException, InterruptedException {
 		byte[] data = new byte[4096];
 		line = getLine(targetFormat);
+		
 		if (line != null) {
 			line.start();
 			int bytesRead = 0;
