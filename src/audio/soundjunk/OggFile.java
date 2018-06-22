@@ -89,7 +89,7 @@ class OggFile implements SoundFile {
 			float min = gain.getMinimum();
 			float max = gain.getMaximum();
 			
-			norm *= Math.abs(max-min);
+			norm *= max-min;
 			norm += min;
 			
 			gain.setValue(norm);			
