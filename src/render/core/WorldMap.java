@@ -15,6 +15,8 @@ public class WorldMap {
 	private Block[][] blocks;
 	private SquareTexture[][] floorMap;
 	private SquareTexture[][] ceilMap;
+	
+	//private Speaker[] speakers;
 
 	public WorldMap(Block[][] _blocks) {
 		blocks = _blocks;
@@ -40,7 +42,12 @@ public class WorldMap {
 		ceilMap = _ceilMap;
 		return this;
 	}
-
+	/*
+	public WorldMap setSpeakers(Speaker ... _speakers) {
+		speakers = _speakers;
+		return this;
+	}
+	*/
 	/**
 	 * Replaces all border Blocks with <code>block</code>.
 	 * 

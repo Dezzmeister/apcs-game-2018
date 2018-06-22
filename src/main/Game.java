@@ -11,6 +11,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.DateFormat;
@@ -22,6 +24,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import audio.soundjunk.SoundManager;
 import render.core.Raycaster;
 
 /**
@@ -39,6 +42,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public static final Cursor BLANK_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(CURSOR_IMG,
 			new Point(0, 0), "blank cursor");
 	private Raycaster raycaster;
+	private SoundManager soundManager;
 	public Container pane;
 	public final AtomicBoolean isRunning = new AtomicBoolean(false);
 	public final boolean[] keys = new boolean[256];
@@ -48,6 +52,58 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	{
 		addMouseMotionListener(this);
 		addKeyListener(this);
+		addWindowListener(new WindowListener() {
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.out.println("Window closing!");
+				
+				if (raycaster != null) {
+					raycaster.shutdown();
+				}
+				
+				if (soundManager != null) {
+					soundManager.shutdown();
+				}
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 	}
 
 	public Game(int resolutionWidth, int resolutionHeight) {
@@ -65,6 +121,11 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		pane.add(raycaster, BorderLayout.CENTER);
 		setVisible(true);
 		raycaster.setDoubleBuffered(true);
+		return this;
+	}
+	
+	public Game setSoundManager(SoundManager _manager) {
+		soundManager = _manager;
 		return this;
 	}
 

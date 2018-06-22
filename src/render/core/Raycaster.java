@@ -640,6 +640,10 @@ public final class Raycaster extends JPanel {
 		
 		renderers[renderers.length - 1] = new ThreadRenderer(step, WIDTH, rendererCount - 1);
 	}
+	
+	public void shutdown() {
+		executor.shutdown();
+	}
 
 	public void enableVerticalMouselook() {
 		upDownEnabled = 0xFFFFFFFF;

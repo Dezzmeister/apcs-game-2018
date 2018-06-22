@@ -6,10 +6,7 @@ import static render.core.Block.CubicleWalls.CUBICLE_Y;
 import static render.core.WorldMap.DEFAULT_CEILING;
 import static render.math.Vector3.ORIGIN;
 
-import java.io.FileInputStream;
-
-import org.newdawn.easyogg.OggClip;
-
+import audio.soundjunk.SoundManager;
 import image.GeneralTexture;
 import image.SquareTexture;
 import render.core.Block;
@@ -39,17 +36,13 @@ public class Main {
 		int width = 1000;
 		int height = 1000;
 		
-		//AdvancedPlayer macrobinson = MusicPlayer.loadAndGetMP3("assets/music/macrobinson.mp3");
-		try {
-			FileInputStream file = new FileInputStream("assets/music/macrobinson.ogg");
-			OggClip mac = new OggClip(file);
-			mac.loop();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
+		SoundManager manager = new SoundManager(1);
+		
 		Game game = new Game(width, height).noCursor();
+		game.setSoundManager(manager);
+		manager.addSound("mac", "assets/music/macrobinson.ogg");
+		//manager.play("mac");
+		
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
 

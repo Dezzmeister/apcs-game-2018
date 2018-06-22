@@ -43,6 +43,6 @@ public class MusicPlayer {
 		}
 	}
 	
-	public static MusicPlayer m = new MusicPlayer();
+	//public static MusicPlayer m = new MusicPlayer();
 	
 }
