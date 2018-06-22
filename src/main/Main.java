@@ -97,8 +97,14 @@ public class Main {
 
 		game.setRaycaster(raycaster);
 		raycaster.start();
+		
 		Thread gameThread = game.startAndRun();
 		
+		sleep(1);
+		manager.pause("mac");
+		
+		sleep(5);
+		manager.resume("mac");
 		//manager.end("mac");
 	}
 
@@ -161,4 +167,12 @@ public class Main {
 		Thread gameThread = game.startAndRun();
 
 	}
+	
+	public static void sleep(long seconds) {
+        try {
+            Thread.sleep(1000 * seconds);
+        } catch(InterruptedException e) {
+        
+		}
+    }
 }

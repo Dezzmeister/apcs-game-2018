@@ -645,14 +645,6 @@ public final class Raycaster extends JPanel {
 	public void shutdown() {
 		executor.shutdownNow();
 		System.out.println("Shutting down all Raycaster threads.");
-		try {
-			executor.awaitTermination(7, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if (!executor.isTerminated()) {
-			System.out.println("Error occured while shutting down Raycaster threads!");
-		}
 	}
 
 	public void enableVerticalMouselook() {

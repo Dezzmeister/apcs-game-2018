@@ -12,13 +12,17 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 /**
- * Represents a Vorbis .ogg file.
+ * Represents a Vorbis .ogg file. This class should only be used by SoundManager,
+ * therefore it is package-private.
  *
  * @author Joe Desmond
  */
 class OggFile implements SoundFile {
 	private String path;
+	private AudioInputStream din;
+	private SourceDataLine line;
 	private volatile boolean ended = false;
+	private volatile AtomicBoolean paused = new AtomicBoolean(false);
 	
 	public OggFile(String _path) {
 		path = _path;
@@ -30,7 +34,7 @@ class OggFile implements SoundFile {
 		try {
 			File file = new File(path);
 			AudioInputStream in = AudioSystem.getAudioInputStream(file);
-			AudioInputStream din = null;
+			
 			if (in != null) {
 				AudioFormat baseFormat = in.getFormat();
 				AudioFormat decodedFormat = new AudioFormat(
@@ -42,7 +46,7 @@ class OggFile implements SoundFile {
 						baseFormat.getSampleRate(),
 						false);
 				din = AudioSystem.getAudioInputStream(decodedFormat, in);
-				rawPlay(decodedFormat,din);
+				rawPlay(decodedFormat);
 				in.close();
 			}
 		} catch (Exception e) {
@@ -55,17 +59,38 @@ class OggFile implements SoundFile {
 		ended = true;
 	}
 	
-	private void rawPlay(AudioFormat targetFormat, AudioInputStream din) throws IOException, LineUnavailableException {
+	@Override
+	public void pause() {
+		System.out.println("Pausing audio.");
+		if (line != null) {
+			line.stop();
+		}
+		paused.set(true);
+		//System.out.println(paused.get());
+	}
+	
+	@Override
+	public void resume() {
+		if (line != null) {
+			line.start();
+		}
+		paused.set(false);
+	}
+	
+	private void rawPlay(AudioFormat targetFormat) throws IOException, LineUnavailableException, InterruptedException {
 		byte[] data = new byte[4096];
-		SourceDataLine line = getLine(targetFormat);
+		line = getLine(targetFormat);
 		if (line != null) {
 			line.start();
 			int bytesRead = 0;
 			int bytesWritten = 0;
 			while (bytesRead != -1 && !ended) {
-				bytesRead = din.read(data,0,data.length);
-				if (bytesRead != -1) {
-					bytesWritten = line.write(data, 0, bytesRead);
+				
+				while (!paused.get()) {
+					bytesRead = din.read(data,0,data.length);
+					if (bytesRead != -1) {
+						bytesWritten = line.write(data, 0, bytesRead);
+					}
 				}
 			}
 			

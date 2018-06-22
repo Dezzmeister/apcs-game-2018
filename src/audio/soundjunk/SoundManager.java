@@ -31,6 +31,14 @@ public class SoundManager {
 		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threads);
 	}
 	
+	/**
+	 * Creates a SoundManager with 5 threads, meaning that it will be able to play 5
+	 * sounds simultaneously.
+	 */
+	public SoundManager() {
+		this(5);
+	}
+	
 	public void addSound(String name, String path) {
 		try {
 			if (sounds.size() <= executor.getMaximumPoolSize()) {
@@ -61,6 +69,7 @@ public class SoundManager {
 			String extension = path.substring(path.lastIndexOf(".")).toLowerCase();
 			
 			Class<? extends SoundFile> soundClass = null;
+			
 			for (Class<? extends SoundFile> c : supportedTypes) {
 				String className = c.getSimpleName();
 				String supportedExtension = "."+className.substring(0,className.lastIndexOf("File")).toLowerCase();
@@ -101,17 +110,25 @@ public class SoundManager {
 		}
 	}
 	
+	public synchronized void pause(String name) {
+		try {
+			sounds.get(name).pause();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public synchronized void resume(String name) {
+		try {
+			sounds.get(name).resume();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void shutdown() {
 		executor.shutdownNow();
 		System.out.println("Shutting down all sound threads.");
-		try {
-			executor.awaitTermination(7, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if (!executor.isTerminated()) {
-			System.out.println("Error occured while shutting down sound threads!");
-		}
 	}
 	
 	/**

@@ -18,7 +18,14 @@ public interface SoundFile extends Runnable {
 	
 	void play();
 	
+	/**
+	 * Stops the audio completely.
+	 */
 	void end();
+	
+	void pause();
+	
+	void resume();
 	
 	default void run() {
 		play();
