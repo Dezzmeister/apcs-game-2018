@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
@@ -642,7 +643,16 @@ public final class Raycaster extends JPanel {
 	}
 	
 	public void shutdown() {
-		executor.shutdown();
+		executor.shutdownNow();
+		System.out.println("Shutting down all Raycaster threads.");
+		try {
+			executor.awaitTermination(7, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if (!executor.isTerminated()) {
+			System.out.println("Error occured while shutting down Raycaster threads!");
+		}
 	}
 
 	public void enableVerticalMouselook() {

@@ -41,7 +41,7 @@ public class Main {
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
 		manager.addSound("mac", "assets/music/macrobinson.ogg");
-		//manager.play("mac");
+		manager.play("mac");
 		
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
@@ -98,12 +98,8 @@ public class Main {
 		game.setRaycaster(raycaster);
 		raycaster.start();
 		Thread gameThread = game.startAndRun();
-		try {
-			//macrobinson.play();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		//manager.end("mac");
 	}
 
 	static void test() {

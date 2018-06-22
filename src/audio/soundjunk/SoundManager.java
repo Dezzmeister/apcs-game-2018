@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -42,7 +43,8 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Uses reflection!
+	 * Checks if path's file format is supported, then attempts to load the audio file
+	 * at path and wrap it with an object of the class supporting its format. Uses reflection.
 	 * 
 	 * @param path
 	 * @return
@@ -91,8 +93,25 @@ public class SoundManager {
 		}
 	}
 	
+	public synchronized void end(String name) {
+		try {
+			sounds.get(name).end();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void shutdown() {
-		executor.shutdown();
+		executor.shutdownNow();
+		System.out.println("Shutting down all sound threads.");
+		try {
+			executor.awaitTermination(7, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if (!executor.isTerminated()) {
+			System.out.println("Error occured while shutting down sound threads!");
+		}
 	}
 	
 	/**

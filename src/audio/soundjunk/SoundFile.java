@@ -1,7 +1,7 @@
 package audio.soundjunk;
 
 /**
- * Represents a sound file of any format. All classes that implement this should follow
+ * Represents a sound file of any format. All classes that implement this must follow
  * the naming convention:
  * <p>
  * <i>(File Extension)</i><code>File</code>
@@ -17,6 +17,8 @@ package audio.soundjunk;
 public interface SoundFile extends Runnable {
 	
 	void play();
+	
+	void end();
 	
 	default void run() {
 		play();

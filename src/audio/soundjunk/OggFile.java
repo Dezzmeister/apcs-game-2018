@@ -2,6 +2,7 @@ package audio.soundjunk;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -17,13 +18,15 @@ import javax.sound.sampled.SourceDataLine;
  */
 class OggFile implements SoundFile {
 	private String path;
+	private volatile boolean ended = false;
 	
 	public OggFile(String _path) {
 		path = _path;
 	}
 	
 	@Override
-	public void play() {
+	public synchronized void play() {
+		ended = false;
 		try {
 			File file = new File(path);
 			AudioInputStream in = AudioSystem.getAudioInputStream(file);
@@ -47,6 +50,11 @@ class OggFile implements SoundFile {
 		}
 	}
 	
+	@Override
+	public synchronized void end() {
+		ended = true;
+	}
+	
 	private void rawPlay(AudioFormat targetFormat, AudioInputStream din) throws IOException, LineUnavailableException {
 		byte[] data = new byte[4096];
 		SourceDataLine line = getLine(targetFormat);
@@ -54,7 +62,7 @@ class OggFile implements SoundFile {
 			line.start();
 			int bytesRead = 0;
 			int bytesWritten = 0;
-			while (bytesRead != -1) {
+			while (bytesRead != -1 && !ended) {
 				bytesRead = din.read(data,0,data.length);
 				if (bytesRead != -1) {
 					bytesWritten = line.write(data, 0, bytesRead);
