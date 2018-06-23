@@ -9,6 +9,7 @@ import static render.math.Vector3.ORIGIN;
 import audio.soundjunk.SoundManager;
 import image.GeneralTexture;
 import image.SquareTexture;
+import mapGen.MapGenerator;
 import render.core.Block;
 import render.core.Camera;
 import render.core.Raycaster;
@@ -43,7 +44,7 @@ public class Main {
 		manager.addSound("mac", "assets/music/macrobinson.ogg");
 		manager.addSound("hitman", "assets/music/exploration.ogg");
 		manager.play("hitman");
-
+		
 		// manager.play("mac");
 
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))

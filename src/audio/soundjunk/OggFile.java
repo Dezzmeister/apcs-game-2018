@@ -63,7 +63,6 @@ class OggFile implements SoundFile {
 			line.stop();
 		}
 		paused.set(true);
-		// System.out.println(paused.get());
 	}
 
 	@Override
@@ -101,12 +100,12 @@ class OggFile implements SoundFile {
 	public Optional<Float> minGain() {
 		return Optional.ofNullable(((FloatControl) line.getControl(Type.MASTER_GAIN)).getMinimum());
 	}
-
+	
 	@Override
 	public Optional<Float> maxVolume() {
 		return Optional.ofNullable(((FloatControl) line.getControl(Type.VOLUME)).getMaximum());
 	}
-
+	
 	@Override
 	public Optional<Float> minVolume() {
 		return Optional.ofNullable(((FloatControl) line.getControl(Type.VOLUME)).getMinimum());

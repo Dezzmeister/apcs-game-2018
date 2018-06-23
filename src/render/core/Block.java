@@ -124,7 +124,7 @@ public class Block {
 	
 	/**
 	 * Contains Blocks defined as cubicle walls, for use in our office-themed maps.
-	 * The CUBICLE and SIDE textures are not final.
+	 * The CUBICLE and SIDE textures are not final (though they are <code>final</code>).
 	 *
 	 * @author Joe Desmond
 	 */
@@ -151,5 +151,18 @@ public class Block {
 				new Wall(1.0f, 0.5f - thickness / 2.0f, 1.0f, 0.5f + thickness / 2.0f).setTexture(SIDE),
 				new Wall(0.0f, 0.5f - thickness / 2.0f, 1.0f, 0.5f - thickness / 2.0f).setTexture(CUBICLE),
 				new Wall(0.0f, 0.5f + thickness / 2.0f, 1.0f, 0.5f + thickness / 2.0f).setTexture(CUBICLE));
+		
+		/**
+		 * A 4-way cubicle intersection.
+		 */
+		public static final Block CUBICLE_CROSS = new Block("cubicle cross").customize(
+				new Wall(0.0f, 0.5f - thickness / 2.0f, 0.0f, 0.5f + thickness / 2.0f).setTexture(SIDE),
+				new Wall(1.0f, 0.5f - thickness / 2.0f, 1.0f, 0.5f + thickness / 2.0f).setTexture(SIDE),
+				new Wall(0.0f, 0.5f - thickness / 2.0f, 1.0f, 0.5f - thickness / 2.0f).setTexture(CUBICLE),
+				new Wall(0.0f, 0.5f + thickness / 2.0f, 1.0f, 0.5f + thickness / 2.0f).setTexture(CUBICLE),
+				new Wall(0.5f - thickness / 2.0f, 0.0f, 0.5f - thickness / 2.0f, 1.0f).setTexture(CUBICLE),
+				new Wall(0.5f + thickness / 2.0f, 0.0f, 0.5f + thickness / 2.0f, 1.0f).setTexture(CUBICLE),
+				new Wall(0.5f - thickness / 2.0f, 0.0f, 0.5f + thickness / 2.0f, 0.0f).setTexture(SIDE),
+				new Wall(0.5f - thickness / 2.0f, 1.0f, 0.5f + thickness / 2.0f, 1.0f).setTexture(SIDE));
 	}
 }

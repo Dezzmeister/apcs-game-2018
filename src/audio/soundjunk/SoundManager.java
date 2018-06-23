@@ -14,7 +14,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Manages different sounds that may be playing in the World. Uses a ThreadPool
- * to play sound concurrently.
+ * to play sound concurrently. A SoundManager gives users access to its sound through
+ * String identifiers. Users should not directly reference the actual sound objects.
  *
  * @author Joe Desmond
  */
@@ -23,7 +24,7 @@ public class SoundManager {
 	private ThreadPoolExecutor executor;
 	private Map<String, SoundFile> sounds = new HashMap<String, SoundFile>();
 	private static final List<Class<? extends SoundFile>> supportedTypes = new ArrayList<Class<? extends SoundFile>>();
-
+	
 	static {
 		supportedTypes.add(OggFile.class);
 	}
@@ -96,7 +97,12 @@ public class SoundManager {
 			throw new UnsupportedAudioFileException("File extension not present in file " + path + "!");
 		}
 	}
-
+	
+	/**
+	 * Starts the audio from the beginning.
+	 * 
+	 * @param name
+	 */
 	public void play(String name) {
 		try {
 			SoundFile file = sounds.get(name);
@@ -107,7 +113,7 @@ public class SoundManager {
 	}
 
 	/**
-	 * Stops sound without destroying its thread.
+	 * Stops the audio without destroying its thread.
 	 *
 	 * @param name
 	 */
@@ -134,7 +140,14 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * Attempts to set the gain of the audio, if this control is supported. Gain is essentially
+	 * volume, for our purposes.
+	 * 
+	 * @param norm
+	 * 			gain value from <code>minGain()</code> to <code>maxGain()</code>
+	 */
 	public synchronized void setGain(String name, float norm) {
 		try {
 			sounds.get(name).setGain(norm);
@@ -142,7 +155,11 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * Returns the maximum possible gain, if this control is supported. If this control
+	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 */
 	public synchronized Optional<Float> maxGain(String name) {
 		try {
 			return sounds.get(name).maxGain();
@@ -152,7 +169,11 @@ public class SoundManager {
 
 		return null;
 	}
-
+	
+	/**
+	 * Returns the minimum possible gain, if this control is supported. If this control
+	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 */
 	public synchronized Optional<Float> minGain(String name) {
 		try {
 			return sounds.get(name).minGain();
@@ -162,7 +183,11 @@ public class SoundManager {
 
 		return Optional.empty();
 	}
-
+	
+	/**
+	 * Returns the maximum possible volume, if this control is supported. If this control
+	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 */
 	public synchronized Optional<Float> maxVolume(String name) {
 		try {
 			return sounds.get(name).maxVolume();
@@ -172,7 +197,11 @@ public class SoundManager {
 
 		return null;
 	}
-
+	
+	/**
+	 * Returns the minimum possible volume, if this control is supported. If this control
+	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 */
 	public synchronized Optional<Float> minVolume(String name) {
 		try {
 			return sounds.get(name).minVolume();
@@ -182,7 +211,13 @@ public class SoundManager {
 
 		return Optional.empty();
 	}
-
+	
+	/**
+	 * Attempts to set the left/right balance of the audio, if this control is supported.
+	 * 
+	 * @param panValue
+	 * 			value from -1.0f (left) to 1.0f (right)
+	 */
 	public synchronized void setPan(String name, float panValue) {
 		try {
 			sounds.get(name).setPan(panValue);
@@ -201,9 +236,12 @@ public class SoundManager {
 
 	/**
 	 * Lets the SoundManager know about a Class that can open audio files of a
-	 * specific format.
+	 * specific format. For example, if you were to write a class to handle MP3 sound files,
+	 * you would first pass it to SoundManager via this method before attempting to load any
+	 * MP3 files.
 	 *
 	 * @param clazz
+	 * @see SoundFile
 	 */
 	public static void addSupportedType(Class<? extends SoundFile> clazz) {
 		supportedTypes.add(clazz);

@@ -47,7 +47,7 @@ public final class Raycaster extends JPanel {
 	public static final float FULL_FOG_DISTANCE = 5f;
 	public static final int SHADE_THRESHOLD = 100;
 	
-	private int rendererCount = 4;
+	private int rendererCount;
 	private ThreadRenderer[] renderers;
 	private ThreadPoolExecutor executor;
 	private LatchRef latchref;
