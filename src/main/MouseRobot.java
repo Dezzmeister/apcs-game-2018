@@ -15,78 +15,78 @@ import javax.swing.SwingUtilities;
  * @author Joe Desmond
  */
 public class MouseRobot {
-	
+
 	private AtomicInteger x = new AtomicInteger(0);
 	private AtomicInteger y = new AtomicInteger(0);
-
+	
 	private AtomicInteger px = new AtomicInteger(0);
 	private AtomicInteger py = new AtomicInteger(0);
 	private Robot robot;
 	private Container pane;
-
+	
 	private int width;
 	private int height;
-
+	
 	public MouseRobot(int _width, int _height, Container _pane) {
 		width = _width;
 		height = _height;
 		pane = _pane;
 	}
-
+	
 	{
 		try {
 			robot = new Robot();
 			robot.setAutoDelay(0);
 		} catch (Exception e) {
-
+			
 		}
 	}
-
+	
 	public MouseRobot(int _width, int _height) {
 		width = _width;
 		height = _height;
 	}
-
+	
 	public int width() {
 		return width;
 	}
-
+	
 	public int height() {
 		return height;
 	}
-
+	
 	public int x() {
 		return x.get();
 	}
-
+	
 	public int y() {
 		return y.get();
 	}
-
+	
 	public void x(int _x) {
 		px.set(x());
 		x.set(_x);
 	}
-
+	
 	public void y(int _y) {
 		py.set(y());
 		y.set(_y);
 	}
-
+	
 	private void forceToCenter() {
 		Point p = new Point(width / 2, height / 2);
 		SwingUtilities.convertPointToScreen(p, pane);
 		robot.mouseMove(p.x, p.y);
 	}
-
+	
 	public void setWidth(int _width) {
 		width = _width;
 	}
-
+	
 	public void setHeight(int _height) {
 		height = _height;
 	}
-
+	
 	/**
 	 * Returns the position of the mouse on the x-axis from the previous frame.
 	 *
@@ -95,7 +95,7 @@ public class MouseRobot {
 	public int px() {
 		return px.get();
 	}
-
+	
 	/**
 	 * Returns the position of the mouse on the y-axis from the previous frame.
 	 *
@@ -104,7 +104,7 @@ public class MouseRobot {
 	public int py() {
 		return py.get();
 	}
-
+	
 	/**
 	 * Returns the difference in position on the x axis from the center of the
 	 * Container, then moves the cursor to the center of the Container.
@@ -116,7 +116,7 @@ public class MouseRobot {
 		forceToCenter();
 		return ret;
 	}
-
+	
 	/**
 	 * Returns the difference in position on the y axis from the center of the
 	 * Container, then moves the cursor to the center of the Container.

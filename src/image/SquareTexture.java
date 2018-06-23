@@ -6,13 +6,13 @@ package image;
  * @author Joe Desmond
  */
 public class SquareTexture extends Texture {
-	
+
 	/**
 	 * The height and width of the texture.
 	 */
 	public final int SIZE;
 	private GeneralTexture generalVersion = null;
-
+	
 	/**
 	 * Loads an image at the specified path with the specified size as a
 	 * BlockTexture.
@@ -30,12 +30,12 @@ public class SquareTexture extends Texture {
 		pixels = new int[SIZE * SIZE];
 		load();
 	}
-
+	
 	public SquareTexture(int[] _pixels, int _size) {
 		pixels = _pixels;
 		SIZE = _size;
 	}
-
+	
 	public GeneralTexture asGeneralTexture() {
 		if (generalVersion != null) {
 			return generalVersion;

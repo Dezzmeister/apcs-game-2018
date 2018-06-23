@@ -10,10 +10,10 @@ import image.SquareTexture;
  * @author Joe Desmond
  */
 public class Block {
-	
+
 	public static final SquareTexture DEFAULT_TEXTURE = new SquareTexture("assets/textures/default32.png", 32);
 	public static final Block SPACE = new Block("space").fakeBlock();
-
+	
 	/**
 	 * If this Block is custom, this will contain this Block's custom Walls.
 	 */
@@ -26,11 +26,11 @@ public class Block {
 	public float frontYTiles = 1;
 	public float sideXTiles = 1;
 	public float sideYTiles = 1;
-
+	
 	public Block(String _name) {
 		name = _name;
 	}
-
+	
 	/**
 	 * Allows a Block to be rendered as a group of custom Walls defined relative to
 	 * block space instead of a default block. If solid, collision will still occur
@@ -44,7 +44,7 @@ public class Block {
 		walls = _walls;
 		return this;
 	}
-
+	
 	/**
 	 * Makes this block non-solid.
 	 */
@@ -52,15 +52,15 @@ public class Block {
 		solid = false;
 		return this;
 	}
-
+	
 	public void solidify() {
 		solid = true;
 	}
-
+	
 	public boolean isSolid() {
 		return solid;
 	}
-
+	
 	/**
 	 * Returns true if this block is defined as a collection of Walls instead of a
 	 * full Block.
@@ -70,21 +70,21 @@ public class Block {
 	public boolean isCustom() {
 		return walls != null;
 	}
-
+	
 	public Block tileFront(float _xTiles, float _yTiles) {
 		frontXTiles = _xTiles;
 		frontYTiles = _yTiles;
-
+		
 		return this;
 	}
-
+	
 	public Block tileSide(float _xTiles, float _yTiles) {
 		sideXTiles = _xTiles;
 		sideYTiles = _yTiles;
-
+		
 		return this;
 	}
-
+	
 	/**
 	 * Apply this texture to the front and back (x-facing sides) of the block.
 	 *
@@ -96,7 +96,7 @@ public class Block {
 		frontTexture = front;
 		return this;
 	}
-
+	
 	/**
 	 * Apply this texture to the y-facing sides of the block.
 	 *
@@ -108,7 +108,7 @@ public class Block {
 		sideTexture = side;
 		return this;
 	}
-
+	
 	/**
 	 * Applies one texture to all sides of the Block.
 	 *
@@ -121,7 +121,7 @@ public class Block {
 		sideTexture = texture;
 		return this;
 	}
-
+	
 	/**
 	 * Contains Blocks defined as cubicle walls, for use in our office-themed maps.
 	 * The CUBICLE and SIDE textures are not final.
@@ -129,10 +129,10 @@ public class Block {
 	 * @author Joe Desmond
 	 */
 	public static class CubicleWalls {
-		
+
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);
-
+		
 		private static float thickness = 0.1f;
 		/**
 		 * A Cubicle Wall aligned on the Y axis.
@@ -142,7 +142,7 @@ public class Block {
 				new Wall(0.5f + thickness / 2.0f, 0.0f, 0.5f + thickness / 2.0f, 1.0f).setTexture(CUBICLE),
 				new Wall(0.5f - thickness / 2.0f, 0.0f, 0.5f + thickness / 2.0f, 0.0f).setTexture(SIDE),
 				new Wall(0.5f - thickness / 2.0f, 1.0f, 0.5f + thickness / 2.0f, 1.0f).setTexture(SIDE));
-
+		
 		/**
 		 * A Cubicle wall aligned on the X axis.
 		 */
