@@ -12,6 +12,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import audio.soundjunk.localized.Localizer;
+import audio.soundjunk.localized.Speaker;
+
 /**
  * Manages different sounds that may be playing in the World. Uses a ThreadPool
  * to play sound concurrently. A SoundManager gives users access to its sound through
@@ -21,9 +24,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundManager {
 	
-	private ThreadPoolExecutor executor;
-	private Map<String, SoundFile> sounds = new HashMap<String, SoundFile>();
 	private static final List<Class<? extends SoundFile>> supportedTypes = new ArrayList<Class<? extends SoundFile>>();
+	private final ThreadPoolExecutor executor;
+	private final Map<String, SoundFile> sounds = new HashMap<String, SoundFile>();
+	private final Map<String, List<Speaker>> speakers = new HashMap<String, List<Speaker>>();
+	private final Localizer localizer = new Localizer();
 	
 	static {
 		supportedTypes.add(OggFile.class);
@@ -43,10 +48,18 @@ public class SoundManager {
 
 	public void addSound(String name, String path) {
 		try {
-			if (sounds.size() <= executor.getMaximumPoolSize()) {
-				sounds.put(name, createSoundFile(path));
-
-			}
+			sounds.put(name, createSoundFile(path));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void addSound(String name, String path, Speaker initial) {
+		try {
+			sounds.put(name, createSoundFile(path));
+			List<Speaker> list = new ArrayList<Speaker>();
+			list.add(initial);
+			speakers.put(name,list);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -145,6 +158,8 @@ public class SoundManager {
 	 * Attempts to set the gain of the audio, if this control is supported. Gain is essentially
 	 * volume, for our purposes.
 	 * 
+	 * @param name
+	 * 			Name of the audio
 	 * @param norm
 	 * 			gain value from <code>minGain()</code> to <code>maxGain()</code>
 	 */
@@ -159,6 +174,9 @@ public class SoundManager {
 	/**
 	 * Returns the maximum possible gain, if this control is supported. If this control
 	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * 
+	 * @param name
+	 * 			Name of the audio
 	 */
 	public synchronized Optional<Float> maxGain(String name) {
 		try {
@@ -167,12 +185,15 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 
-		return null;
+		return Optional.empty();
 	}
 	
 	/**
 	 * Returns the minimum possible gain, if this control is supported. If this control
 	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * 
+	 * @param name
+	 * 			Name of the audio
 	 */
 	public synchronized Optional<Float> minGain(String name) {
 		try {
@@ -187,6 +208,9 @@ public class SoundManager {
 	/**
 	 * Returns the maximum possible volume, if this control is supported. If this control
 	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * 
+	 * @param name
+	 * 			Name of the audio
 	 */
 	public synchronized Optional<Float> maxVolume(String name) {
 		try {
@@ -195,12 +219,15 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 
-		return null;
+		return Optional.empty();
 	}
 	
 	/**
 	 * Returns the minimum possible volume, if this control is supported. If this control
 	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * 
+	 * @param name
+	 * 			Name of the audio
 	 */
 	public synchronized Optional<Float> minVolume(String name) {
 		try {
@@ -215,6 +242,8 @@ public class SoundManager {
 	/**
 	 * Attempts to set the left/right balance of the audio, if this control is supported.
 	 * 
+	 * @param name
+	 * 			Name of the audio
 	 * @param panValue
 	 * 			value from -1.0f (left) to 1.0f (right)
 	 */
@@ -241,9 +270,14 @@ public class SoundManager {
 	 * MP3 files.
 	 *
 	 * @param clazz
+	 * 			Audio class
 	 * @see SoundFile
 	 */
 	public static void addSupportedType(Class<? extends SoundFile> clazz) {
 		supportedTypes.add(clazz);
+	}
+	
+	public Localizer getLocalizer() {
+		return localizer;
 	}
 }

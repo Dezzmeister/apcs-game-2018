@@ -104,7 +104,7 @@ public class Main {
 
 		Thread gameThread = game.startAndRun();
 
-		sleep(1);
+		sleep(1000);
 		manager.setGain("hitman", -9);
 
 	}
@@ -169,9 +169,9 @@ public class Main {
 		
 	}
 
-	public static void sleep(long seconds) {
+	public static void sleep(long millis) {
 		try {
-			Thread.sleep(1000 * seconds);
+			Thread.sleep(millis);
 		} catch (InterruptedException e) {
 			
 		}

@@ -2,15 +2,11 @@ package audio.soundjunk;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.FloatControl.Type;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
@@ -20,16 +16,11 @@ import javax.sound.sampled.SourceDataLine;
  *
  * @author Joe Desmond
  */
-class OggFile implements SoundFile {
-	
-	private String path;
+final class OggFile extends JavaSoundFile {
 	private AudioInputStream din;
-	private SourceDataLine line;
-	private volatile boolean ended = false;
-	private volatile AtomicBoolean paused = new AtomicBoolean(false);
 
 	public OggFile(String _path) {
-		path = _path;
+		super(_path);
 	}
 
 	@Override
@@ -52,77 +43,8 @@ class OggFile implements SoundFile {
 		}
 	}
 
-	@Override
-	public void end() {
-		ended = true;
-	}
-
-	@Override
-	public void pause() {
-		if (line != null) {
-			line.stop();
-		}
-		paused.set(true);
-	}
-
-	@Override
-	public void resume() {
-		if (line != null) {
-			line.start();
-		}
-		paused.set(false);
-	}
-
-	/**
-	 * Sets the gain of the audio, taking maximum and minimun gain values into
-	 * account. Accepts a normalized value.
-	 */
-	@Override
-	public void setGain(float _gain) {
-		FloatControl gain = (FloatControl) line.getControl(Type.MASTER_GAIN);
-		float min = gain.getMinimum();
-		float max = gain.getMaximum();
-		
-		if (_gain > min && _gain < max) {
-			gain.setValue(_gain);
-		} else {
-			System.out.println("Gain value " + _gain + " must be between " + max + " and " + min + "!");
-		}
-	}
-
-	@Override
-	public Optional<Float> maxGain() {
-
-		return Optional.ofNullable(((FloatControl) line.getControl(Type.MASTER_GAIN)).getMaximum());
-	}
-
-	@Override
-	public Optional<Float> minGain() {
-		return Optional.ofNullable(((FloatControl) line.getControl(Type.MASTER_GAIN)).getMinimum());
-	}
-	
-	@Override
-	public Optional<Float> maxVolume() {
-		return Optional.ofNullable(((FloatControl) line.getControl(Type.VOLUME)).getMaximum());
-	}
-	
-	@Override
-	public Optional<Float> minVolume() {
-		return Optional.ofNullable(((FloatControl) line.getControl(Type.VOLUME)).getMinimum());
-	}
-
-	@Override
-	public void setPan(float panValue) {
-		if (panValue >= -1.0f && panValue <= 1.0f) {
-			((FloatControl) line.getControl(Type.PAN)).setValue(panValue);
-		}
-	}
-
-	// @Override
-	// public float
-
 	private void rawPlay(AudioFormat targetFormat) throws IOException, LineUnavailableException, InterruptedException {
-		byte[] data = new byte[4096];
+		byte[] data = new byte[1024];
 		line = getLine(targetFormat);
 
 		if (line != null) {

@@ -6,7 +6,8 @@ package render.math;
  * @author Joe Desmond
  */
 public class Vector2 {
-
+	public static final Vector2 ORIGIN = new Vector2(0,0);
+	
 	public float x;
 	public float y;
 	public float length = -1;

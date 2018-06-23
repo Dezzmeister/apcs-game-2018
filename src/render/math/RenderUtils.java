@@ -71,6 +71,25 @@ public class RenderUtils {
 		return Math.abs(angle1 - angle2);
 	}
 	
+	/**
+	 * Returns a negative number if <code>point</code> lies on one side of the line,
+	 * a positive number if it lies on the other, and 0 if it is colinear.
+	 * 
+	 * @param line
+	 * 			Wall representing the line
+	 * @param point
+	 * 			Point in question
+	 * @return
+	 * 			A float, the sign of which determines which side of the line the point is on
+	 */
+	public static float whichSideOfLine(Wall line, Vector2 point) {
+		
+		return new Matrix2(new float[] {
+				line.v0.x-point.x, line.v1.x-point.x,
+				line.v0.y-point.y, line.v1.y-point.y
+		}).determinant();
+	}
+	
 	public static int darkenWithThreshold(int color, float normValue, int threshold) {
 		int darkenBy = (int) (normValue * threshold);
 		int red = (color >> 16) & 0xFF;
