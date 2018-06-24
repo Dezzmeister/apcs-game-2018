@@ -84,7 +84,7 @@ abstract class JavaSoundFile implements SoundFile {
 
 	@Override
 	public void setPan(float panValue) {
-		if (panValue >= -1.0f && panValue <= 1.0f) {
+		if (panValue >= -1.0f && panValue <= 1.0f && line != null) {
 			((FloatControl) line.getControl(Type.PAN)).setValue(panValue);
 		}
 	}	

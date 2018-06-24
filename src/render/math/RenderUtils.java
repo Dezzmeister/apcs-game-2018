@@ -9,6 +9,8 @@ import render.core.Wall;
  * @author Joe Desmond
  */
 public class RenderUtils {
+	public static final float HALF_PI = (float) Math.PI / 2.0f;
+	public static final float TWO_PI = (float) Math.PI * 2.0f;
 	
 	/**
 	 * This class is meant as a utility class; it holds only static utility methods.
@@ -64,11 +66,26 @@ public class RenderUtils {
 	 *            second wall
 	 * @return angle in radians
 	 */
-	public static float angleBetweenLines(Wall wall1, Wall wall2) {
+	@Deprecated
+	public static float oldAngleBetweenLines(Wall wall1, Wall wall2) {
 		float angle1 = (float) Math.atan2(wall1.v0.y - wall1.v1.y, wall1.v0.x - wall1.v1.x);
 		float angle2 = (float) Math.atan2(wall2.v0.y - wall2.v1.y, wall2.v0.x - wall2.v1.x);
 
 		return Math.abs(angle1 - angle2);
+	}
+	
+	public static float angleBetweenLines(Wall wall1, Wall wall2) {
+		Vector2 A = new Vector2(wall2.v0.x - wall1.v0.x, wall2.v0.y - wall1.v0.y);
+		Vector2 B = new Vector2(wall2.v1.x - wall1.v1.x, wall2.v1.y - wall1.v1.y);
+		
+		A.updateLength();
+		B.updateLength();
+		
+		Vector2 normA = A.normalize();
+		Vector2 normB = B.normalize();
+		
+		float dot = (normA.x * normB.x) + (normA.y * normB.y);
+		return (float)Math.acos(dot);
 	}
 	
 	/**

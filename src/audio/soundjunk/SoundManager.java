@@ -69,7 +69,7 @@ public class SoundManager {
 	public void update() {
 		for (Entry<String, List<Speaker>> entry : speakers.entrySet()) {
 			float balance = localizer.findBalance(entry.getValue());
-			//sounds.get(entry.getKey()).setPan(balance);
+			sounds.get(entry.getKey()).setPan(balance);
 		}
 	}
 

@@ -60,10 +60,26 @@ public class Localizer {
 					speakerLocation = s.position;
 				}
 				
-				float angle = RenderUtils.angleBetweenLines(new Wall(listener,listenerDirection), new Wall(listener,speakerLocation));
+				float angle = (float) Math.toDegrees(RenderUtils.angleBetweenLines(new Wall(listenerDirection,listener), new Wall(listener,speakerLocation)));
 				boolean onLeft = RenderUtils.isLeftOfRay(listener, listenerDirection, speakerLocation);
 				
-				System.out.println(angle + " " + onLeft);
+				//System.out.println(angle + " " + onLeft);
+				
+				if (onLeft) {
+					if (angle <= 90) {
+						totalBalance -= (angle/90);
+					} else {
+						totalBalance -= 1-((angle-90)/90);
+					}
+				} else {
+					if (angle <= 90) {
+						totalBalance += (angle/90);
+					} else {
+						totalBalance += 1-((angle-90)/90);
+					}
+				}
+				
+				System.out.println(totalBalance);
 			}
 		}
 		

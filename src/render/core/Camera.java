@@ -25,9 +25,6 @@ public class Camera {
 	
 	public int yOffset = 0;
 	private int upDownLimit;
-	
-	private static final float HALF_PI = (float) Math.PI / 2.0f;
-	private static final float TWO_PI = (float) Math.PI * 2.0f;
 	/**
 	 * I love lookup tables.
 	 */
@@ -97,8 +94,8 @@ public class Camera {
 	public void preComputeFactor(float factor) {
 		float speed = factor * this.rotSpeed;
 		preComputedSineLUT.put(speed, (float) Math.sin(speed));
-		preComputedSineLUT.put(HALF_PI + speed, (float) Math.cos(speed));
-		preComputedSineLUT.put(TWO_PI - speed, -(float) Math.sin(speed));
+		preComputedSineLUT.put(RenderUtils.HALF_PI + speed, (float) Math.cos(speed));
+		preComputedSineLUT.put(RenderUtils.TWO_PI - speed, -(float) Math.sin(speed));
 	}
 	
 	public void clearRotationLUT() {
@@ -116,7 +113,7 @@ public class Camera {
 		float speed = factor * this.rotSpeed;
 		
 		float oldDirX = dir.x;
-		float cr = preComputedSineLUT.get(HALF_PI + speed);
+		float cr = preComputedSineLUT.get(RenderUtils.HALF_PI + speed);
 		float sr = preComputedSineLUT.get(speed);
 		dir.x = dir.x * cr - dir.y * sr;
 		dir.y = oldDirX * sr + dir.y * cr;
@@ -136,8 +133,8 @@ public class Camera {
 		float speed = factor * this.rotSpeed;
 		
 		float oldDirX = dir.x;
-		float cr = preComputedSineLUT.get(HALF_PI + speed);
-		float sr = preComputedSineLUT.get(TWO_PI - speed);
+		float cr = preComputedSineLUT.get(RenderUtils.HALF_PI + speed);
+		float sr = preComputedSineLUT.get(RenderUtils.TWO_PI - speed);
 		dir.x = dir.x * cr - dir.y * sr;
 		dir.y = oldDirX * sr + dir.y * cr;
 		float oldPlaneX = plane.x;
