@@ -72,22 +72,21 @@ public class RenderUtils {
 	}
 	
 	/**
-	 * Returns a negative number if <code>point</code> lies on one side of the line,
-	 * a positive number if it lies on the other, and 0 if it is colinear.
+	 * Returns true if the point <code>testPoint</code> is to the left of the ray defined by 
+	 * <code>start</code> and <code>direction</code>. Returns false if the point is to the right or colinear.
 	 * 
-	 * @param line
-	 * 			Wall representing the line
-	 * @param point
-	 * 			Point in question
+	 * @param start
+	 * 			Beginning endpoint of the ray
+	 * @param direction
+	 * 			Determines the direction of the ray, and therefore what defines right/left
+	 * @param testPoint
+	 * 			Point being tested
 	 * @return
-	 * 			A float, the sign of which determines which side of the line the point is on
+	 * 			True if on left of ray, false if on right or colinear
 	 */
-	public static float whichSideOfLine(Wall line, Vector2 point) {
+	public static boolean isLeftOfRay(Vector2 start, Vector2 direction, Vector2 testPoint) {
 		
-		return new Matrix2(new float[] {
-				line.v0.x-point.x, line.v1.x-point.x,
-				line.v0.y-point.y, line.v1.y-point.y
-		}).determinant();
+		return (direction.x - start.x) * (testPoint.y - start.y) > (direction.y - start.y) * (testPoint.x - start.x);
 	}
 	
 	public static int darkenWithThreshold(int color, float normValue, int threshold) {

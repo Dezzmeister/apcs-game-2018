@@ -7,9 +7,9 @@ import static render.core.WorldMap.DEFAULT_CEILING;
 import static render.math.Vector3.ORIGIN;
 
 import audio.soundjunk.SoundManager;
+import audio.soundjunk.localized.Speaker;
 import image.GeneralTexture;
 import image.SquareTexture;
-import mapGen.MapGenerator;
 import render.core.Block;
 import render.core.Camera;
 import render.core.Raycaster;
@@ -42,7 +42,7 @@ public class Main {
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
 		manager.addSound("mac", "assets/music/macrobinson.ogg");
-		manager.addSound("hitman", "assets/music/exploration.ogg");
+		manager.addSound("hitman", "assets/music/exploration.ogg", new Speaker(4,4));
 		manager.play("hitman");
 		
 		// manager.play("mac");

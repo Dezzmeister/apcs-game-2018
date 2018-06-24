@@ -2,6 +2,8 @@ package audio.soundjunk.localized;
 
 import java.util.List;
 
+import render.core.Wall;
+import render.math.RenderUtils;
 import render.math.Vector2;
 
 /**
@@ -11,6 +13,7 @@ import render.math.Vector2;
  */
 public class Localizer {
 	private Vector2 listener = Vector2.ORIGIN;
+	private Vector2 listenerDirection = Vector2.ORIGIN;
 	
 	public Localizer() {
 		
@@ -27,8 +30,43 @@ public class Localizer {
 		listener = _listener;
 	}
 	
-	public float findBalance(List<Speaker> speakers) {
-		//TODO: write this method
-		return 0;
+	/**
+	 * Sets the point that this Localizer uses to determine the direction in which the listener
+	 * is facing. 
+	 * <p>
+	 * 1. The listener is defined to be directly facing this point.
+	 * <p>
+	 * 2. The distance from this point to the listener does not matter.
+	 * 
+	 * @param _direction
+	 * 			Direction in which the listener is facing
+	 */
+	public void setListenerDirection(Vector2 _direction) {
+		listenerDirection = _direction;
+	}
+	
+	public float findBalance(List<Speaker> speakers) {		
+		int enabledSpeakers = 0;
+		float totalBalance = 0;
+		
+		for (Speaker s : speakers) {
+			if (s.isOn()) {
+				enabledSpeakers++;
+				Vector2 speakerLocation;
+				
+				if (s == Speaker.ATPLAYER) {
+					speakerLocation = listener;
+				} else {
+					speakerLocation = s.position;
+				}
+				
+				float angle = RenderUtils.angleBetweenLines(new Wall(listener,listenerDirection), new Wall(listener,speakerLocation));
+				boolean onLeft = RenderUtils.isLeftOfRay(listener, listenerDirection, speakerLocation);
+				
+				System.out.println(angle + " " + onLeft);
+			}
+		}
+		
+		return totalBalance/enabledSpeakers;
 	}
 }

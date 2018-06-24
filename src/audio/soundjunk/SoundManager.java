@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -62,6 +63,13 @@ public class SoundManager {
 			speakers.put(name,list);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void update() {
+		for (Entry<String, List<Speaker>> entry : speakers.entrySet()) {
+			float balance = localizer.findBalance(entry.getValue());
+			//sounds.get(entry.getKey()).setPan(balance);
 		}
 	}
 
@@ -264,7 +272,7 @@ public class SoundManager {
 	}
 
 	/**
-	 * Lets the SoundManager know about a Class that can open audio files of a
+	 * Lets the SoundManager know about a <code>Class</code> that can open audio files of a
 	 * specific format. For example, if you were to write a class to handle MP3 sound files,
 	 * you would first pass it to SoundManager via this method before attempting to load any
 	 * MP3 files.
@@ -277,6 +285,12 @@ public class SoundManager {
 		supportedTypes.add(clazz);
 	}
 	
+	/**
+	 * Returns the {@link Localizer} object responsible for managing sound localization for this
+	 * SoundManager.
+	 * 
+	 * @return
+	 */
 	public Localizer getLocalizer() {
 		return localizer;
 	}

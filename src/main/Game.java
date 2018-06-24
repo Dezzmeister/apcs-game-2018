@@ -166,6 +166,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				if (raycaster != null) {
 					handleKeyboardInput(delta);
 				}
+				if (soundManager != null) {					
+					if (raycaster != null) {
+						soundManager.getLocalizer().setListener(raycaster.camera.pos);
+						soundManager.getLocalizer().setListenerDirection(raycaster.camera.dir.add(raycaster.camera.pos));
+					}
+					soundManager.update();
+				}
 				delta--;
 			}
 			
