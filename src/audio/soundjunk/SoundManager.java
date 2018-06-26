@@ -47,6 +47,23 @@ public class SoundManager {
 	public SoundManager() {
 		this(5);
 	}
+	
+	public void quickPlayAt(String path, float x, float y) {
+		try {
+			SoundFile sound = createSoundFile(path).waitForFirstUpdate();
+			String id = "temp "+path+sound.hashCode()+Math.random();
+			sounds.put(id, sound);
+			
+			List<Speaker> list = new ArrayList<Speaker>();
+			list.add(new Speaker(x,y));
+			speakers.put(id, list);
+			
+			executor.execute(sound);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void addSound(String name, String path) {
 		try {
@@ -58,7 +75,7 @@ public class SoundManager {
 	
 	public void addSound(String name, String path, Speaker initial) {
 		try {
-			sounds.put(name, createSoundFile(path));
+			sounds.put(name, createSoundFile(path).waitForFirstUpdate());
 			List<Speaker> list = new ArrayList<Speaker>();
 			list.add(initial);
 			speakers.put(name, list);
@@ -80,6 +97,20 @@ public class SoundManager {
 			} else {
 				sound.setGain(sound.minGain().get());
 			}
+			
+			registerUpdate(entry.getKey());
+			
+			if (entry.getKey().substring(0, 4).equals("temp ") && sound.hasEnded()) {
+				sounds.remove(entry.getKey());
+			}
+		}
+	}
+	
+	public synchronized void registerUpdate(String name) {
+		try {
+			sounds.get(name).registerUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

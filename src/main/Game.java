@@ -227,6 +227,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			keys[e.getKeyCode()] = false;
 		}
 		
+		if (e.getKeyChar() == 'k') {
+			soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
+		}
+		
 		if (e.getKeyChar() == 'p') {
 			saveScreenShot();
 		}

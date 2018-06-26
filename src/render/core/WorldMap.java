@@ -35,14 +35,14 @@ public class WorldMap {
 		
 		initDefaultFloorMap();
 		initDefaultCeilingMap();
-		initEmptyLightMaps();
+		//initEmptyLightMaps();
 	}
 	
 	public WorldMap(Block[][] _blocks, SquareTexture[][] _floorMap, SquareTexture[][] _ceilMap) {
 		blocks = _blocks;
 		floorMap = _floorMap;
 		ceilMap = _ceilMap;
-		initEmptyLightMaps();
+		//initEmptyLightMaps();
 	}
 	
 	public WorldMap setFloorMap(SquareTexture[][] _floorMap) {

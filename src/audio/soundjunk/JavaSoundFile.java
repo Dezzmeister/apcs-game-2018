@@ -19,9 +19,16 @@ abstract class JavaSoundFile implements SoundFile {
 	protected SourceDataLine line;
 	protected boolean ended = false;
 	protected final AtomicBoolean paused = new AtomicBoolean(false);
+	protected volatile boolean firstUpdate = false;
+	protected boolean waitingForFirstUpdate = false;
 	
 	public JavaSoundFile(String _path) {
 		path = _path;
+	}
+	
+	@Override
+	public boolean hasEnded() {
+		return ended;
 	}
 	
 	@Override
@@ -43,6 +50,17 @@ abstract class JavaSoundFile implements SoundFile {
 			line.start();
 		}
 		paused.set(false);
+	}
+	
+	@Override
+	public SoundFile waitForFirstUpdate() {
+		waitingForFirstUpdate = true;
+		return this;
+	}
+	
+	@Override
+	public void registerUpdate() {
+		firstUpdate = true;
 	}
 
 	/**

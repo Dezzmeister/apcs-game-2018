@@ -33,6 +33,12 @@ public interface SoundFile extends Runnable {
 
 	void resume();
 	
+	boolean hasEnded();
+	
+	SoundFile waitForFirstUpdate();
+	
+	void registerUpdate();
+	
 	/**
 	 * Attempts to set the gain of the audio, if this control is supported. Gain is
 	 * essentially volume, for our purposes.

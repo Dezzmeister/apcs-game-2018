@@ -36,7 +36,13 @@ final class OggFile extends JavaSoundFile {
 				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(),
 						16, baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
 				din = AudioSystem.getAudioInputStream(decodedFormat, in);
+				if (waitingForFirstUpdate) {
+					while(!firstUpdate) {
+						
+					}
+				}
 				rawPlay(decodedFormat);
+				
 				in.close();
 			}
 		} catch (Exception e) {
@@ -67,6 +73,7 @@ final class OggFile extends JavaSoundFile {
 			line.stop();
 			line.close();
 			din.close();
+			ended = true;
 		}
 	}
 
