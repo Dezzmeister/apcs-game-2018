@@ -16,6 +16,7 @@ public final class LightPlane {
 	public final Vector3 v3;
 	public final int lumelWidth;
 	public final int lumelHeight;
+	public final int[] map;
 	
 	/**
 	 * Creates a LightPlane from four Vectors defining the corners of a quad, and two ints defining the 
@@ -35,6 +36,8 @@ public final class LightPlane {
 		v3 = _v3;
 		lumelWidth = _resWidth;
 		lumelHeight = _resHeight;
+		
+		map = new int[lumelWidth * lumelHeight];
 	}
 	
 	/**

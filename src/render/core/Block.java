@@ -57,6 +57,13 @@ public class Block {
 		solid = true;
 	}
 	
+	/**
+	 * Returns true if this Block is not fake. Fake blocks appear solid; however,
+	 * they can be walked through and walking through them will render the surrounding world as
+	 * if the fake block doesn't exist.
+	 * 
+	 * @return true if this block is solid
+	 */
 	public boolean isSolid() {
 		return solid;
 	}
