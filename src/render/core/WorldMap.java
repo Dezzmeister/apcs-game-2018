@@ -1,6 +1,12 @@
 package render.core;
 
 import image.SquareTexture;
+import render.light.Light;
+import render.light.cellmaps.BlockCellMap;
+import render.light.cellmaps.CellMap;
+import render.light.cellmaps.CustomBlockCellMap;
+import render.light.cellmaps.EmptyCellMap;
+import render.light.cellmaps.FakeBlockCellMap;
 
 /**
  * Represents a map/level containing Sprites and Blocks to be rendered.
@@ -8,6 +14,7 @@ import image.SquareTexture;
  * @author Joe Desmond
  */
 public class WorldMap {
+	public static final int LIGHT_RESOLUTION = 100;
 
 	public static SquareTexture DEFAULT_FLOOR = new SquareTexture("assets/textures/floor32.png", 32);
 	public static SquareTexture DEFAULT_CEILING = new SquareTexture("assets/textures/ceil32.png", 32);
@@ -15,6 +22,8 @@ public class WorldMap {
 	private Block[][] blocks;
 	private SquareTexture[][] floorMap;
 	private SquareTexture[][] ceilMap;
+	private CellMap[][] lightmaps;
+	public Light[] lights;
 
 	// private Speaker[] speakers;
 	
@@ -22,15 +31,18 @@ public class WorldMap {
 		blocks = _blocks;
 		floorMap = new SquareTexture[blocks.length][blocks[0].length];
 		ceilMap = new SquareTexture[blocks.length][blocks[0].length];
+		lightmaps = new CellMap[blocks.length][blocks[0].length];
 		
 		initDefaultFloorMap();
 		initDefaultCeilingMap();
+		initEmptyLightMaps();
 	}
 	
 	public WorldMap(Block[][] _blocks, SquareTexture[][] _floorMap, SquareTexture[][] _ceilMap) {
 		blocks = _blocks;
 		floorMap = _floorMap;
 		ceilMap = _ceilMap;
+		initEmptyLightMaps();
 	}
 	
 	public WorldMap setFloorMap(SquareTexture[][] _floorMap) {
@@ -79,6 +91,24 @@ public class WorldMap {
 		for (int row = 0; row < ceilMap.length; row++) {
 			for (int col = 0; col < ceilMap[row].length; col++) {
 				ceilMap[row][col] = DEFAULT_CEILING;
+			}
+		}
+	}
+	
+	private void initEmptyLightMaps() {
+		for (int row = 0; row < lightmaps.length; row++) {
+			for (int col = 0; col < lightmaps[row].length; col++) {
+				Block block = blocks[row][col];
+				
+				if (!block.isSolid() && block != Block.SPACE) {
+					lightmaps[row][col] = new FakeBlockCellMap(col,row,LIGHT_RESOLUTION);
+				} else if (block.isCustom()) {
+					lightmaps[row][col] = new CustomBlockCellMap(col,row,LIGHT_RESOLUTION);
+				} else if (block == Block.SPACE) {
+					lightmaps[row][col] = new EmptyCellMap(col,row,LIGHT_RESOLUTION);
+				} else {
+					lightmaps[row][col] = new BlockCellMap(col,row,LIGHT_RESOLUTION);
+				}
 			}
 		}
 	}

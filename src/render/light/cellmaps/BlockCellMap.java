@@ -1,4 +1,6 @@
-package render.light;
+package render.light.cellmaps;
+
+import render.light.LightPlane;
 
 /**
  * Represents a collection of four LightPlanes, each corresponding to one side of a Block. 
@@ -19,6 +21,8 @@ public class BlockCellMap extends CellMap {
 	 * @param squareResolution resolution, in lumels, of one side of each LightPlane
 	 */
 	public BlockCellMap(int x, int y, int squareResolution) {
+		super(4);
+		
 		lightplanes[0] = LightPlane.createFromPosXSide(x, y, squareResolution);
 		lightplanes[1] = LightPlane.createFromNegXSide(x, y, squareResolution);
 		lightplanes[2] = LightPlane.createFromPosYSide(x, y, squareResolution);

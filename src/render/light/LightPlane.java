@@ -1,6 +1,8 @@
 package render.light;
 
 import render.core.Wall;
+import render.math.Triangle;
+import render.math.Vector2;
 import render.math.Vector3;
 
 /**
@@ -14,6 +16,10 @@ public final class LightPlane {
 	public final Vector3 v1;
 	public final Vector3 v2;
 	public final Vector3 v3;
+	
+	public final Triangle t0;
+	public final Triangle t1;
+	
 	public final int lumelWidth;
 	public final int lumelHeight;
 	public final int[] map;
@@ -34,10 +40,15 @@ public final class LightPlane {
 		v1 = _v1;
 		v2 = _v2;
 		v3 = _v3;
+		
+		t0 = new Triangle(v0,v1,v2).setUVCoords(new Vector2(0,0), new Vector2(1,0), new Vector2(1,1));
+		t1 = new Triangle(v2,v3,v1).setUVCoords(new Vector2(1,1), new Vector2(0,1), new Vector2(0,0));
+		
 		lumelWidth = _resWidth;
 		lumelHeight = _resHeight;
 		
 		map = new int[lumelWidth * lumelHeight];
+		ensureCoplanarity();
 	}
 	
 	/**
@@ -173,5 +184,15 @@ public final class LightPlane {
 		wall.updateLength();
 		
 		return new LightPlane(v0,v1,v2,v3,(int) (wall.length*verticalLumels),verticalLumels);
+	}
+	
+	private void ensureCoplanarity() {
+		if (t0.getNormal() != t1.getNormal()) {
+			System.out.println("All points in a LightPlane must be coplanar!");
+		}
+	}
+	
+	public Triangle[] getTriangles() {
+		return new Triangle[] {t0,t1};
 	}
 }

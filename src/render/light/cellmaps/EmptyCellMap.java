@@ -1,4 +1,6 @@
-package render.light;
+package render.light.cellmaps;
+
+import render.light.LightPlane;
 
 /**
  * Contains lightmap information for an empty {@link render.core.Block Block}. Has 2 {@link LightPlane LightPlanes}, one for the floor and one for the ceiling.
@@ -15,6 +17,7 @@ public class EmptyCellMap extends CellMap {
 	 * @param squareResolution resolution of each side of each LightPlane, in lumels
 	 */
 	public EmptyCellMap(int x, int y, int squareResolution) {
+		super(2);
 		lightplanes[0] = LightPlane.createFromFloorTile(x, y, squareResolution);
 		lightplanes[1] = LightPlane.createFromCeilingTile(x, y, squareResolution);
 	}

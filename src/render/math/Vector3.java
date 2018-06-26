@@ -52,6 +52,10 @@ public class Vector3 {
 		return new Vector3(x + v.x, y + v.y, z + v.z);
 	}
 	
+	public Vector3 minus(Vector3 v) {
+		return new Vector3(x - v.x, y - v.y, z = v.z);
+	}
+	
 	public static Vector3 cross(Vector3 a, Vector3 b) {
 		float x = (a.y * b.z) - (a.z * b.y);
 		float y = (a.z * b.x) - (a.x * b.z);

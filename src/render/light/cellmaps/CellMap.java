@@ -1,4 +1,6 @@
-package render.light;
+package render.light.cellmaps;
+
+import render.light.LightPlane;
 
 /**
  * For any Cell (1x1x1) space in a WorldMap, a CellMap should contain {@link LightPlane LightPlanes} describing lighting data
@@ -20,8 +22,8 @@ public abstract class CellMap {
 		lightplanes = _lightplanes;
 	}
 	
-	protected CellMap() {
-		lightplanes = null;
+	protected CellMap(int length) {
+		lightplanes = new LightPlane[length];
 	}
 	
 	public LightPlane[] getLightPlanes() {
