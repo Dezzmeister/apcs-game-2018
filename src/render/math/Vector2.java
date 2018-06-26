@@ -6,7 +6,8 @@ package render.math;
  * @author Joe Desmond
  */
 public class Vector2 {
-	public static final Vector2 ORIGIN = new Vector2(0,0);
+
+	public static final Vector2 ORIGIN = new Vector2(0, 0, 0);
 	
 	public float x;
 	public float y;
@@ -15,6 +16,12 @@ public class Vector2 {
 	public Vector2(float _x, float _y) {
 		x = _x;
 		y = _y;
+	}
+	
+	protected Vector2(float _x, float _y, float _length) {
+		x = _x;
+		y = _y;
+		length = _length;
 	}
 	
 	public void updateLength() {

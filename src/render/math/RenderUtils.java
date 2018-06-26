@@ -9,6 +9,7 @@ import render.core.Wall;
  * @author Joe Desmond
  */
 public class RenderUtils {
+
 	public static final float HALF_PI = (float) Math.PI / 2.0f;
 	public static final float TWO_PI = (float) Math.PI * 2.0f;
 	
@@ -75,6 +76,11 @@ public class RenderUtils {
 	}
 	
 	public static float angleBetweenLines(Wall wall1, Wall wall2) {
+		
+		return (float) Math.acos(cosOfAngleBetweenLines(wall1,wall2));
+	}
+	
+	public static float cosOfAngleBetweenLines(Wall wall1, Wall wall2) {
 		Vector2 A = new Vector2(wall2.v0.x - wall1.v0.x, wall2.v0.y - wall1.v0.y);
 		Vector2 B = new Vector2(wall2.v1.x - wall1.v1.x, wall2.v1.y - wall1.v1.y);
 		
@@ -85,21 +91,23 @@ public class RenderUtils {
 		Vector2 normB = B.normalize();
 		
 		float dot = (normA.x * normB.x) + (normA.y * normB.y);
-		return (float)Math.acos(dot);
+		
+		return dot;
 	}
 	
 	/**
-	 * Returns true if the point <code>testPoint</code> is to the left of the ray defined by 
-	 * <code>start</code> and <code>direction</code>. Returns false if the point is to the right or colinear.
-	 * 
+	 * Returns true if the point <code>testPoint</code> is to the left of the ray
+	 * defined by <code>start</code> and <code>direction</code>. Returns false if
+	 * the point is to the right or colinear.
+	 *
 	 * @param start
-	 * 			Beginning endpoint of the ray
+	 *            Beginning endpoint of the ray
 	 * @param direction
-	 * 			Determines the direction of the ray, and therefore what defines right/left
+	 *            Determines the direction of the ray, and therefore what defines
+	 *            right/left
 	 * @param testPoint
-	 * 			Point being tested
-	 * @return
-	 * 			True if on left of ray, false if on right or colinear
+	 *            Point being tested
+	 * @return True if on left of ray, false if on right or colinear
 	 */
 	public static boolean isLeftOfRay(Vector2 start, Vector2 direction, Vector2 testPoint) {
 		

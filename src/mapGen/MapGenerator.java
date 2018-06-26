@@ -11,6 +11,7 @@ import render.core.Block;
  * @author Joe Amendolare
  */
 public class MapGenerator {
+
 	private final int WIDTH;
 	private final int HEIGHT;
 	
@@ -20,7 +21,7 @@ public class MapGenerator {
 	
 	private final int[][] intMap;
 	private final Block[][] blockMap;
-	//private SquareTexture
+	// private SquareTexture
 	
 	public MapGenerator(int _width, int _height) {
 		WIDTH = _width;
@@ -42,7 +43,7 @@ public class MapGenerator {
 	}
 	
 	private void convertIntMap() {
-		//TODO
+		// TODO
 		System.out.println(Arrays.deepToString(intMap).replace("], ", "]\n"));
 	}
 
@@ -145,7 +146,7 @@ public class MapGenerator {
 			}
 		}
 		
-		intMap[fullJMap.get((fullJMap.size() - 1) / 2).xPos][fullJMap.get((fullJMap.size() - 1) / 2).yPos] = 2;		
+		intMap[fullJMap.get((fullJMap.size() - 1) / 2).xPos][fullJMap.get((fullJMap.size() - 1) / 2).yPos] = 2;
 	}
 	
 	private double random(int c) {

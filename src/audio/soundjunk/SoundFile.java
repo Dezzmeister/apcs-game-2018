@@ -34,43 +34,48 @@ public interface SoundFile extends Runnable {
 	void resume();
 	
 	/**
-	 * Attempts to set the gain of the audio, if this control is supported. Gain is essentially
-	 * volume, for our purposes.
-	 * 
+	 * Attempts to set the gain of the audio, if this control is supported. Gain is
+	 * essentially volume, for our purposes.
+	 *
 	 * @param norm
-	 * 			gain value from <code>minGain()</code> to <code>maxGain()</code>
+	 *            gain value from <code>minGain()</code> to <code>maxGain()</code>
 	 */
 	void setGain(float gain);
 	
 	/**
-	 * Returns the maximum possible gain, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * Returns the maximum possible gain, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
 	 */
 	Optional<Float> maxGain();
 	
 	/**
-	 * Returns the minimum possible gain, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * Returns the minimum possible gain, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
 	 */
 	Optional<Float> minGain();
 
 	/**
-	 * Returns the maximum possible volume, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * Returns the maximum possible volume, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
 	 */
 	Optional<Float> maxVolume();
 	
 	/**
-	 * Returns the minimum possible volume, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
+	 * Returns the minimum possible volume, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
 	 */
 	Optional<Float> minVolume();
 	
 	/**
-	 * Attempts to set the left/right balance of the audio, if this control is supported.
-	 * 
+	 * Attempts to set the left/right balance of the audio, if this control is
+	 * supported.
+	 *
 	 * @param panValue
-	 * 			value from -1.0f (left) to 1.0f (right)
+	 *            value from -1.0f (left) to 1.0f (right)
 	 */
 	void setPan(float panValue);
 	

@@ -2,10 +2,16 @@ package audio.soundjunk.localized;
 
 import render.math.Vector2;
 
+/**
+ * Represents a sound source in the world.
+ *
+ * @author Joe Desmond
+ */
 public class Speaker {
+
 	public static final Speaker ATPLAYER = new Speaker(null);
 	
-	public Vector2 position = new Vector2(0,0);
+	public Vector2 position = new Vector2(0, 0);
 	public String soundName;
 	private boolean on = true;
 	
@@ -14,7 +20,7 @@ public class Speaker {
 	}
 	
 	public Speaker(float x, float y) {
-		position = new Vector2(x,y);
+		position = new Vector2(x, y);
 	}
 	
 	public void turnOn() {

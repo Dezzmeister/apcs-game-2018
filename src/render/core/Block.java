@@ -124,7 +124,8 @@ public class Block {
 	
 	/**
 	 * Contains Blocks defined as cubicle walls, for use in our office-themed maps.
-	 * The CUBICLE and SIDE textures are not final (though they are <code>final</code>).
+	 * The CUBICLE and SIDE textures are not final (though they are
+	 * <code>final</code>).
 	 *
 	 * @author Joe Desmond
 	 */

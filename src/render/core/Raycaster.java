@@ -24,37 +24,37 @@ import render.math.Vector2;
  *
  * @author Joe Desmond
  */
-public final class Raycaster extends JPanel {
+public class Raycaster extends JPanel {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 7071993726323961319L;
-	private int WIDTH, HEIGHT, HALF_HEIGHT;
-	private int FINAL_WIDTH, FINAL_HEIGHT;
-	private double[] zbuf;
+	protected int WIDTH, HEIGHT, HALF_HEIGHT;
+	protected int FINAL_WIDTH, FINAL_HEIGHT;
+	protected double[] zbuf;
 	
 	// private Sprite[] sprites;
-	private Vector2 pos;
-	private Vector2 dir;
-	private Vector2 plane;
-	private BufferedImage img;
-	private Graphics2D g2;
-	private Graphics g;
+	protected Vector2 pos;
+	protected Vector2 dir;
+	protected Vector2 plane;
+	protected BufferedImage img;
+	protected Graphics2D g2;
+	protected Graphics g;
 	public Camera camera;
 	public WorldMap world;
 	
 	public static final float FULL_FOG_DISTANCE = 5f;
 	public static final int SHADE_THRESHOLD = 100;
 	
-	private int rendererCount;
-	private ThreadRenderer[] renderers;
-	private ThreadPoolExecutor executor;
-	private LatchRef latchref;
-	private double[] wallDistLUT;
-	public AtomicBoolean enabled = new AtomicBoolean(true);
-	private Game parentGame;
-	private int upDownEnabled = 0;
+	protected int rendererCount;
+	protected ThreadRenderer[] renderers;
+	protected ThreadPoolExecutor executor;
+	protected LatchRef latchref;
+	protected double[] wallDistLUT;
+	protected AtomicBoolean enabled = new AtomicBoolean(true);
+	protected Game parentGame;
+	protected int upDownEnabled = 0;
 	public boolean finished = true;
 	
 	/**
@@ -151,7 +151,7 @@ public final class Raycaster extends JPanel {
 		g.drawLine((FINAL_WIDTH / 2) - 10, FINAL_HEIGHT / 2, (FINAL_WIDTH / 2) + 10, FINAL_HEIGHT / 2);
 	}
 	
-	private void finalizeRender() {
+	protected void finalizeRender() {
 		g2.drawImage(img, 0, 0, FINAL_WIDTH, FINAL_HEIGHT, null);
 	}
 	
@@ -171,21 +171,21 @@ public final class Raycaster extends JPanel {
 		}
 	}
 	
-	private void preRender() {
+	protected void preRender() {
 		finished = false;
 		handleMouseInput();
 		getCameraVectors();
 		resetImage();
 	}
 
-	private void render() {
+	protected void render() {
 		preRender();
 		parallelRender();
 		finalizeRender();
 		postRender();
 	}
 	
-	private void postRender() {
+	protected void postRender() {
 		resetZBuffer();
 		drawDebugInfo();
 		drawCrosshair();

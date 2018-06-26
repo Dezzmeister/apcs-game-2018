@@ -17,6 +17,7 @@ import javax.sound.sampled.SourceDataLine;
  * @author Joe Desmond
  */
 final class OggFile extends JavaSoundFile {
+
 	private AudioInputStream din;
 
 	public OggFile(String _path) {

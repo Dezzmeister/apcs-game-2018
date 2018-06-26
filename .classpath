@@ -10,5 +10,7 @@
 	<classpathentry kind="lib" path="lib/jorbis-0.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/tritonus_share.jar"/>
 	<classpathentry kind="lib" path="lib/vorbisspi1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/aparapi-1.4.1.jar" sourcepath="libsrc/aparapi-1.4.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/aparapi-jni-1.1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

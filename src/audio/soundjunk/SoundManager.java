@@ -18,8 +18,9 @@ import audio.soundjunk.localized.Speaker;
 
 /**
  * Manages different sounds that may be playing in the World. Uses a ThreadPool
- * to play sound concurrently. A SoundManager gives users access to its sound through
- * String identifiers. Users should not directly reference the actual sound objects.
+ * to play sound concurrently. A SoundManager gives users access to its sound
+ * through String identifiers. Users should not directly reference the actual
+ * sound objects.
  *
  * @author Joe Desmond
  */
@@ -29,7 +30,7 @@ public class SoundManager {
 	private final ThreadPoolExecutor executor;
 	private final Map<String, SoundFile> sounds = new HashMap<String, SoundFile>();
 	private final Map<String, List<Speaker>> speakers = new HashMap<String, List<Speaker>>();
-	private final Localizer localizer = new Localizer();
+	private final Localizer localizer = new Localizer(10,-20);
 	
 	static {
 		supportedTypes.add(OggFile.class);
@@ -60,7 +61,7 @@ public class SoundManager {
 			sounds.put(name, createSoundFile(path));
 			List<Speaker> list = new ArrayList<Speaker>();
 			list.add(initial);
-			speakers.put(name,list);
+			speakers.put(name, list);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -68,8 +69,17 @@ public class SoundManager {
 	
 	public void update() {
 		for (Entry<String, List<Speaker>> entry : speakers.entrySet()) {
+			SoundFile sound = sounds.get(entry.getKey());
+			
 			float balance = localizer.findBalance(entry.getValue());
-			sounds.get(entry.getKey()).setPan(balance);
+			float gain = localizer.findGain(entry.getValue());
+			
+			sound.setPan(balance);
+			if (gain != Float.NEGATIVE_INFINITY) { 
+				sound.setGain(gain);
+			} else {
+				sound.setGain(sound.minGain().get());
+			}
 		}
 	}
 
@@ -121,7 +131,7 @@ public class SoundManager {
 	
 	/**
 	 * Starts the audio from the beginning.
-	 * 
+	 *
 	 * @param name
 	 */
 	public void play(String name) {
@@ -163,13 +173,13 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Attempts to set the gain of the audio, if this control is supported. Gain is essentially
-	 * volume, for our purposes.
-	 * 
+	 * Attempts to set the gain of the audio, if this control is supported. Gain is
+	 * essentially volume, for our purposes.
+	 *
 	 * @param name
-	 * 			Name of the audio
+	 *            Name of the audio
 	 * @param norm
-	 * 			gain value from <code>minGain()</code> to <code>maxGain()</code>
+	 *            gain value from <code>minGain()</code> to <code>maxGain()</code>
 	 */
 	public synchronized void setGain(String name, float norm) {
 		try {
@@ -180,11 +190,12 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Returns the maximum possible gain, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
-	 * 
+	 * Returns the maximum possible gain, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
+	 *
 	 * @param name
-	 * 			Name of the audio
+	 *            Name of the audio
 	 */
 	public synchronized Optional<Float> maxGain(String name) {
 		try {
@@ -197,11 +208,12 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Returns the minimum possible gain, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
-	 * 
+	 * Returns the minimum possible gain, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
+	 *
 	 * @param name
-	 * 			Name of the audio
+	 *            Name of the audio
 	 */
 	public synchronized Optional<Float> minGain(String name) {
 		try {
@@ -214,11 +226,12 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Returns the maximum possible volume, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
-	 * 
+	 * Returns the maximum possible volume, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
+	 *
 	 * @param name
-	 * 			Name of the audio
+	 *            Name of the audio
 	 */
 	public synchronized Optional<Float> maxVolume(String name) {
 		try {
@@ -231,11 +244,12 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Returns the minimum possible volume, if this control is supported. If this control
-	 * is not supported, the <code>Optional<</>Float></></code> returned will be empty.
-	 * 
+	 * Returns the minimum possible volume, if this control is supported. If this
+	 * control is not supported, the <code>Optional<</>Float></></code> returned
+	 * will be empty.
+	 *
 	 * @param name
-	 * 			Name of the audio
+	 *            Name of the audio
 	 */
 	public synchronized Optional<Float> minVolume(String name) {
 		try {
@@ -248,12 +262,13 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Attempts to set the left/right balance of the audio, if this control is supported.
-	 * 
+	 * Attempts to set the left/right balance of the audio, if this control is
+	 * supported.
+	 *
 	 * @param name
-	 * 			Name of the audio
+	 *            Name of the audio
 	 * @param panValue
-	 * 			value from -1.0f (left) to 1.0f (right)
+	 *            value from -1.0f (left) to 1.0f (right)
 	 */
 	public synchronized void setPan(String name, float panValue) {
 		try {
@@ -272,13 +287,13 @@ public class SoundManager {
 	}
 
 	/**
-	 * Lets the SoundManager know about a <code>Class</code> that can open audio files of a
-	 * specific format. For example, if you were to write a class to handle MP3 sound files,
-	 * you would first pass it to SoundManager via this method before attempting to load any
-	 * MP3 files.
+	 * Lets the SoundManager know about a <code>Class</code> that can open audio
+	 * files of a specific format. For example, if you were to write a class to
+	 * handle MP3 sound files, you would first pass it to SoundManager via this
+	 * method before attempting to load any MP3 files.
 	 *
 	 * @param clazz
-	 * 			Audio class
+	 *            Audio class
 	 * @see SoundFile
 	 */
 	public static void addSupportedType(Class<? extends SoundFile> clazz) {
@@ -286,9 +301,9 @@ public class SoundManager {
 	}
 	
 	/**
-	 * Returns the {@link Localizer} object responsible for managing sound localization for this
-	 * SoundManager.
-	 * 
+	 * Returns the {@link Localizer} object responsible for managing sound
+	 * localization for this SoundManager.
+	 *
 	 * @return
 	 */
 	public Localizer getLocalizer() {

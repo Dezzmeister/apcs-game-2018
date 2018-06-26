@@ -8,12 +8,13 @@ import javax.sound.sampled.FloatControl.Type;
 import javax.sound.sampled.SourceDataLine;
 
 /**
- * Represents a general implementation of any sound that is played
- * through a SourceDataLine.
+ * Represents a general implementation of any sound that is played through a
+ * SourceDataLine.
  *
  * @author Joe Desmond
  */
 abstract class JavaSoundFile implements SoundFile {
+
 	protected String path;
 	protected SourceDataLine line;
 	protected boolean ended = false;
@@ -50,14 +51,16 @@ abstract class JavaSoundFile implements SoundFile {
 	 */
 	@Override
 	public void setGain(float _gain) {
-		FloatControl gain = (FloatControl) line.getControl(Type.MASTER_GAIN);
-		float min = gain.getMinimum();
-		float max = gain.getMaximum();
+		if (line != null) {
+			FloatControl gain = (FloatControl) line.getControl(Type.MASTER_GAIN);
+			float min = gain.getMinimum();
+			float max = gain.getMaximum();
 		
-		if (_gain > min && _gain < max) {
-			gain.setValue(_gain);
-		} else {
-			System.out.println("Gain value " + _gain + " must be between " + max + " and " + min + "!");
+			if (_gain > min && _gain < max) {
+				gain.setValue(_gain);
+			} else {
+				System.out.println("Gain value " + _gain + " must be between " + max + " and " + min + "!");
+			}
 		}
 	}
 
@@ -87,5 +90,5 @@ abstract class JavaSoundFile implements SoundFile {
 		if (panValue >= -1.0f && panValue <= 1.0f && line != null) {
 			((FloatControl) line.getControl(Type.PAN)).setValue(panValue);
 		}
-	}	
+	}
 }
