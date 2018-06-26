@@ -79,7 +79,6 @@ public class Localizer {
 	public float findBalance(List<Speaker> speakers) {
 		int enabledSpeakers = 0;
 		float totalBalance = 0;
-		System.out.println(Math.random());
 		
 		for (Speaker s : speakers) {
 			if (s.isOn()) {

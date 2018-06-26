@@ -427,7 +427,7 @@ public class Raycaster extends JPanel {
 
 				textureFloorAndCeiling(x);
 				if (x == (WIDTH / 2)) {
-					// System.out.println(sideHit);
+					System.out.println(sideHit);
 				}
 			}
 		}

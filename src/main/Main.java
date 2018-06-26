@@ -43,7 +43,7 @@ public class Main {
 		game.setSoundManager(manager);
 		
 		manager.addSound("hitman", "assets/music/exploration.ogg", new Speaker(4,4));
-		manager.play("hitman");
+		//manager.play("hitman");
 
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
