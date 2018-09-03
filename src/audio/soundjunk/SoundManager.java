@@ -84,6 +84,16 @@ public class SoundManager {
 		}
 	}
 	
+	public void addSpeakers(String name, Speaker ... _speakers) {
+		try {
+			for (Speaker s : _speakers) {
+				speakers.get(name).add(s);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void update() {
 		for (Entry<String, List<Speaker>> entry : speakers.entrySet()) {
 			SoundFile sound = sounds.get(entry.getKey());

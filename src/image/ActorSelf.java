@@ -6,7 +6,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class ActorSelf implements Entity {
+import render.math.Vector2;
+
+public class ActorSelf extends Entity {
 
 	private BufferedImage[] movement;
 	private BufferedImage self = null;
@@ -46,7 +48,7 @@ public class ActorSelf implements Entity {
 	}
 
 	@Override
-	public GeneralTexture getTexture() {
+	public SquareTexture getActiveTexture() {
 		// TODO Auto-generated method stub
 		return null;
 	}

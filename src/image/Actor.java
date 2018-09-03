@@ -1,10 +1,8 @@
 package image;
 
-import java.awt.image.BufferedImage;
+public class Actor extends Entity {
 
-public class Actor implements Entity {
-
-	private GeneralTexture[] enemies;
+	private SquareTexture[] views;
 
 	/*
 	 * public BufferedImage getImage() {
@@ -32,20 +30,12 @@ public class Actor implements Entity {
 	 */
 
 	// the actors in the array must be in a certain order, which will be set TBD
-	public Actor(GeneralTexture[] actors) {
-		enemies = actors;
-	}
-
-	/*
-	 * public GeneralTexture getTexture(int input) { return enemies[input]; }
-	 */
-
-	private void drawImage(BufferedImage image2) {
-		// TODO Auto-generated method stub
+	public Actor(SquareTexture[] _views) {
+		views = _views;
 	}
 
 	@Override
-	public GeneralTexture getTexture() {
+	public SquareTexture getActiveTexture() {
 		// TODO Auto-generated method stub
 		return null;
 	}

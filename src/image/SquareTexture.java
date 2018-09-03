@@ -15,7 +15,7 @@ public class SquareTexture extends Texture {
 	
 	/**
 	 * Loads an image at the specified path with the specified size as a
-	 * BlockTexture.
+	 * SquareTexture.
 	 *
 	 * @param _path
 	 *            relative path of image

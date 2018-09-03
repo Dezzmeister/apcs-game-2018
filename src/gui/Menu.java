@@ -41,6 +41,10 @@ public class Menu {
 		screen.add(start);
 
 	}
+	
+	public JPanel getPanel() {
+		return javaCups;
+	}
 
 	public void displayMe() {
 		// javaCups.show();

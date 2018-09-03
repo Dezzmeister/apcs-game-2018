@@ -10,10 +10,9 @@ import java.util.ArrayList;
  * @version 1.0
  * @since 2018-06-07
  */
-@SuppressWarnings("serial")
 public class Messenger {
 
-	private static MessageBoard m = new MessageBoard();
+	private MessageBoard m = new MessageBoard();
 
 	/**
 	 * Appends the given message to m
@@ -22,7 +21,7 @@ public class Messenger {
 	 *            s The message to be appended
 	 * @retun Nothing
 	 */
-	public static void post(String s) {
+	public void post(String s) {
 		m.add(s);
 	}
 
@@ -31,7 +30,7 @@ public class Messenger {
 	 *
 	 * @return ArrayList<String> All of the messages in m
 	 */
-	public static ArrayList<String> getMessages() {
+	public ArrayList<String> getMessages() {
 		return new ArrayList<String>(m);
 	}
 
@@ -42,7 +41,7 @@ public class Messenger {
 	 *            message the String in question
 	 * @return boolean Boolean representing whether or not message is contained in m
 	 */
-	public static boolean containsMessage(String message) {
+	public boolean containsMessage(String message) {
 		return m.stream().anyMatch(s -> s == message);
 	}
 

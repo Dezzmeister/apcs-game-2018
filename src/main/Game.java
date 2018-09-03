@@ -21,10 +21,13 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import audio.soundjunk.SoundManager;
+import message_loop.Messenger;
 import render.core.Raycaster;
 
 /**
@@ -33,7 +36,6 @@ import render.core.Raycaster;
  * @author Joe Desmond
  */
 public class Game extends JFrame implements Runnable, MouseMotionListener, KeyListener {
-
 	/**
 	 *
 	 */
@@ -47,7 +49,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public final AtomicBoolean isRunning = new AtomicBoolean(false);
 	public final boolean[] keys = new boolean[256];
 	public final MouseRobot mouse;
+	public final Controls controls = new Controls();
 	private static final DateFormat SCREENSHOT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+	
+	private Messenger messenger = new Messenger();
 	
 	{
 		addMouseMotionListener(this);
@@ -119,6 +124,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public Game setRaycaster(Raycaster _raycaster) {
 		raycaster = _raycaster;
 		pane.add(raycaster, BorderLayout.CENTER);
+		
 		setVisible(true);
 		raycaster.setDoubleBuffered(true);
 		return this;
@@ -126,6 +132,11 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 
 	public Game setSoundManager(SoundManager _manager) {
 		soundManager = _manager;
+		return this;
+	}
+	
+	public Game setMessenger(Messenger _messenger) {
+		messenger = _messenger;
 		return this;
 	}
 	
@@ -192,18 +203,18 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	private void handleKeyboardInput(double delta) {
 		
 		// Movement
-		float sprintfactor = (float) (delta * ((keys[KeyEvent.VK_SHIFT]) ? 2 : 1));
+		float sprintfactor = (float) (delta * ((keys[controls.sprint]) ? 2 : 1));
 
-		if (keys['W'] || keys[KeyEvent.VK_UP]) {
+		if (keys[controls.moveForward]) {
 			raycaster.camera.moveForward(raycaster.world, sprintfactor);
 		}
-		if (keys['S'] || keys[KeyEvent.VK_DOWN]) {
+		if (keys[controls.moveBackward]) {
 			raycaster.camera.moveBackward(raycaster.world, sprintfactor);
 		}
-		if (keys['A'] || keys[KeyEvent.VK_LEFT]) {
+		if (keys[controls.moveLeft]) {
 			raycaster.camera.moveLeft(raycaster.world, sprintfactor);
 		}
-		if (keys['D'] || keys[KeyEvent.VK_RIGHT]) {
+		if (keys[controls.moveRight]) {
 			raycaster.camera.moveRight(raycaster.world, sprintfactor);
 		}
 	}
@@ -231,8 +242,12 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
 		}
 		
-		if (e.getKeyChar() == 'p') {
+		if (e.getKeyCode() == controls.screenshot) {
 			saveScreenShot();
+		}
+		
+		if (e.getKeyChar() == 'j') {
+			raycaster.linearShade = !raycaster.linearShade;
 		}
 	}
 

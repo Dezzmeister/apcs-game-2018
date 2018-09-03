@@ -1,52 +1,79 @@
 package main;
 
 import static render.core.Block.SPACE;
-import static render.core.Block.CubicleWalls.CUBICLE_X;
-import static render.core.Block.CubicleWalls.CUBICLE_Y;
+import static render.core.Block.CubicleWalls.*;
 import static render.core.WorldMap.DEFAULT_CEILING;
-import static render.math.Vector3.ORIGIN;
 
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.localized.Speaker;
+import image.Entity;
 import image.GeneralTexture;
+import image.Item;
 import image.SquareTexture;
+import mapGen.MapGenerator;
+import mapGen.MapGenerator.MapSpecification;
 import render.core.Block;
 import render.core.Camera;
 import render.core.Raycaster;
 import render.core.Wall;
 import render.core.WorldMap;
 import render.math.Vector2;
-import render.math.Vector3;
 
 public class Main {
 
 	public static void main(String[] args) {
 		// test();
-		cubicleTest();
+		mapGenerationTest();
+		
+		//Arrays.toString(map.getIntMap());
 		// vectorTest();
 	}
 	
-	static void vectorTest() {
-		Vector3 vec = new Vector3(3, 8, 5);
-		System.out.println(Vector3.distance(ORIGIN, vec));
-		vec = vec.normalize();
-		System.out.println(Vector3.distance(ORIGIN, vec));
+	static void mapGenerationTest() {
+		int width = 1500;
+		int height = 1000;
+		
+		MapSpecification spec = new MapSpecification(STANDARD_WALL_BLOCK, STANDARD_HALL_FLOOR, STANDARD_HALL_CEILING, STANDARD_ROOM_FLOOR, STANDARD_HALL_CEILING);
+		MapGenerator map = new MapGenerator(5000,5000, spec);
+		
+		WorldMap world = map.getFinalWorldMap();
+		Vector2 startPos = map.getRandomStartPos();
+		
+		SoundManager manager = new SoundManager();
+		manager.addSound("giorgio", "assets/music/chase.ogg");
+		//manager.play("giorgio");
+		
+		Game game = new Game(width, height).noCursor();
+		game.setSoundManager(manager);
+		
+		Camera camera = new Camera().setPos(startPos).setDir(new Vector2(-0.75f, 0))
+				.setPlane(new Vector2(0, 0.5f));
+		
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		
+		game.setRaycaster(raycaster);
+		raycaster.start();
+
+		Thread gameThread = game.startAndRun();
 	}
 	
 	static void cubicleTest() {
-		int width = 1000;
+		int width = 1500;
 		int height = 1000;
-
+		
 		SoundManager manager = new SoundManager();
-
+		
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
 		
 		manager.addSound("hitman", "assets/music/exploration.ogg", new Speaker(4,4));
 		//manager.play("hitman");
-
+		
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
+		
+		SquareTexture coffeeBean = new SquareTexture("assets/textures/small bean.png",56);
+		Entity bean = new Item(coffeeBean, new Vector2(9,9),camera).setDrawableBounds(0, 0, 50, 50);
 		
 		SquareTexture rectangles = new SquareTexture("assets/textures/sos1024.png", 1024);
 		Block block = new Block("test").applyTexture(rectangles);
@@ -96,6 +123,8 @@ public class Main {
 		WorldMap world = new WorldMap(blocks).setBorder(block);
 		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		
+		world.addEntity(bean);
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();

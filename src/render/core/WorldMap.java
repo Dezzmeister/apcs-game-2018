@@ -1,5 +1,9 @@
 package render.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import image.Entity;
 import image.SquareTexture;
 import render.light.Light;
 import render.light.cellmaps.BlockCellMap;
@@ -16,14 +20,15 @@ import render.light.cellmaps.FakeBlockCellMap;
 public class WorldMap {
 	public static final int LIGHT_RESOLUTION = 100;
 
-	public static SquareTexture DEFAULT_FLOOR = new SquareTexture("assets/textures/floor32.png", 32);
-	public static SquareTexture DEFAULT_CEILING = new SquareTexture("assets/textures/ceil32.png", 32);
+	public static final SquareTexture DEFAULT_FLOOR = new SquareTexture("assets/textures/floor32.png", 32);
+	public static final SquareTexture DEFAULT_CEILING = new SquareTexture("assets/textures/ceil32.png", 32);
 	
 	private Block[][] blocks;
 	private SquareTexture[][] floorMap;
 	private SquareTexture[][] ceilMap;
 	private CellMap[][] lightmaps;
 	public Light[] lights;
+	public List<Entity> entities = new ArrayList<Entity>();
 
 	// private Speaker[] speakers;
 	
@@ -52,6 +57,19 @@ public class WorldMap {
 	
 	public WorldMap setCeilingMap(SquareTexture[][] _ceilMap) {
 		ceilMap = _ceilMap;
+		return this;
+	}
+	
+	public WorldMap addEntity(Entity entity) {
+		entities.add(entity);
+		return this;
+	}
+	
+	public WorldMap addEntities(Entity ... _entities) {
+		for (Entity e : _entities) {
+			entities.add(e);
+		}
+		
 		return this;
 	}
 	
@@ -95,6 +113,7 @@ public class WorldMap {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void initEmptyLightMaps() {
 		for (int row = 0; row < lightmaps.length; row++) {
 			for (int col = 0; col < lightmaps[row].length; col++) {

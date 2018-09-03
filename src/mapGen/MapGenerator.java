@@ -1,9 +1,18 @@
 package mapGen;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import javax.imageio.ImageIO;
+
+import audio.soundjunk.localized.Speaker;
+import image.SquareTexture;
 import render.core.Block;
+import render.core.WorldMap;
+import render.math.Vector2;
 
 /**
  *
@@ -15,35 +24,211 @@ public class MapGenerator {
 	private final int WIDTH;
 	private final int HEIGHT;
 	
-	private int rooms = 30;
+	private final int rooms;
 	private int roomSizeMin = 5;
-	private int roomSizeMax = 13;
+	private int roomSizeMax = 20;
 	
 	private final int[][] intMap;
 	private final Block[][] blockMap;
-	// private SquareTexture
+	private final SquareTexture[][] floorMap;
+	private final SquareTexture[][] ceilMap;
 	
-	public MapGenerator(int _width, int _height) {
+	private final MapSpecification spec;
+	
+	private WorldMap finalMap;
+	private Vector2 startPos;
+	
+	public MapGenerator(int _width, int _height, MapSpecification specification) {
 		WIDTH = _width;
 		HEIGHT = _height;
 		
 		intMap = new int[HEIGHT][WIDTH];
 		blockMap = new Block[HEIGHT][WIDTH];
+		floorMap = new SquareTexture[HEIGHT][WIDTH];
+		ceilMap = new SquareTexture[HEIGHT][WIDTH];
+		spec = specification;
+		
+		rooms = (WIDTH * HEIGHT) / 1333;
 		
 		generateIntMap();
 		convertIntMap();
+		debug_saveDebugImage();
 	}
 	
-	public void soos() {
+	public static class MapSpecification {
+		public final Block mainWallBlock;
+		public final SquareTexture hallFloor;
+		public final SquareTexture hallCeil;
+		public final SquareTexture roomFloor;
+		public final SquareTexture roomCeil;
 		
+		public MapSpecification(Block _mainWallBlock, SquareTexture _hallFloor, SquareTexture _hallCeil, SquareTexture _roomFloor, SquareTexture _roomCeil) {
+			mainWallBlock = _mainWallBlock;
+			hallFloor = _hallFloor;
+			hallCeil = _hallCeil;
+			roomFloor = _roomFloor;
+			roomCeil = _roomCeil;
+		}
+	}
+	
+	private void convertIntMap() {
+		for (int row = 0; row < intMap.length; row++) {
+			for (int col = 0; col < intMap[row].length; col++) {
+				Block block;
+				SquareTexture floor;
+				SquareTexture ceil;
+				
+				switch (intMap[row][col]) {
+					case 0:
+						block = spec.mainWallBlock;
+						floor = Block.DEFAULT_TEXTURE;
+						ceil = Block.DEFAULT_TEXTURE;
+						break;
+					case 1:
+						block = Block.SPACE;
+						floor = spec.hallFloor;
+						ceil = spec.hallCeil;
+						break;
+					case 11:
+						block = Block.CubicleWalls.DWIGHT_BLOCK;
+						floor = spec.roomFloor;
+						ceil = spec.roomCeil;
+						break;
+					case 16:
+						block = Block.CubicleWalls.HORIZONTAL_BARS;
+						floor = spec.hallFloor;
+						ceil = spec.hallCeil;
+						break;
+					case 17:
+						block = Block.CubicleWalls.VERTICAL_BARS;
+						floor = spec.hallFloor;
+						ceil = spec.hallCeil;
+						break;
+					default:
+						block = Block.SPACE;
+						floor = spec.roomFloor;
+						ceil = spec.roomCeil;
+						break;
+				}
+				
+				blockMap[row][col] = block;
+				floorMap[row][col] = floor;
+				ceilMap[row][col] = ceil;
+			}
+		}
+	}
+	
+	public WorldMap getFinalWorldMap() {
+		if (finalMap == null) {
+			finalMap = new WorldMap(blockMap, floorMap, ceilMap).setBorder(spec.mainWallBlock);
+		}
+		
+		return finalMap;
+	}
+	
+	public Vector2 getRandomStartPos() {
+		if (startPos == null) {
+			for (int row = intMap.length/2; row < intMap.length; row++) {
+				for (int col = intMap[row].length/2; col < intMap[row].length; col++) {
+					if (intMap[row][col]==3) {
+						startPos = new Vector2(col,row);
+						return startPos;
+					}
+				}
+			}
+			
+			for (int row = 0; row < intMap.length; row++) {
+				for (int col = 0; col < intMap[row].length; col++) {
+					if (intMap[row][col]==3) {
+						startPos = new Vector2(col,row);
+						return startPos;
+					}
+				}
+			}
+		}
+		
+		return startPos;
+	}
+	
+	public void debug_saveDebugImage() {
+		BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		for (int row = 0; row < intMap.length; row++) {
+			for (int col = 0; col < intMap[row].length; col++) {
+				int id = intMap[row][col];
+				int color = 0;
+				
+				switch (id) {
+					case 0:
+						color = 0;
+						break;
+					case 1:
+						color = 0xFFFFFF;
+						break;
+					case 2:
+						color = 0xFF00FF;
+						break;
+					case 3:
+						color = 0x00FFFF;
+						break;
+					case 4:
+						color = 0xFFFF00;
+						break;
+					case 5:
+						color = 0x0000FF;
+						break;
+					case 6:
+						color = 0x00FF00;
+						break;
+					case 7:
+						color = 0xFF0000;
+						break;
+					case 8:
+						color = 0xAABBCC;
+						break;
+					case 9:
+						color = 0xCCBBAA;
+						break;
+					case 10:
+						color = 0xAABBAA;
+						break;
+					case 11:
+						color = 0xBBAABB;
+						break;
+					case 12:
+						color = 0xEEDDCC;
+						break;
+					case 13:
+						color = 0xCCDDEE;
+						break;
+					case 14:
+						color = 0x227799;
+						break;
+					case 15:
+						color = 0x997722;
+						break;
+					case 16:
+					case 17:
+						color = 0xBBBBBB;
+						break;
+				}
+				
+				image.setRGB(col, row, color);
+			}
+		}
+		
+		try {
+			File file = new File("map.png");
+			ImageIO.write(image, "png", file);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public Block[][] getBlockMap() {
 		return blockMap;
 	}
 	
-	private void convertIntMap() {
-		// TODO
+	private void debug_printIntMap() {
 		System.out.println(Arrays.deepToString(intMap).replace("], ", "]\n"));
 	}
 
@@ -147,6 +332,36 @@ public class MapGenerator {
 		}
 		
 		intMap[fullJMap.get((fullJMap.size() - 1) / 2).xPos][fullJMap.get((fullJMap.size() - 1) / 2).yPos] = 2;
+		
+		generateBars(100);
+	}
+	
+	private void generateBars(int spawnChance) {
+		for (int row = 0; row < intMap.length; row++) {
+			for (int col = 0; col < intMap[row].length; col++) {
+				int rand = (int)(Math.random() * spawnChance);
+				
+				if (rand == 1) {
+					outer: for (int _row = row; _row < intMap.length; _row++) {
+						for (int _col = col; _col < intMap[_row].length; _col++) {
+							int id = intMap[_row][_col];
+							
+							if (id == 1) {
+								if (_row > 0 && _row < intMap.length - 1 && _col > 0 && _col < intMap[_row].length - 1) {
+									if (intMap[_row-1][_col] == 0 && intMap[_row+1][_col] == 0 && intMap[_row][_col-1] == 1 && intMap[_row][_col+1] == 1) {
+										intMap[_row][_col] = 17;
+										break outer;
+									} else if (intMap[_row][_col-1] == 0 && intMap[_row][_col+1] == 0 && intMap[_row-1][_col] == 1 && intMap[_row+1][_col] == 1) {
+										intMap[_row][_col] = 16;
+										break outer;
+									}
+								}
+							}
+						}
+					}					
+				}
+			}
+		}
 	}
 	
 	private double random(int c) {

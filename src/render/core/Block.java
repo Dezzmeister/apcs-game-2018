@@ -19,6 +19,7 @@ public class Block {
 	 */
 	public Wall[] walls = null;
 	private boolean solid = true;
+	private int proximity = -1;
 	public String name;
 	public SquareTexture frontTexture = DEFAULT_TEXTURE;
 	public SquareTexture sideTexture = DEFAULT_TEXTURE;
@@ -76,6 +77,16 @@ public class Block {
 	 */
 	public boolean isCustom() {
 		return walls != null;
+	}
+	
+	public Block setProximity(int visibleDistance) {
+		proximity = visibleDistance;
+		
+		return this;
+	}
+	
+	public int getProximity() {
+		return proximity;
 	}
 	
 	public Block tileFront(float _xTiles, float _yTiles) {
@@ -137,6 +148,22 @@ public class Block {
 	 * @author Joe Desmond
 	 */
 	public static class CubicleWalls {
+		
+		public static final SquareTexture STANDARD_WALL = new SquareTexture("assets/textures/wall1024.png",1024);
+		public static final Block STANDARD_WALL_BLOCK = new Block("Dungeon Wall").applyTexture(STANDARD_WALL);
+		
+		public static final SquareTexture STANDARD_ROOM_FLOOR = new SquareTexture("assets/textures/checkeredfloor512.png",512);
+		public static final SquareTexture STANDARD_HALL_FLOOR = new SquareTexture("assets/textures/dirt1600.png",1600);
+		
+		public static final SquareTexture STANDARD_HALL_CEILING = new SquareTexture("assets/textures/stone900.png",900);
+		
+		public static final SquareTexture DWIGHT_1252 = new SquareTexture("assets/textures/dwight1252.png",1252);
+		public static final SquareTexture DWITE_546 = new SquareTexture("assets/textures/dwite546.png",546);
+		public static final Block DWIGHT_BLOCK = new Block("Dwight Block").applyFrontTexture(DWIGHT_1252).applySideTexture(DWITE_546).setProximity(7);
+		
+		public static final GeneralTexture BARS = new SquareTexture("assets/textures/bars512.png",512).asGeneralTexture();
+		public static final Block HORIZONTAL_BARS = new Block("horizontal bars").customize(new Wall(0.0f,0.5f,1.0f,0.5f).setTexture(BARS));
+		public static final Block VERTICAL_BARS = new Block("vertical bars").customize(new Wall(0.5f,0.0f,0.5f,1.0f).setTexture(BARS));
 
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);
