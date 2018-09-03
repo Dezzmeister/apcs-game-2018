@@ -153,7 +153,7 @@ public class Block {
 		public static final Block STANDARD_WALL_BLOCK = new Block("Dungeon Wall").applyTexture(STANDARD_WALL);
 		
 		public static final SquareTexture STANDARD_ROOM_FLOOR = new SquareTexture("assets/textures/checkeredfloor512.png",512);
-		public static final SquareTexture STANDARD_HALL_FLOOR = new SquareTexture("assets/textures/dirt1600.png",1600);
+		public static final SquareTexture STANDARD_HALL_FLOOR = new SquareTexture("assets/textures/dirt800.png",800);
 		
 		public static final SquareTexture STANDARD_HALL_CEILING = new SquareTexture("assets/textures/stone900.png",900);
 		
@@ -164,6 +164,13 @@ public class Block {
 		public static final GeneralTexture BARS = new SquareTexture("assets/textures/bars512.png",512).asGeneralTexture();
 		public static final Block HORIZONTAL_BARS = new Block("horizontal bars").customize(new Wall(0.0f,0.5f,1.0f,0.5f).setTexture(BARS));
 		public static final Block VERTICAL_BARS = new Block("vertical bars").customize(new Wall(0.5f,0.0f,0.5f,1.0f).setTexture(BARS));
+		
+		public static final GeneralTexture pillarTexture = new GeneralTexture("assets/textures/pillar.png",600,1200);
+		public static final Block PILLAR = new Block("pillar").customize(
+											new Wall(0.25f, 0.25f, 0.75f, 0.25f).setTexture(pillarTexture),
+											new Wall(0.75f, 0.25f, 0.75f, 0.75f).setTexture(pillarTexture),
+											new Wall(0.75f, 0.75f, 0.25f, 0.75f).setTexture(pillarTexture),
+											new Wall(0.25f, 0.75f, 0.25f, 0.25f).setTexture(pillarTexture));
 
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);

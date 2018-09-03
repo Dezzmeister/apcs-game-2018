@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import audio.soundjunk.SoundManager;
+import audio.soundjunk.Wav;
 import message_loop.Messenger;
 import render.core.Raycaster;
 
@@ -239,7 +240,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		}
 		
 		if (e.getKeyChar() == 'k') {
-			soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
+			//soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
+			//soundManager.play("boom");
+			Wav.playSound("assets/soundfx/boom.wav");
 		}
 		
 		if (e.getKeyCode() == controls.screenshot) {

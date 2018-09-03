@@ -41,6 +41,7 @@ public class Main {
 		
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
+		manager.addSound("boom", "assets/soundfx/boom.ogg");
 		//manager.play("giorgio");
 		
 		Game game = new Game(width, height).noCursor();

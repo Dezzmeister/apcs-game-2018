@@ -25,6 +25,10 @@ import render.math.Vector2;
 /**
  * Uses multiple threads to render a map. Uses a Camera holding player data such
  * as position, direction, and FoV.
+ * 
+ * This rendering engine is a <u><i><b>BEAUTIFUL</b></i></u> hybrid that uses a DDA for blocks and ray/line-segment intersection
+ * algorithm for custom walls. As of right now, it only supports vertical stripes of transparency because
+ * supporting more would require a 2D z-buffer.
  *
  * @author Joe Desmond
  */
@@ -459,9 +463,7 @@ public class Raycaster extends JPanel {
 										float normDist = Vector2.distance(testing.v0, tested)/wallLength;
 										int textureDist = (int) (normDist * testing.texture.width);
 										
-										if (testing.texture.pixels[textureDist] == Texture.ALPHA) {
-											
-										} else {
+										if (testing.texture.pixels[textureDist] != Texture.ALPHA) {
 											customHit = tested;
 										}
 									}

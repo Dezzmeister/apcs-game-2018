@@ -96,13 +96,18 @@ public class MapGenerator {
 						break;
 					case 16:
 						block = Block.CubicleWalls.HORIZONTAL_BARS;
-						floor = spec.hallFloor;
+						floor = spec.hallCeil;
 						ceil = spec.hallCeil;
 						break;
 					case 17:
 						block = Block.CubicleWalls.VERTICAL_BARS;
-						floor = spec.hallFloor;
+						floor = spec.hallCeil;
 						ceil = spec.hallCeil;
+						break;
+					case 18:
+						block = Block.CubicleWalls.PILLAR;
+						floor = spec.roomFloor;
+						ceil = spec.roomCeil;
 						break;
 					default:
 						block = Block.SPACE;
@@ -210,6 +215,9 @@ public class MapGenerator {
 					case 17:
 						color = 0xBBBBBB;
 						break;
+					case 18:
+						color = 0xFF2222;
+						break;
 				}
 				
 				image.setRGB(col, row, color);
@@ -217,7 +225,7 @@ public class MapGenerator {
 		}
 		
 		try {
-			File file = new File("map.png");
+			File file = new File("latest_map.png");
 			ImageIO.write(image, "png", file);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -333,32 +341,38 @@ public class MapGenerator {
 		
 		intMap[fullJMap.get((fullJMap.size() - 1) / 2).xPos][fullJMap.get((fullJMap.size() - 1) / 2).yPos] = 2;
 		
-		generateBars(100);
+		generateBars(37);
+		generatePillars(50);
+	}
+	
+	private void generatePillars(int spawnChance) {
+		for (int row = 0; row < intMap.length; row++) {
+			for (int col = 0; col < intMap[row].length; col++) {
+				if (intMap[row][col] == 3) {
+					int rand = (int)(Math.random() * spawnChance);
+					
+					if (rand == 1) {
+						intMap[row][col] = 18;
+					}
+				}
+			}
+		}
 	}
 	
 	private void generateBars(int spawnChance) {
-		for (int row = 0; row < intMap.length; row++) {
-			for (int col = 0; col < intMap[row].length; col++) {
-				int rand = (int)(Math.random() * spawnChance);
+		for (int row = 1; row < intMap.length-1; row++) {
+			for (int col = 1; col < intMap[row].length-1; col++) {
 				
-				if (rand == 1) {
-					outer: for (int _row = row; _row < intMap.length; _row++) {
-						for (int _col = col; _col < intMap[_row].length; _col++) {
-							int id = intMap[_row][_col];
-							
-							if (id == 1) {
-								if (_row > 0 && _row < intMap.length - 1 && _col > 0 && _col < intMap[_row].length - 1) {
-									if (intMap[_row-1][_col] == 0 && intMap[_row+1][_col] == 0 && intMap[_row][_col-1] == 1 && intMap[_row][_col+1] == 1) {
-										intMap[_row][_col] = 17;
-										break outer;
-									} else if (intMap[_row][_col-1] == 0 && intMap[_row][_col+1] == 0 && intMap[_row-1][_col] == 1 && intMap[_row+1][_col] == 1) {
-										intMap[_row][_col] = 16;
-										break outer;
-									}
-								}
-							}
+				if (intMap[row][col] == 1) {
+					int rand = (int)(Math.random() * spawnChance);
+					
+					if (rand == 1) {
+						if (intMap[row-1][col] == 0 && intMap[row+1][col] == 0 && intMap[row][col-1] == 1 && intMap[row][col+1] == 1) {
+							intMap[row][col] = 17;
+						} else if (intMap[row][col-1] == 0 && intMap[row][col+1] == 0 && intMap[row-1][col] == 1 && intMap[row+1][col] == 1) {
+							intMap[row][col] = 16;
 						}
-					}					
+					}
 				}
 			}
 		}
