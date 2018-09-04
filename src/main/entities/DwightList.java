@@ -120,7 +120,7 @@ public class DwightList {
 	
 	private void addDwight(float x, float y) {
 		Dwight dwight = new Dwight(new Vector2(x, y));
-		System.out.println(dwight.pos);
+		//System.out.println(dwight.pos);
 		dwight.setCamera(player);
 		
 		dwights.add(dwight);

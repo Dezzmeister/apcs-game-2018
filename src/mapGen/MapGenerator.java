@@ -114,6 +114,12 @@ public class MapGenerator {
 					case 20:
 						block = Block.DwightElements.SECRET_DOOR;
 						break;
+					case 21:
+						block = Block.DwightElements.SIPOWICZ_WALL;
+						break;
+					case 22:
+						block = Block.DwightElements.MEDAVOY_WALL;
+						break;
 					default:
 						block = Block.DwightElements.ROOM_SPACE;
 						floor = spec.roomFloor;
@@ -228,6 +234,10 @@ public class MapGenerator {
 						break;
 					case 20:
 						color = 0xFF4444;
+						break;
+					case 21:
+					case 22:
+						color = 0x999999;
 						break;
 				}
 				
@@ -357,20 +367,29 @@ public class MapGenerator {
 	public int barSpawnChance = 37;
 	public int moseBlockSpawnChance = 100;
 	public int secretBlockSpawnChance = 35;
+	public int nypdBlueRoomChance = 30;
 	
 	private void generateExtras() {
 		for (int row = 1; row < intMap.length - 1; row++) {
 			for (int col = 1; col < intMap[row].length - 1; col++) {
 				if (intMap[row][col] == 3) {
 					generatePillar(row,col);
+					continue;
 				}
 				
 				if (intMap[row][col] == 1) {
 					generateBar(row,col);
+					continue;
 				}
 				
 				if (intMap[row][col] == 0 && (intMap[row-1][col] == 1 || intMap[row+1][col] == 1 || intMap[row][col-1] == 1 || intMap[row][col+1] == 1)) {
 					generateMoseBlock(row,col);
+					continue;
+				}
+				
+				if (intMap[row][col] == 0 && row + 6 < intMap.length && col + 2 < intMap[row+6].length && intMap[row+6][col+2] == 1) {
+					generateNYPDBlueRoom(row, col);
+					continue;
 				}
 				
 				if (intMap[row][col] == 1) {
@@ -381,8 +400,35 @@ public class MapGenerator {
 						
 						generateSecretBlock(row,col);
 					}
+					continue;
 				}
 			}
+		}
+	}
+	
+	private void generateNYPDBlueRoom(int row, int col) {
+		if (row + 6 < intMap.length && col + 5 < intMap[row].length) {
+			for (int y = row; y <= row+5; y++) {
+				for (int x = col; x <= col+5; x++) {
+					if (intMap[y][x] != 0) {
+						return;
+					}
+				}
+			}
+			
+			if (row > 0 && intMap[row-1][col+3] != 0) return;
+		
+			for (int y = row+1; y < row+4; y++) {
+				for (int x = col+1; x < col+4; x++) {
+					intMap[y][x] = 1;
+				}
+			}
+		
+			intMap[row+4][col+2] = 1;
+			intMap[row+5][col+2] = 1;
+			
+			intMap[row+3][col] = 21;
+			intMap[row+3][col+4] = 22;
 		}
 	}
 	

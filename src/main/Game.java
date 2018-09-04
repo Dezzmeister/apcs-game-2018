@@ -176,13 +176,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			last = now;
 			
 			if (raycaster != null) {
-				raycaster.setEntities(dwightList.getDwights());
+				//raycaster.setEntities(dwightList.getDwights());
 			}
 			
 			while (delta >= 1 && raycaster.finished) {
 				if (raycaster != null) {
 					handleKeyboardInput(delta);
-					dwightList.updateDwights();
+					//dwightList.updateDwights();
 				}
 				if (soundManager != null) {
 					if (raycaster != null) {

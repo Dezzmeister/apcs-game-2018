@@ -163,7 +163,7 @@ public class Block {
 	 */
 	public static class DwightElements {
 		
-		public static final SquareTexture STANDARD_WALL = new SquareTexture("assets/textures/wall1024.png",1024);
+		public static final SquareTexture STANDARD_WALL = new SquareTexture("assets/textures/wall512.png",512);
 		public static final Block STANDARD_WALL_BLOCK = new Block("Dungeon Wall").applyTexture(STANDARD_WALL);
 		
 		public static final SquareTexture STANDARD_ROOM_FLOOR = new SquareTexture("assets/textures/checkeredfloor512.png",512);
@@ -193,6 +193,12 @@ public class Block {
 		
 		public static final SquareTexture SECRET_WALL = new SquareTexture("assets/textures/secretwall512.png",512);
 		public static final Block SECRET_DOOR = new Block("secret door").applyTexture(SECRET_WALL).fakeBlock();
+		
+		public static final SquareTexture MEDAVOY = new SquareTexture("assets/textures/medavoywall512.png",512);
+		public static final Block MEDAVOY_WALL = new Block("medavoy").applyTexture(MEDAVOY);
+		
+		public static final SquareTexture SIPOWICZ = new SquareTexture("assets/textures/sipowiczwall512.png",512);
+		public static final Block SIPOWICZ_WALL = new Block("sipowicz").applyTexture(SIPOWICZ);
 
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);
