@@ -12,13 +12,14 @@ import image.SquareTexture;
 public class Block {
 
 	public static final SquareTexture DEFAULT_TEXTURE = new SquareTexture("assets/textures/default32.png", 32);
-	public static final Block SPACE = new Block("space").fakeBlock();
+	public static final Block SPACE = new Block("space").fakeBlock().makeInvisible();
 	
 	/**
 	 * If this Block is custom, this will contain this Block's custom Walls.
 	 */
 	public Wall[] walls = null;
 	private boolean solid = true;
+	private boolean visible = true;
 	private int proximity = -1;
 	public String name;
 	public SquareTexture frontTexture = DEFAULT_TEXTURE;
@@ -56,6 +57,19 @@ public class Block {
 	
 	public void solidify() {
 		solid = true;
+	}
+	
+	public Block makeInvisible() {
+		visible = false;
+		return this;
+	}
+	
+	public void makeVisible() {
+		visible = true;
+	}
+	
+	public boolean isVisible() {
+		return visible;
 	}
 	
 	/**
@@ -147,7 +161,7 @@ public class Block {
 	 *
 	 * @author Joe Desmond
 	 */
-	public static class CubicleWalls {
+	public static class DwightElements {
 		
 		public static final SquareTexture STANDARD_WALL = new SquareTexture("assets/textures/wall1024.png",1024);
 		public static final Block STANDARD_WALL_BLOCK = new Block("Dungeon Wall").applyTexture(STANDARD_WALL);
@@ -159,11 +173,14 @@ public class Block {
 		
 		public static final SquareTexture DWIGHT_1252 = new SquareTexture("assets/textures/dwight1252.png",1252);
 		public static final SquareTexture DWITE_546 = new SquareTexture("assets/textures/dwite546.png",546);
-		public static final Block DWIGHT_BLOCK = new Block("Dwight Block").applyFrontTexture(DWIGHT_1252).applySideTexture(DWITE_546).setProximity(7);
+		public static final Block DWIGHT_BLOCK = new Block("Dwight Block").applyFrontTexture(DWIGHT_1252).applySideTexture(DWITE_546).setProximity(5);
 		
 		public static final GeneralTexture BARS = new SquareTexture("assets/textures/bars512.png",512).asGeneralTexture();
 		public static final Block HORIZONTAL_BARS = new Block("horizontal bars").customize(new Wall(0.0f,0.5f,1.0f,0.5f).setTexture(BARS));
 		public static final Block VERTICAL_BARS = new Block("vertical bars").customize(new Wall(0.5f,0.0f,0.5f,1.0f).setTexture(BARS));
+		
+		public static final SquareTexture MOSE_WALL = new SquareTexture("assets/textures/mosewall1024.png",1024);
+		public static final Block MOSE_BLOCK = new Block("Mose Block").applyTexture(MOSE_WALL);
 		
 		public static final GeneralTexture pillarTexture = new GeneralTexture("assets/textures/pillar.png",600,1200);
 		public static final Block PILLAR = new Block("pillar").customize(
@@ -171,6 +188,11 @@ public class Block {
 											new Wall(0.75f, 0.25f, 0.75f, 0.75f).setTexture(pillarTexture),
 											new Wall(0.75f, 0.75f, 0.25f, 0.75f).setTexture(pillarTexture),
 											new Wall(0.25f, 0.75f, 0.25f, 0.25f).setTexture(pillarTexture));
+		
+		public static final Block ROOM_SPACE = new Block("room space").fakeBlock().makeInvisible();
+		
+		public static final SquareTexture SECRET_WALL = new SquareTexture("assets/textures/secretwall512.png",512);
+		public static final Block SECRET_DOOR = new Block("secret door").applyTexture(SECRET_WALL).fakeBlock();
 
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);

@@ -49,10 +49,6 @@ public class MapGenerator {
 		spec = specification;
 		
 		rooms = (WIDTH * HEIGHT) / 1333;
-		
-		generateIntMap();
-		convertIntMap();
-		debug_saveDebugImage();
 	}
 	
 	public static class MapSpecification {
@@ -71,12 +67,19 @@ public class MapGenerator {
 		}
 	}
 	
+	public void generate() {
+		generateIntMap();
+		generateExtras();
+		convertIntMap();
+		debug_saveDebugImage();
+	}
+	
 	private void convertIntMap() {
 		for (int row = 0; row < intMap.length; row++) {
 			for (int col = 0; col < intMap[row].length; col++) {
 				Block block;
-				SquareTexture floor;
-				SquareTexture ceil;
+				SquareTexture floor = spec.hallFloor;
+				SquareTexture ceil = spec.hallCeil;
 				
 				switch (intMap[row][col]) {
 					case 0:
@@ -86,31 +89,33 @@ public class MapGenerator {
 						break;
 					case 1:
 						block = Block.SPACE;
-						floor = spec.hallFloor;
-						ceil = spec.hallCeil;
 						break;
 					case 11:
-						block = Block.CubicleWalls.DWIGHT_BLOCK;
+						block = Block.DwightElements.DWIGHT_BLOCK;
 						floor = spec.roomFloor;
 						ceil = spec.roomCeil;
 						break;
 					case 16:
-						block = Block.CubicleWalls.HORIZONTAL_BARS;
+						block = Block.DwightElements.HORIZONTAL_BARS;
 						floor = spec.hallCeil;
-						ceil = spec.hallCeil;
 						break;
 					case 17:
-						block = Block.CubicleWalls.VERTICAL_BARS;
+						block = Block.DwightElements.VERTICAL_BARS;
 						floor = spec.hallCeil;
-						ceil = spec.hallCeil;
 						break;
 					case 18:
-						block = Block.CubicleWalls.PILLAR;
+						block = Block.DwightElements.PILLAR;
 						floor = spec.roomFloor;
 						ceil = spec.roomCeil;
 						break;
+					case 19:
+						block = Block.DwightElements.MOSE_BLOCK;
+						break;
+					case 20:
+						block = Block.DwightElements.SECRET_DOOR;
+						break;
 					default:
-						block = Block.SPACE;
+						block = Block.DwightElements.ROOM_SPACE;
 						floor = spec.roomFloor;
 						ceil = spec.roomCeil;
 						break;
@@ -217,6 +222,12 @@ public class MapGenerator {
 						break;
 					case 18:
 						color = 0xFF2222;
+						break;
+					case 19:
+						color = 0x2222FF;
+						break;
+					case 20:
+						color = 0xFF4444;
 						break;
 				}
 				
@@ -340,41 +351,74 @@ public class MapGenerator {
 		}
 		
 		intMap[fullJMap.get((fullJMap.size() - 1) / 2).xPos][fullJMap.get((fullJMap.size() - 1) / 2).yPos] = 2;
-		
-		generateBars(37);
-		generatePillars(50);
 	}
 	
-	private void generatePillars(int spawnChance) {
-		for (int row = 0; row < intMap.length; row++) {
-			for (int col = 0; col < intMap[row].length; col++) {
+	public int pillarSpawnChance = 50;
+	public int barSpawnChance = 37;
+	public int moseBlockSpawnChance = 100;
+	public int secretBlockSpawnChance = 35;
+	
+	private void generateExtras() {
+		for (int row = 1; row < intMap.length - 1; row++) {
+			for (int col = 1; col < intMap[row].length - 1; col++) {
 				if (intMap[row][col] == 3) {
-					int rand = (int)(Math.random() * spawnChance);
-					
-					if (rand == 1) {
-						intMap[row][col] = 18;
+					generatePillar(row,col);
+				}
+				
+				if (intMap[row][col] == 1) {
+					generateBar(row,col);
+				}
+				
+				if (intMap[row][col] == 0 && (intMap[row-1][col] == 1 || intMap[row+1][col] == 1 || intMap[row][col-1] == 1 || intMap[row][col+1] == 1)) {
+					generateMoseBlock(row,col);
+				}
+				
+				if (intMap[row][col] == 1) {
+					if ((intMap[row-1][col-1] == 1 && intMap[row][col-1] == 1 && intMap[row+1][col-1] == 1 && intMap[row][col+1] == 1) ||
+					    (intMap[row-1][col-1] == 1 && intMap[row-1][col] == 1 && intMap[row-1][col+1] == 1 && intMap[row+1][col] == 1) ||
+					    (intMap[row-1][col+1] == 1 && intMap[row][col+1] == 1 && intMap[row+1][col+1] == 1 && intMap[row][col-1] == 1) ||
+					    (intMap[row+1][col-1] == 1 && intMap[row+1][col] == 1 && intMap[row+1][col+1] == 1 && intMap[row-1][col] == 1)) {
+						
+						generateSecretBlock(row,col);
 					}
 				}
 			}
 		}
 	}
 	
-	private void generateBars(int spawnChance) {
-		for (int row = 1; row < intMap.length-1; row++) {
-			for (int col = 1; col < intMap[row].length-1; col++) {
-				
-				if (intMap[row][col] == 1) {
-					int rand = (int)(Math.random() * spawnChance);
-					
-					if (rand == 1) {
-						if (intMap[row-1][col] == 0 && intMap[row+1][col] == 0 && intMap[row][col-1] == 1 && intMap[row][col+1] == 1) {
-							intMap[row][col] = 17;
-						} else if (intMap[row][col-1] == 0 && intMap[row][col+1] == 0 && intMap[row-1][col] == 1 && intMap[row+1][col] == 1) {
-							intMap[row][col] = 16;
-						}
-					}
-				}
+	private void generateSecretBlock(int row, int col) {
+		int rand = (int)(Math.random() * secretBlockSpawnChance);
+		
+		if (rand == secretBlockSpawnChance-1) {
+			intMap[row][col] = 20;
+		}
+	}
+	
+	private void generatePillar(int row, int col) {
+		int rand = (int)(Math.random() * pillarSpawnChance);
+		
+		if (rand == pillarSpawnChance-1) {
+			intMap[row][col] = 18;
+		}
+	}
+	
+	private void generateBar(int row, int col) {
+		int rand = (int)(Math.random() * barSpawnChance);
+		
+		if (rand == barSpawnChance-1) {
+			if (intMap[row-1][col] == 0 && intMap[row+1][col] == 0 && intMap[row][col-1] == 1 && intMap[row][col+1] == 1) {
+				intMap[row][col] = 17;
+			} else if (intMap[row][col-1] == 0 && intMap[row][col+1] == 0 && intMap[row-1][col] == 1 && intMap[row+1][col] == 1) {
+				intMap[row][col] = 16;
 			}
+		}
+	}
+	
+	private void generateMoseBlock(int row, int col) {
+		int rand = (int)(Math.random() * moseBlockSpawnChance);
+		
+		if (rand == moseBlockSpawnChance-1) {
+			intMap[row][col] = 19;
 		}
 	}
 	

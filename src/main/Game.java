@@ -21,13 +21,12 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.Wav;
+import main.entities.DwightList;
 import message_loop.Messenger;
 import render.core.Raycaster;
 
@@ -52,6 +51,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public final MouseRobot mouse;
 	public final Controls controls = new Controls();
 	private static final DateFormat SCREENSHOT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+	private DwightList dwightList;
 	
 	private Messenger messenger = new Messenger();
 	
@@ -124,6 +124,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	
 	public Game setRaycaster(Raycaster _raycaster) {
 		raycaster = _raycaster;
+		dwightList = new DwightList(raycaster.camera, raycaster.world);
 		pane.add(raycaster, BorderLayout.CENTER);
 		
 		setVisible(true);
@@ -174,9 +175,14 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			delta += (now - last) / ns;
 			last = now;
 			
+			if (raycaster != null) {
+				raycaster.setEntities(dwightList.getDwights());
+			}
+			
 			while (delta >= 1 && raycaster.finished) {
 				if (raycaster != null) {
 					handleKeyboardInput(delta);
+					dwightList.updateDwights();
 				}
 				if (soundManager != null) {
 					if (raycaster != null) {
@@ -186,6 +192,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					}
 					soundManager.update();
 				}
+				
 				delta--;
 			}
 			

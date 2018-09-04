@@ -57,6 +57,10 @@ public abstract class Entity implements Comparable<Entity> {
 		return this;
 	}
 	
+	public void setCamera(Camera _camera) {
+		player = _camera;
+	}
+	
 	public int width() {
 		return xDrawEnd - xDrawBegin;
 	}

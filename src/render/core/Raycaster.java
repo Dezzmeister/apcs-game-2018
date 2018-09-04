@@ -53,7 +53,7 @@ public class Raycaster extends JPanel {
 	protected Graphics g;
 	public Camera camera;
 	public WorldMap world;
-	private List<Entity> sprites;
+	private volatile List<? extends Entity> sprites;
 	
 	public static final float FULL_FOG_DISTANCE = 10f; //5f
 	public static final int OLD_SHADE_THRESHOLD = 100;
@@ -438,7 +438,7 @@ public class Raycaster extends JPanel {
 						side = true;
 					}
 					block = world.getBlockAt(mapX, mapY);
-					if (block != Block.SPACE && (block.getProximity() == -1 || block.getProximity() > Vector2.distance(pos, new Vector2(mapX,mapY)))) {
+					if (block.isVisible() && (block.getProximity() == -1 || block.getProximity() > Vector2.distance(pos, new Vector2(mapX,mapY)))) {
 						if (block.isCustom()) {
 							currentLoc = new Vector2(mapX, mapY);
 							Vector2 rayDirection = new Vector2((float) rdirx + pos.x, (float) rdiry + pos.y);
@@ -454,18 +454,17 @@ public class Raycaster extends JPanel {
 									} else {
 										tempDist = ((tested.y - pos.y + (1 - Math.abs(stepY)) / 2)) / rdiry;
 									}
-									if (tempDist < zbuf[x]) {
+									
+									float wallLength = testing.length;
+									float normDist = Vector2.distance(testing.v0, tested)/wallLength;
+									int textureDist = (int) (normDist * l.texture.width);
+									
+									if (tempDist < zbuf[x] && l.texture.pixels[textureDist] != Texture.ALPHA) {
 										zbuf[x] = tempDist;
 										testing.texture = l.texture;
 										hitWall = testing;
 										
-										float wallLength = testing.length;
-										float normDist = Vector2.distance(testing.v0, tested)/wallLength;
-										int textureDist = (int) (normDist * testing.texture.width);
-										
-										if (testing.texture.pixels[textureDist] != Texture.ALPHA) {
-											customHit = tested;
-										}
+										customHit = tested;
 									}
 								}
 							}
@@ -755,6 +754,10 @@ public class Raycaster extends JPanel {
 		}
 
 		renderers[renderers.length - 1] = new ThreadRenderer(step, WIDTH, rendererCount - 1);
+	}
+	
+	public void setEntities(List<? extends Entity> _entities) {
+		sprites = _entities;
 	}
 
 	public void shutdown() {

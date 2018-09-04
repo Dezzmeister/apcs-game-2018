@@ -1,7 +1,7 @@
 package main;
 
 import static render.core.Block.SPACE;
-import static render.core.Block.CubicleWalls.*;
+import static render.core.Block.DwightElements.*;
 import static render.core.WorldMap.DEFAULT_CEILING;
 
 import audio.soundjunk.SoundManager;
@@ -35,13 +35,13 @@ public class Main {
 		
 		MapSpecification spec = new MapSpecification(STANDARD_WALL_BLOCK, STANDARD_HALL_FLOOR, STANDARD_HALL_CEILING, STANDARD_ROOM_FLOOR, STANDARD_HALL_CEILING);
 		MapGenerator map = new MapGenerator(5000,5000, spec);
+		map.generate();
 		
 		WorldMap world = map.getFinalWorldMap();
 		Vector2 startPos = map.getRandomStartPos();
 		
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
-		manager.addSound("boom", "assets/soundfx/boom.ogg");
 		//manager.play("giorgio");
 		
 		Game game = new Game(width, height).noCursor();
