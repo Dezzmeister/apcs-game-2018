@@ -1,5 +1,7 @@
 package render.math;
 
+import java.util.Objects;
+
 /**
  * Represents a 2D Vector with an x and y coordinate.
  *
@@ -57,5 +59,25 @@ public class Vector2 {
 	@Override
 	public String toString() {
 		return "(" + x + "," + y + ")";
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		
+		if (!(o instanceof Vector2)) {
+			return false;
+		}
+		
+		Vector2 vec2 = (Vector2) o;
+		
+		return x == vec2.x && y == vec2.y;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(x,y);
 	}
 }

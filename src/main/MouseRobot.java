@@ -3,6 +3,7 @@ package main;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.Robot;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
@@ -21,6 +22,7 @@ public class MouseRobot {
 	
 	private AtomicInteger px = new AtomicInteger(0);
 	private AtomicInteger py = new AtomicInteger(0);
+	private AtomicBoolean enabled = new AtomicBoolean(true);
 	private Robot robot;
 	private Container pane;
 	
@@ -74,9 +76,11 @@ public class MouseRobot {
 	}
 	
 	private void forceToCenter() {
-		Point p = new Point(width / 2, height / 2);
-		SwingUtilities.convertPointToScreen(p, pane);
-		robot.mouseMove(p.x, p.y);
+		if (enabled.get()) {
+			Point p = new Point(width / 2, height / 2);
+			SwingUtilities.convertPointToScreen(p, pane);
+			robot.mouseMove(p.x, p.y);
+		}
 	}
 	
 	public void setWidth(int _width) {
@@ -85,6 +89,14 @@ public class MouseRobot {
 	
 	public void setHeight(int _height) {
 		height = _height;
+	}
+	
+	public void disable() {
+		enabled.set(false);
+	}
+	
+	public void enable() {
+		enabled.set(true);
 	}
 	
 	/**

@@ -170,19 +170,30 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		int frames = 0;
 		isRunning.set(true);
 		
+		boolean secondPassed = false;
 		while (isRunning.get()) {
+			if (this.isFocusOwner()) {
+				mouse.enable();
+			} else {
+				mouse.disable();
+			}
+			
 			long now = System.nanoTime();
 			delta += (now - last) / ns;
 			last = now;
 			
 			if (raycaster != null) {
-				//raycaster.setEntities(dwightList.getDwights());
+				raycaster.setEntities(dwightList.getDwights());
+			}
+			if (secondPassed) {
+				dwightList.regeneratePaths();
+				secondPassed = false;
 			}
 			
 			while (delta >= 1 && raycaster.finished) {
 				if (raycaster != null) {
 					handleKeyboardInput(delta);
-					//dwightList.updateDwights();
+					dwightList.updateDwights(delta);
 				}
 				if (soundManager != null) {
 					if (raycaster != null) {
@@ -202,6 +213,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
+				secondPassed = true;
 				
 				frames = 0;
 			}
@@ -258,6 +270,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		
 		if (e.getKeyChar() == 'j') {
 			raycaster.linearShade = !raycaster.linearShade;
+		}
+		
+		if (e.getKeyChar() == 'l') {
+			dwightList.maxDwights = 10;
 		}
 	}
 

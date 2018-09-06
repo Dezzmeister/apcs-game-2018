@@ -29,6 +29,8 @@ public class WorldMap {
 	private CellMap[][] lightmaps;
 	public Light[] lights;
 	public List<Entity> entities = new ArrayList<Entity>();
+	public int width;
+	public int height;
 
 	// private Speaker[] speakers;
 	
@@ -40,6 +42,9 @@ public class WorldMap {
 		
 		initDefaultFloorMap();
 		initDefaultCeilingMap();
+		
+		height = blocks.length;
+		width = blocks[0].length;
 		//initEmptyLightMaps();
 	}
 	
@@ -47,6 +52,9 @@ public class WorldMap {
 		blocks = _blocks;
 		floorMap = _floorMap;
 		ceilMap = _ceilMap;
+		
+		height = blocks.length;
+		width = blocks[0].length;
 		//initEmptyLightMaps();
 	}
 	

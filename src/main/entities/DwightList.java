@@ -10,9 +10,18 @@ import render.core.WorldMap;
 import render.math.Vector2;
 
 public class DwightList {
-	private final int maxDwights = 10;
+	public int maxDwights = 0;
 	
-	private final int despawnDistance = 50;
+	private final int despawnDistance = 20;
+	
+	private int initialSpawnRadius = 10;
+	private int maxSpawnRadius = 18;
+	
+	private final float TWO_PI = (float) (Math.PI * 2.0f);
+	private float[] sineTable;
+	private float[] cosineTable;
+	
+	private int dwightSpawnInterval = 10;
 	
 	private List<Dwight> dwights = new ArrayList<Dwight>();
 	private Camera player;
@@ -25,42 +34,34 @@ public class DwightList {
 		generateLUTs();
 	}
 	
-	private boolean cannotSpawnNewDwight = false;
-	
-	public void updateDwights() {
-		moveDwights();
+	public void updateDwights(double delta) {
+		moveDwights(delta);
 		
 		for (int i = dwights.size()-1; i >= 0; i--) {
 			Dwight dwight = dwights.get(i);
 			if (Vector2.distance(player.pos, dwight.pos) > despawnDistance) {
 				dwights.remove(i);
-				cannotSpawnNewDwight = false;
 			}
 		}
 		
-		lastInterval = 0;
-		lastRadius = initialSpawnRadius;
-		while (!cannotSpawnNewDwight && dwights.size() < maxDwights && spawnRandomDwight());
+		while (dwights.size() < maxDwights && spawnRandomDwight());
 	}
 	
-	public void moveDwights() {
+	public void regeneratePaths() {
 		for (int i = dwights.size() - 1; i >= 0; i--) {
-			
+			dwights.get(i).generatePath(player.pos, world);
+		}
+	}
+	
+	public void moveDwights(double delta) {
+		for (int i = dwights.size() - 1; i >= 0; i--) {
+			dwights.get(i).moveToPlayer(delta);
 		}
 	}
 	
 	public List<Dwight> getDwights() {
 		return dwights;
 	}
-	
-	private int initialSpawnRadius = 10;
-	private int maxSpawnRadius = 18;
-	
-	private final float TWO_PI = (float) (Math.PI * 2.0f);
-	private float[] sineTable;
-	private float[] cosineTable;
-	
-	private int dwightSpawnInterval = 10;
 	
 	private void generateLUTs() {
 		sineTable = new float[dwightSpawnInterval];
@@ -77,7 +78,7 @@ public class DwightList {
 	}
 	
 	private int lastInterval = 0;
-	private int lastRadius = initialSpawnRadius;
+	private int spawnTestRadius = 5;
 	private boolean spawnRandomDwight() {
 		int px = (int)player.pos.x;
 		int py = (int)player.pos.y;
@@ -98,30 +99,71 @@ public class DwightList {
 			}
 		}
 		*/
-		for (int radius = lastRadius; radius < maxSpawnRadius; radius+=2) {
-			lastRadius += 2;
+		for (int radius = initialSpawnRadius; radius < maxSpawnRadius; radius+=2) {
 			
 			for (int i = lastInterval; i < dwightSpawnInterval; i++) {
-				lastInterval = (i + 1 >= dwightSpawnInterval) ? 0 : i + 1;
+				lastInterval++;
+				if (lastInterval >= dwightSpawnInterval) {
+					lastInterval = 0;
+				}
 				
-				int x = (int)(radius * cosineTable[i]) + px;
-				int y = (int)(radius * sineTable[i]) + py;
+				int x = (int)((radius * cosineTable[i]) + px);
+				int y = (int)((radius * sineTable[i]) + py);
 				
-				if (!world.getBlockAt(x,y).isSolid()) {
+				
+				if (!world.getBlockAt(x,y).isSolid() && !dwightExistsAt(x,y)) {
 					addDwight(x + 0.5f, y + 0.5f);
 					return true;
+				} else {					
+					for (int tx = x - spawnTestRadius; tx <= x; tx++) {
+						for (int ty = y - spawnTestRadius; ty <= y; ty++) {
+							int clause = ((tx - x) * (tx - x)) + ((ty - y) * (ty - y));
+							
+							if (clause <= spawnTestRadius * spawnTestRadius) {
+								int xSym = x - (tx - x);
+								int ySym = y - (ty - y);
+								//(tx,ty) (tx,ySym) (xSym, ty) (xSym, ySym) are in circle
+								
+								if (!world.getBlockAt(tx, ty).isSolid() && !dwightExistsAt(tx,ty)) {
+									addDwight(tx + 0.5f, ty + 0.5f);
+									return true;
+								} else if (!world.getBlockAt(tx, ySym).isSolid() && !dwightExistsAt(tx,ySym)) {
+									addDwight(tx + 0.5f, ySym + 0.5f);
+									return true;
+								} else if (!world.getBlockAt(xSym, ty).isSolid() && !dwightExistsAt(xSym,ty)) {
+									addDwight(xSym + 0.5f, ty + 0.5f);
+									return true;
+								} else if (!world.getBlockAt(xSym, ySym).isSolid() && !dwightExistsAt(xSym,ySym)) {
+									addDwight(xSym + 0.5f, ySym + 0.5f);
+									return true;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 		
-		cannotSpawnNewDwight = true;
+		return false;
+	}
+	
+	
+	private boolean dwightExistsAt(int x, int y) {
+		for (Dwight d : dwights) {
+			Vector2 vec = d.pos;
+			if (vec.x == x + 0.5f && vec.y == y + 0.5f) {
+				return true;
+			}
+		}
+		
 		return false;
 	}
 	
 	private void addDwight(float x, float y) {
 		Dwight dwight = new Dwight(new Vector2(x, y));
-		//System.out.println(dwight.pos);
+		System.out.println(dwight.pos);
 		dwight.setCamera(player);
+		dwight.generatePath(player.pos, world);
 		
 		dwights.add(dwight);
 	}

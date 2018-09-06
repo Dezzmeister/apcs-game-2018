@@ -1,8 +1,15 @@
 package main;
 
 import static render.core.Block.SPACE;
-import static render.core.Block.DwightElements.*;
+import static render.core.Block.DwightElements.CUBICLE_X;
+import static render.core.Block.DwightElements.CUBICLE_Y;
+import static render.core.Block.DwightElements.STANDARD_HALL_CEILING;
+import static render.core.Block.DwightElements.STANDARD_HALL_FLOOR;
+import static render.core.Block.DwightElements.STANDARD_ROOM_FLOOR;
+import static render.core.Block.DwightElements.STANDARD_WALL_BLOCK;
 import static render.core.WorldMap.DEFAULT_CEILING;
+
+import java.util.HashMap;
 
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.localized.Speaker;
@@ -24,7 +31,6 @@ public class Main {
 	public static void main(String[] args) {
 		// test();
 		mapGenerationTest();
-		
 		//Arrays.toString(map.getIntMap());
 		// vectorTest();
 	}
@@ -42,7 +48,7 @@ public class Main {
 		
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
-		//manager.play("giorgio");
+		manager.play("giorgio");
 		
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
