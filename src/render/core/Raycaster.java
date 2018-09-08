@@ -3,8 +3,8 @@ package render.core;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 
 import image.Entity;
 import image.GeneralTexture;
+import image.HUD;
 import image.SquareTexture;
 import image.Texture;
 import main.Game;
@@ -69,6 +70,7 @@ public class Raycaster extends JPanel {
 	protected int upDownEnabled = 0;
 	public boolean finished = true;
 	public boolean linearShade = false;
+	private HUD hud;
 	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -138,6 +140,7 @@ public class Raycaster extends JPanel {
 		
 		resetZBuffer();
 		populateWallDistLUT();
+		generateDimensionLUTs();
 		createThreadPoolRenderers();
 	}
 	
@@ -200,6 +203,7 @@ public class Raycaster extends JPanel {
 		preRender();
 		parallelRender();
 		renderSprites();
+		drawOverlays();
 		finalizeRender();
 		postRender();
 	}
@@ -209,6 +213,10 @@ public class Raycaster extends JPanel {
 		drawDebugInfo();
 		drawCrosshair();
 		finished = true;
+	}
+	
+	protected void drawOverlays() {
+		drawHUD();
 	}
 	
 	/**
@@ -775,5 +783,87 @@ public class Raycaster extends JPanel {
 	
 	public void updateGraphics(Graphics graphics) {
 		g = graphics;
+	}
+	
+	private float[] widthLUT;
+	private float[] heightLUT;
+	
+	private void generateDimensionLUTs() {
+		
+		widthLUT = new float[WIDTH];
+		for (int x = 0; x < WIDTH; x++) {
+			widthLUT[x] = x/(float)WIDTH;
+		}
+		
+		heightLUT = new float[HEIGHT];
+		for (int y = 0; y < HEIGHT; y++) {
+			heightLUT[y] = y/(float)HEIGHT;
+		}
+	}
+	
+	public void setHUD(HUD _hud) {
+		hud = _hud;
+	}
+	
+	private void drawHUD() {
+		switch (hud.fittedTo()) {
+			case BOTTOM:
+				drawHUDOnBottom();
+				break;
+		}
+	}
+	
+	private void drawHUDOnBottom() {
+		int startAt = (int) (hud.beginAt * HEIGHT);
+		
+		for (int y = startAt; y < HEIGHT; y++) {
+			for (int x = 0; x < WIDTH; x++) {
+				int hudY = (int)(heightLUT[y] * hud.HEIGHT);
+				int hudX = (int)(widthLUT[x] * hud.WIDTH);
+				
+				int color = hud.pixels[hudX + hudY * hud.WIDTH];
+				
+				if (color == HUD.HEALTH_COLOR || color == HUD.COFFEE_COLOR) {
+					color = 0x6E6E6E;
+				}
+				
+				img.setRGB(x, y, color);
+			}
+		}
+		
+		drawHealthAndCoffeeBars();		
+	}
+	
+	private void drawHealthAndCoffeeBars() {
+		Rectangle healthBar = hud.healthBar();
+		
+		float normHealthWidth = ((hud.getHealth()/100.0f) * healthBar.width)/(float)hud.WIDTH;
+		normHealthWidth = (normHealthWidth < 0) ? 0 : (normHealthWidth > 1.0f) ? 1.0f : normHealthWidth;
+		
+		int healthWidth = (int) (normHealthWidth * WIDTH);
+		int healthHeight = (int) ((healthBar.height/(float)hud.HEIGHT) * HEIGHT);
+		int healthX = (int)((healthBar.x/(float)hud.WIDTH) * WIDTH);
+		int healthY = (int)((healthBar.y/(float)hud.HEIGHT) * HEIGHT);
+		
+		Rectangle coffeeBar = hud.coffeeBar();
+		float normCoffeeWidth = ((hud.getCoffee()/100.0f) * coffeeBar.width)/(float)hud.WIDTH;
+		normCoffeeWidth = (normCoffeeWidth < 0) ? 0 : (normCoffeeWidth > 1.0f) ? 1.0f : normCoffeeWidth;
+		
+		int coffeeWidth = (int) (normCoffeeWidth * WIDTH);
+		int coffeeHeight = (int) ((coffeeBar.height/(float)hud.HEIGHT) * HEIGHT);
+		int coffeeX = (int)((coffeeBar.x/(float)hud.WIDTH) * WIDTH);
+		int coffeeY = (int)((coffeeBar.y/(float)hud.HEIGHT) * HEIGHT);
+		
+		for (int y = healthY; y < healthHeight + healthY; y++) {
+			for (int x = healthX; x < healthWidth + healthX; x++) {
+				img.setRGB(x, y, HUD.HEALTH_COLOR);
+			}
+		}
+		
+		for (int y = coffeeY; y < coffeeHeight + coffeeY; y++) {
+			for (int x = coffeeX; x < coffeeWidth + coffeeX; x++) {
+				img.setRGB(x, y, HUD.COFFEE_COLOR);
+			}
+		}
 	}
 }

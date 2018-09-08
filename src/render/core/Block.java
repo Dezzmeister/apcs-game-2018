@@ -1,5 +1,7 @@
 package render.core;
 
+import java.awt.image.BufferedImage;
+
 import image.GeneralTexture;
 import image.SquareTexture;
 
@@ -202,6 +204,8 @@ public class Block {
 
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);
+		
+		public static final SquareTexture HUD_OVERLAY = new SquareTexture("assets/overlays/hud.png",200);
 		
 		private static float thickness = 0.1f;
 		/**

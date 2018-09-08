@@ -114,7 +114,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	
 	public Game(int resolutionWidth, int resolutionHeight) {
 		pack();
-		setSize(resolutionWidth, resolutionHeight);
+		setSize(resolutionWidth + getInsets().left + getInsets().right, resolutionHeight + getInsets().bottom + getInsets().top);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
@@ -274,6 +274,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		
 		if (e.getKeyChar() == 'l') {
 			dwightList.maxDwights = 10;
+		}
+		
+		if (e.getKeyChar() == 'p') {
+			Main.health.compareAndSet(Main.health.get(), Main.health.get() - 1);
 		}
 	}
 

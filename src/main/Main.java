@@ -9,12 +9,13 @@ import static render.core.Block.DwightElements.STANDARD_ROOM_FLOOR;
 import static render.core.Block.DwightElements.STANDARD_WALL_BLOCK;
 import static render.core.WorldMap.DEFAULT_CEILING;
 
-import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.localized.Speaker;
 import image.Entity;
 import image.GeneralTexture;
+import image.HUD;
 import image.Item;
 import image.SquareTexture;
 import mapGen.MapGenerator;
@@ -27,6 +28,8 @@ import render.core.WorldMap;
 import render.math.Vector2;
 
 public class Main {
+	public static final AtomicInteger health = new AtomicInteger(100);
+	public static final AtomicInteger coffee = new AtomicInteger(100);
 
 	public static void main(String[] args) {
 		// test();
@@ -48,7 +51,7 @@ public class Main {
 		
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
-		manager.play("giorgio");
+		//manager.play("giorgio");
 		
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
@@ -57,6 +60,13 @@ public class Main {
 				.setPlane(new Vector2(0, 0.5f));
 		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		
+		HUD hud = new HUD("assets/overlays/hud.png", health, coffee)
+				.fitTo(HUD.Fit.BOTTOM)
+				.autoFindBars()
+				.autoFindTransparency();
+		
+		raycaster.setHUD(hud);
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();
