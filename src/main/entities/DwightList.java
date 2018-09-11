@@ -10,7 +10,7 @@ import render.core.WorldMap;
 import render.math.Vector2;
 
 public class DwightList {
-	public int maxDwights = 0;
+	public int maxDwights = 10;
 	
 	private final int despawnDistance = 20;
 	
@@ -161,7 +161,6 @@ public class DwightList {
 	
 	private void addDwight(float x, float y) {
 		Dwight dwight = new Dwight(new Vector2(x, y));
-		System.out.println(dwight.pos);
 		dwight.setCamera(player);
 		dwight.generatePath(player.pos, world);
 		

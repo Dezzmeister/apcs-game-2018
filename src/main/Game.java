@@ -19,13 +19,16 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import audio.soundjunk.Repeater;
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.Wav;
+import image.ViewModel;
 import main.entities.DwightList;
 import message_loop.Messenger;
 import render.core.Raycaster;
@@ -52,8 +55,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public final Controls controls = new Controls();
 	private static final DateFormat SCREENSHOT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	private DwightList dwightList;
+	private Repeater stepper;
+	private Thread stepperThread;
+	private final AtomicInteger stepRate = new AtomicInteger(0);
 	
 	private Messenger messenger = new Messenger();
+	
+	private ViewModel currentViewModel = null;
 	
 	{
 		addMouseMotionListener(this);
@@ -127,6 +135,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		dwightList = new DwightList(raycaster.camera, raycaster.world);
 		pane.add(raycaster, BorderLayout.CENTER);
 		
+		if (currentViewModel != null) {
+			raycaster.setCurrentViewModel(currentViewModel);
+		}
+		
 		setVisible(true);
 		raycaster.setDoubleBuffered(true);
 		return this;
@@ -140,6 +152,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public Game setMessenger(Messenger _messenger) {
 		messenger = _messenger;
 		return this;
+	}
+	
+	public void setCurrentViewModel(ViewModel _currentViewModel) {
+		currentViewModel = _currentViewModel;
+		if (raycaster != null) {
+			raycaster.setCurrentViewModel(currentViewModel);
+		}
 	}
 	
 	/**
@@ -157,6 +176,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public Game noCursor() {
 		pane.setCursor(BLANK_CURSOR);
 		return this;
+	}
+	
+	public void setStepPaths(String ... paths) {
+		stepper = new Repeater(stepRate, 400, paths);
+		stepper.enable();
+		stepperThread = new Thread(stepper);
+		stepperThread.start();
 	}
 	
 	@Override
@@ -183,6 +209,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			last = now;
 			
 			if (raycaster != null) {
+				updateStepper();
 				raycaster.setEntities(dwightList.getDwights());
 			}
 			if (secondPassed) {
@@ -194,6 +221,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				if (raycaster != null) {
 					handleKeyboardInput(delta);
 					dwightList.updateDwights(delta);
+				}
+				if (currentViewModel != null) {
+					currentViewModel.update();
 				}
 				if (soundManager != null) {
 					if (raycaster != null) {
@@ -220,10 +250,23 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		}
 	}
 	
+	private void updateStepper() {
+		if (!keys[controls.moveForward] && !keys[controls.moveBackward] && !keys[controls.moveLeft] && !keys[controls.moveRight]) {
+			stepRate.set(0);
+		} else {
+			if (keys[controls.sprint]) {
+				stepRate.set(2);
+			} else {
+				stepRate.set(1);
+			}
+		}
+	}
+	
 	private void handleKeyboardInput(double delta) {
 		
 		// Movement
 		float sprintfactor = (float) (delta * ((keys[controls.sprint]) ? 2 : 1));
+		stepRate.set(0);
 
 		if (keys[controls.moveForward]) {
 			raycaster.camera.moveForward(raycaster.world, sprintfactor);
@@ -276,8 +319,12 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			dwightList.maxDwights = 10;
 		}
 		
-		if (e.getKeyChar() == 'p') {
-			Main.health.compareAndSet(Main.health.get(), Main.health.get() - 1);
+		if (e.getKeyChar() == '[') {
+			Main.health.lose(2);
+		}
+		
+		if (e.getKeyChar() == ']') {
+			Main.health.gain(3);
 		}
 	}
 

@@ -6,9 +6,10 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
+
+import game.BoundedStat;
 
 public class HUD {
 	public static final int HEALTH_COLOR = 0xFFFF0000;
@@ -20,11 +21,11 @@ public class HUD {
 	private Fit fit = Fit.BOTTOM;
 	private Rectangle healthBar;
 	private Rectangle coffeeBar;
-	private final AtomicInteger health;
-	private final AtomicInteger coffee;
+	private final BoundedStat health;
+	private final BoundedStat coffee;
 	public float beginAt = 0.0f;
 	
-	public HUD(String path, AtomicInteger _health, AtomicInteger _coffee) {
+	public HUD(String path, BoundedStat _health, BoundedStat _coffee) {
 		int w = -1;
 		int h = -1;
 		

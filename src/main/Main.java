@@ -9,10 +9,10 @@ import static render.core.Block.DwightElements.STANDARD_ROOM_FLOOR;
 import static render.core.Block.DwightElements.STANDARD_WALL_BLOCK;
 import static render.core.WorldMap.DEFAULT_CEILING;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.localized.Speaker;
+import game.BoundedStat;
+import game.ViewModels;
 import image.Entity;
 import image.GeneralTexture;
 import image.HUD;
@@ -28,8 +28,8 @@ import render.core.WorldMap;
 import render.math.Vector2;
 
 public class Main {
-	public static final AtomicInteger health = new AtomicInteger(100);
-	public static final AtomicInteger coffee = new AtomicInteger(100);
+	public static final BoundedStat health = new BoundedStat(0,100);
+	public static final BoundedStat coffee = new BoundedStat(0,100);
 
 	public static void main(String[] args) {
 		// test();
@@ -55,11 +55,15 @@ public class Main {
 		
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
+		String testSound = "assets/soundfx/boom.wav";
+		//game.setStepPaths(testSound);
 		
 		Camera camera = new Camera().setPos(startPos).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
 		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		
+		game.setCurrentViewModel(ViewModels.knifeViewModel);
 		
 		HUD hud = new HUD("assets/overlays/hud.png", health, coffee)
 				.fitTo(HUD.Fit.BOTTOM)

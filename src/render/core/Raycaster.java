@@ -18,6 +18,7 @@ import image.GeneralTexture;
 import image.HUD;
 import image.SquareTexture;
 import image.Texture;
+import image.ViewModel;
 import main.Game;
 import render.light.Side;
 import render.math.RenderUtils;
@@ -71,6 +72,7 @@ public class Raycaster extends JPanel {
 	public boolean finished = true;
 	public boolean linearShade = false;
 	private HUD hud;
+	private ViewModel currentViewModel;
 	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -217,6 +219,7 @@ public class Raycaster extends JPanel {
 	
 	protected void drawOverlays() {
 		drawHUD();
+		drawCurrentViewModel();
 	}
 	
 	/**
@@ -863,6 +866,47 @@ public class Raycaster extends JPanel {
 		for (int y = coffeeY; y < coffeeHeight + coffeeY; y++) {
 			for (int x = coffeeX; x < coffeeWidth + coffeeX; x++) {
 				img.setRGB(x, y, HUD.COFFEE_COLOR);
+			}
+		}
+	}
+	
+	public void setCurrentViewModel(ViewModel _viewModel) {
+		currentViewModel = _viewModel;
+	}
+	
+	public void drawCurrentViewModel() {
+		if (currentViewModel != null) {
+			SquareTexture frame = currentViewModel.getActiveFrame();
+			
+			int workableHeight = (int) (hud.beginAt * HEIGHT);
+			
+			int modelSize = (int) (currentViewModel.scaleValue * HEIGHT);
+
+			int halfModelSize = modelSize/2;
+			
+			int startX = (WIDTH/2) - halfModelSize;
+			int startY = workableHeight - modelSize;
+			
+			if (startX < 0) {
+				startX = 0;
+			}
+			
+			if (startY < 0) {
+				startY = 0;
+			}
+			
+			for (int y = startY; y < startY + modelSize; y++) {
+				
+				for (int x = startX; x < startX + modelSize; x++) {
+					int imgX = (int) (frame.SIZE * ((x - startX)/(float)modelSize));
+					int imgY = (int) (frame.SIZE * ((y - startY)/(float)modelSize));
+					
+					int color = frame.pixels[imgX + frame.SIZE * imgY];
+					
+					if (color != Texture.ALPHA) {
+						img.setRGB(x, y, color);
+					}
+				}
 			}
 		}
 	}

@@ -53,10 +53,10 @@ public class Dwight extends Entity {
 		float moveSpeed = (float)(speed * delta);
 		Node current = new Node((int)pos.x,(int)pos.y);
 		
-		if (path.peek() == null) {
+		if (path != null && path.peek() == null) {
 			xDiff = 0;
 			yDiff = 0;
-		} else if (path.peek().equals(current)) {
+		} else if (path != null && path.peek().equals(current)) {
 			path.remove();
 			
 			Node next = path.peek();
