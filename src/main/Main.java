@@ -28,8 +28,9 @@ import render.core.WorldMap;
 import render.math.Vector2;
 
 public class Main {
-	public static final BoundedStat health = new BoundedStat(0,100);
-	public static final BoundedStat coffee = new BoundedStat(0,100);
+	
+	public static final int COFFEE_MELEE_COST = 5;
+	public static final int COFFEE_CANNON_COST = 10;
 
 	public static void main(String[] args) {
 		// test();
@@ -41,6 +42,9 @@ public class Main {
 	static void mapGenerationTest() {
 		int width = 1500;
 		int height = 1000;
+		
+		final BoundedStat health = new BoundedStat(0,100);
+		final BoundedStat coffee = new BoundedStat(0,100);
 		
 		MapSpecification spec = new MapSpecification(STANDARD_WALL_BLOCK, STANDARD_HALL_FLOOR, STANDARD_HALL_CEILING, STANDARD_ROOM_FLOOR, STANDARD_HALL_CEILING);
 		MapGenerator map = new MapGenerator(5000,5000, spec);
@@ -55,6 +59,8 @@ public class Main {
 		
 		Game game = new Game(width, height).noCursor();
 		game.setSoundManager(manager);
+		game.setHealthStat(health);
+		game.setCoffeeStat(coffee);
 		String testSound = "assets/soundfx/boom.wav";
 		//game.setStepPaths(testSound);
 		
@@ -63,7 +69,7 @@ public class Main {
 		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
 		
-		game.setCurrentViewModel(ViewModels.knifeViewModel);
+		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
 		
 		HUD hud = new HUD("assets/overlays/hud.png", health, coffee)
 				.fitTo(HUD.Fit.BOTTOM)

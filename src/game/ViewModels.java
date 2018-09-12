@@ -10,12 +10,18 @@ import image.ViewModel.Animation;
 
 public class ViewModels {
 	
-	public static final SquareTexture idleKnife0 = new SquareTexture("assets/overlays/knife/idle0.png",100);
-	private static final SquareTexture[] idleKnifeFrames = {idleKnife0};
-	public static final Animation idleKnifeAnim = new Animation(idleKnifeFrames, 100);
-	public static final ViewModel knifeViewModel = new ViewModel(idleKnifeAnim, idleKnifeAnim, idleKnifeAnim, 0.8f);
+	public static final ViewModel KNIFE_VIEWMODEL = loadFromRootPath("assets/overlays/knife", 100, 100, 0.8f);
 	
-	public static final SquareTexture idleCup0 = new SquareTexture("assets/overlays/cup/idle0.png",100);
+	private static final Animation CUP_IDLE = loadAnimationOfType("assets/overlays/coffee", "idle", 100, 200);
+	private static final Animation CUP_PRIMARY = loadAnimationOfType("assets/overlays/coffee", "primary", 100, 200);
+	private static final Animation CUP_SECONDARY = loadAnimationOfType("assets/overlays/coffee", "secondary", 100, 150);
+	
+	public static final ViewModel CUP_VIEWMODEL = new ViewModel(CUP_IDLE, CUP_PRIMARY, CUP_SECONDARY, 0.4f);
+	public static Animation emptyCup = new Animation(new SquareTexture[]{new SquareTexture("assets/overlays/coffee/empty.png",100)}, 100);
+	
+	static {
+		CUP_VIEWMODEL.addState("empty", emptyCup);
+	}
 	
 	public static ViewModel loadFromRootPath(String path, int imgSize, int frameIntervalInMillis, float modelScale) {
 		Animation idle = loadAnimationOfType(path, "idle", imgSize, frameIntervalInMillis);

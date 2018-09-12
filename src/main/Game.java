@@ -9,6 +9,7 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
@@ -28,6 +29,8 @@ import javax.swing.SwingUtilities;
 import audio.soundjunk.Repeater;
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.Wav;
+import game.BoundedStat;
+import game.ViewModels;
 import image.ViewModel;
 import main.entities.DwightList;
 import message_loop.Messenger;
@@ -42,10 +45,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -16764364630071584L;
+	private static final long serialVersionUID = -16764364630071584L;	
 	public static final BufferedImage CURSOR_IMG = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 	public static final Cursor BLANK_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(CURSOR_IMG,
 			new Point(0, 0), "blank cursor");
+	
+	private MouseListener mouseListener = new MouseListener();
+	
 	private Raycaster raycaster;
 	private SoundManager soundManager;
 	public Container pane;
@@ -58,6 +64,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	private Repeater stepper;
 	private Thread stepperThread;
 	private final AtomicInteger stepRate = new AtomicInteger(0);
+	private BoundedStat health;
+	private BoundedStat coffee;
 	
 	private Messenger messenger = new Messenger();
 	
@@ -65,6 +73,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	
 	{
 		addMouseMotionListener(this);
+		addMouseListener(mouseListener);
 		addKeyListener(this);
 		addWindowListener(new WindowListener() {
 			
@@ -161,6 +170,14 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		}
 	}
 	
+	public void setHealthStat(BoundedStat _health) {
+		health = _health;
+	}
+	
+	public void setCoffeeStat(BoundedStat _coffee) {
+		coffee = _coffee;
+	}
+	
 	/**
 	 * Creates a new Thread and starts this Game on it.
 	 *
@@ -202,6 +219,19 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				mouse.enable();
 			} else {
 				mouse.disable();
+			}
+			
+			if (coffee.get() <= 0) {
+				if (currentViewModel == ViewModels.CUP_VIEWMODEL) {
+					currentViewModel.setDefaultState("empty");
+					currentViewModel.activateState("empty");
+					currentViewModel.lock();
+				}
+			} else {
+				if (currentViewModel == ViewModels.CUP_VIEWMODEL) {
+					currentViewModel.setDefaultState("idle");
+					currentViewModel.unlock();
+				}
 			}
 			
 			long now = System.nanoTime();
@@ -320,11 +350,12 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		}
 		
 		if (e.getKeyChar() == '[') {
-			Main.health.lose(2);
+			health.lose(2);
 		}
 		
 		if (e.getKeyChar() == ']') {
-			Main.health.gain(3);
+			health.gain(3);
+			coffee.gain(3);
 		}
 	}
 
@@ -362,6 +393,26 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			System.out.println("Screenshot saved as " + fileName);
 		} catch (Exception e1) {
 			e1.printStackTrace();
+		}
+	}
+	
+	private class MouseListener extends MouseAdapter {
+		
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (currentViewModel == ViewModels.CUP_VIEWMODEL) {
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					if (currentViewModel.primaryFire()) {
+						coffee.lose(Main.COFFEE_MELEE_COST);
+						Wav.playSound("assets/soundfx/sizzle.wav");
+					}
+				} else if (e.getButton() == MouseEvent.BUTTON3) {
+					if (currentViewModel.secondaryFire()) {
+						coffee.lose(Main.COFFEE_CANNON_COST);
+						Wav.playSound("assets/soundfx/coffee_rifle.wav");
+					}
+				}
+			}
 		}
 	}
 }
