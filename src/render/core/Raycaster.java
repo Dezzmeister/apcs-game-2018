@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -13,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
 
+import image.Actor;
 import image.Entity;
 import image.GeneralTexture;
 import image.HUD;
@@ -73,6 +75,9 @@ public class Raycaster extends JPanel {
 	public boolean linearShade = false;
 	private HUD hud;
 	private ViewModel currentViewModel;
+	private int dwightsKilled = 0;
+	private List<Entity> hitEntities = new ArrayList<Entity>();
+	private float closestWallAtCenter = 0;
 	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -165,6 +170,8 @@ public class Raycaster extends JPanel {
 		g.setColor(Color.GREEN);
 		g.drawString("x: " + pos.x, 5, 20);
 		g.drawString("y: " + pos.y, 5, 35);
+		
+		g.drawString("Dwights killed: " + dwightsKilled, 5, 50);
 	}
 	
 	private void drawCrosshair() {
@@ -202,15 +209,20 @@ public class Raycaster extends JPanel {
 	}
 
 	protected void render() {
-		preRender();
-		parallelRender();
-		renderSprites();
-		drawOverlays();
-		finalizeRender();
-		postRender();
+		if (hud.getHealth() > 0) {
+			preRender();
+			parallelRender();
+			renderSprites();
+			drawOverlays();
+			finalizeRender();
+			postRender();
+		} else {
+			drawDeathScreen();
+		}
 	}
 	
 	protected void postRender() {
+		saveClosestWallAtCenter();
 		resetZBuffer();
 		drawDebugInfo();
 		drawCrosshair();
@@ -220,6 +232,16 @@ public class Raycaster extends JPanel {
 	protected void drawOverlays() {
 		drawHUD();
 		drawCurrentViewModel();
+	}
+	
+	private void drawDeathScreen() {
+		resetImage();
+		img = Block.DwightElements.DEATH;
+		finalizeRender();
+	}
+	
+	private void saveClosestWallAtCenter() {
+		closestWallAtCenter = (float) zbuf[WIDTH/2];
 	}
 	
 	/**
@@ -277,6 +299,8 @@ public class Raycaster extends JPanel {
 	}
 	
 	private void renderSprites() {
+		hitEntities = new ArrayList<Entity>();
+		
 		for (int i = 0; i < sprites.size(); i++) {
 	    	sprites.get(i).order = i;
 	    	sprites.get(i).updateDistance();
@@ -317,6 +341,10 @@ public class Raycaster extends JPanel {
 	    		drawEndX = WIDTH - 1;
 	    	}
 	    	
+	    	if (drawStartX < WIDTH/2 && drawEndX > WIDTH/2) {
+	    		hitEntities.add(active);
+	    	}
+	    	
 	    	SquareTexture texture = sprites.get(sprites.get(i).order).getActiveTexture();
 	    	
 	    	int texWidth = texture.SIZE;
@@ -324,6 +352,7 @@ public class Raycaster extends JPanel {
 	    	for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
 	    		int texX = (int)(((stripe - ((-spriteWidth >> 1) + spriteScreenX)) << 8) * texWidth / spriteWidth) >> 8;
 	    		if (transformY > 0 && stripe > 0 && stripe < WIDTH && transformY < zbuf[stripe]) {
+	    			
 	    			for (int y = drawStartY; y < drawEndY; y++) {
 	    				int d = (y << 8) - (HEIGHT << 7)  + (spriteHeight << 7);
 	    				int texY = ((d * texHeight)/spriteHeight) >> 8;
@@ -737,6 +766,14 @@ public class Raycaster extends JPanel {
 		world = _worldMap;
 	}
 	
+	public List<Entity> getHitEntities() {
+		return hitEntities;
+	}
+	
+	public float getClosestWallToCenter() {
+		return closestWallAtCenter;
+	}
+	
 	private void createThreadPoolRenderers() {
 		if (rendererCount > WIDTH) {
 			String error = "It is impossible to have more thread renderers than stripes on the screen!";
@@ -872,6 +909,10 @@ public class Raycaster extends JPanel {
 	
 	public void setCurrentViewModel(ViewModel _viewModel) {
 		currentViewModel = _viewModel;
+	}
+	
+	public void setDwightsKilled(int killed) {
+		dwightsKilled = killed;
 	}
 	
 	public void drawCurrentViewModel() {

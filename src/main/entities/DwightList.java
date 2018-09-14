@@ -3,19 +3,19 @@ package main.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import audio.soundjunk.Wav;
 import image.Entity;
-import render.core.Block;
 import render.core.Camera;
 import render.core.WorldMap;
 import render.math.Vector2;
 
 public class DwightList {
-	public int maxDwights = 10;
+	public int maxDwights = 5;
 	
-	private final int despawnDistance = 20;
+	private final int despawnDistance = 26;
 	
-	private int initialSpawnRadius = 10;
-	private int maxSpawnRadius = 18;
+	private int initialSpawnRadius = 20;
+	private int maxSpawnRadius = 24;
 	
 	private final float TWO_PI = (float) (Math.PI * 2.0f);
 	private float[] sineTable;
@@ -26,6 +26,8 @@ public class DwightList {
 	private List<Dwight> dwights = new ArrayList<Dwight>();
 	private Camera player;
 	private WorldMap world;
+	
+	private int dwightsKilled = 0;
 	
 	public DwightList(Camera _player, WorldMap _world) {
 		player = _player;
@@ -39,12 +41,75 @@ public class DwightList {
 		
 		for (int i = dwights.size()-1; i >= 0; i--) {
 			Dwight dwight = dwights.get(i);
+			
 			if (Vector2.distance(player.pos, dwight.pos) > despawnDistance) {
 				dwights.remove(i);
+			}
+			
+			if (dwight.health.get() <= 0) {
+				dwightsKilled++;
+				dwights.remove(i);
+				Wav.playSound("assets/soundfx/scream.wav");
 			}
 		}
 		
 		while (dwights.size() < maxDwights && spawnRandomDwight());
+	}
+	
+	public static final float COFFEE_POUR_RANGE = 2.5f;
+	
+	public void coffeePour(List<Entity> hitDwights, float closestWall) {
+		Vector2 pos = player.pos;
+		
+		float distance = closestWall;
+		Dwight hitDwight = null;
+		
+		for (int i = 0; i < hitDwights.size(); i++) {
+			Dwight dwight = (Dwight) hitDwights.get(i);
+			
+			float d = Vector2.distance(pos, dwight.pos);
+			
+			if (d < distance && d <= COFFEE_POUR_RANGE) {
+				distance = d;
+				hitDwight = dwight;
+			}
+		}
+		
+		if (hitDwight != null && distance != closestWall) {
+			hitDwight.health.lose(50);
+		}
+	}
+	
+	public static final float DWIGHT_ATTACK_RANGE = 0.8f;
+	
+	public boolean playerIsHit() {
+		for (int i = 0; i < dwights.size(); i++) {
+			Dwight dwight = dwights.get(i);
+			
+			if (Vector2.distance(player.pos,dwight.pos) <= DWIGHT_ATTACK_RANGE) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public void coffeeCannon(List<Entity> hitDwights, float closestWall) {
+		Vector2 pos = player.pos;
+		
+		for (int i = 0; i < hitDwights.size(); i++) {
+			Dwight dwight = (Dwight) hitDwights.get(i);
+			
+			float d = Vector2.distance(pos, dwight.pos);
+			
+			if (d < closestWall) {
+				dwight.health.lose(50);
+			}
+		}
+	}
+	
+	public int getDwightsKilled() {
+		return dwightsKilled;
 	}
 	
 	public void regeneratePaths() {
@@ -59,7 +124,7 @@ public class DwightList {
 		}
 	}
 	
-	public List<Dwight> getDwights() {
+	public List<? extends Dwight> getDwights() {
 		return dwights;
 	}
 	

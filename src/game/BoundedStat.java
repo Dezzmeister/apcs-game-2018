@@ -1,32 +1,32 @@
 package game;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class BoundedStat {
-	private final AtomicInteger level;
+	private final AtomicReference<Float> level;
 	private final int min;
 	private final int max;
 	
-	public BoundedStat(final int _min, final int _max, final int start) {
+	public BoundedStat(final int _min, final int _max, final float start) {
 		min = _min;
 		max = _max;
 		
-		level = new AtomicInteger(start);
+		level = new AtomicReference<Float>(start);
 	}
 	
 	public BoundedStat(final int _min, final int _max) {
 		this(_min, _max, _max);
 	}
 	
-	public void lose(final int amount) {
+	public void lose(final float amount) {
 		level.set(level.get() - amount < min ? min : level.get() - amount);
 	}
 	
-	public void gain(final int amount) {
+	public void gain(final float amount) {
 		level.set(level.get() + amount > max ? max : level.get() + amount);
 	}
 	
-	public int get() {
+	public float get() {
 		return level.get();
 	}
 }

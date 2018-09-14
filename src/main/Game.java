@@ -18,7 +18,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,7 +33,10 @@ import audio.soundjunk.SoundManager;
 import audio.soundjunk.Wav;
 import game.BoundedStat;
 import game.ViewModels;
+import image.Entity;
 import image.ViewModel;
+import main.entities.BeanList;
+import main.entities.Dwight;
 import main.entities.DwightList;
 import message_loop.Messenger;
 import render.core.Raycaster;
@@ -61,6 +66,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public final Controls controls = new Controls();
 	private static final DateFormat SCREENSHOT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	private DwightList dwightList;
+	private BeanList beanList;
 	private Repeater stepper;
 	private Thread stepperThread;
 	private final AtomicInteger stepRate = new AtomicInteger(0);
@@ -142,6 +148,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public Game setRaycaster(Raycaster _raycaster) {
 		raycaster = _raycaster;
 		dwightList = new DwightList(raycaster.camera, raycaster.world);
+		beanList = new BeanList(raycaster.camera, raycaster.world, coffee);
 		pane.add(raycaster, BorderLayout.CENTER);
 		
 		if (currentViewModel != null) {
@@ -176,6 +183,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	
 	public void setCoffeeStat(BoundedStat _coffee) {
 		coffee = _coffee;
+		
+		if (beanList != null) {
+			beanList.setCoffeeStat(coffee);
+		}
 	}
 	
 	/**
@@ -215,13 +226,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		
 		boolean secondPassed = false;
 		while (isRunning.get()) {
-			if (this.isFocusOwner()) {
+			if (this.isFocusOwner() || health.get() <= 0) {
 				mouse.enable();
 			} else {
 				mouse.disable();
 			}
 			
-			if (coffee.get() <= 0) {
+			if (coffee.get() <= 0 || health.get() <= 0) {
 				if (currentViewModel == ViewModels.CUP_VIEWMODEL) {
 					currentViewModel.setDefaultState("empty");
 					currentViewModel.activateState("empty");
@@ -234,37 +245,48 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				}
 			}
 			
-			long now = System.nanoTime();
-			delta += (now - last) / ns;
-			last = now;
-			
-			if (raycaster != null) {
-				updateStepper();
-				raycaster.setEntities(dwightList.getDwights());
-			}
-			if (secondPassed) {
-				dwightList.regeneratePaths();
-				secondPassed = false;
-			}
-			
-			while (delta >= 1 && raycaster.finished) {
-				if (raycaster != null) {
-					handleKeyboardInput(delta);
-					dwightList.updateDwights(delta);
-				}
-				if (currentViewModel != null) {
-					currentViewModel.update();
-				}
-				if (soundManager != null) {
-					if (raycaster != null) {
-						soundManager.getLocalizer().setListener(raycaster.camera.pos);
-						soundManager.getLocalizer()
-								.setListenerDirection(raycaster.camera.dir.add(raycaster.camera.pos));
-					}
-					soundManager.update();
-				}
+			if (health.get() > 0) {
+				long now = System.nanoTime();
+				delta += (now - last) / ns;
+				last = now;
 				
-				delta--;
+				if (raycaster != null) {
+					updateStepper();
+					
+					raycaster.setEntities(dwightList.getDwights());
+					raycaster.setDwightsKilled(dwightList.getDwightsKilled());
+				}
+				if (secondPassed) {
+					dwightList.regeneratePaths();
+					secondPassed = false;
+				}
+			
+				while (delta >= 1 && raycaster.finished) {
+					if (raycaster != null) {
+						handleKeyboardInput(delta);
+						dwightList.updateDwights(delta);
+						beanList.update();
+					}
+					
+					if (currentViewModel != null) {
+						currentViewModel.update();
+					}
+				
+					if (dwightList.playerIsHit()) {
+						health.lose((float)(delta * 0.195f));
+					}
+				
+					if (soundManager != null) {
+						if (raycaster != null) {
+							soundManager.getLocalizer().setListener(raycaster.camera.pos);
+							soundManager.getLocalizer()
+								.setListenerDirection(raycaster.camera.dir.add(raycaster.camera.pos));
+						}
+						soundManager.update();
+					}
+				
+					delta--;
+				}
 			}
 			
 			repaint();
@@ -281,13 +303,15 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	}
 	
 	private void updateStepper() {
-		if (!keys[controls.moveForward] && !keys[controls.moveBackward] && !keys[controls.moveLeft] && !keys[controls.moveRight]) {
-			stepRate.set(0);
-		} else {
-			if (keys[controls.sprint]) {
-				stepRate.set(2);
+		if (health.get() > 0) {
+			if (!keys[controls.moveForward] && !keys[controls.moveBackward] && !keys[controls.moveLeft] && !keys[controls.moveRight]) {
+				stepRate.set(0);
 			} else {
-				stepRate.set(1);
+				if (keys[controls.sprint]) {
+					stepRate.set(2);
+				} else {
+					stepRate.set(1);
+				}
 			}
 		}
 	}
@@ -297,18 +321,20 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		// Movement
 		float sprintfactor = (float) (delta * ((keys[controls.sprint]) ? 2 : 1));
 		stepRate.set(0);
-
-		if (keys[controls.moveForward]) {
-			raycaster.camera.moveForward(raycaster.world, sprintfactor);
-		}
-		if (keys[controls.moveBackward]) {
-			raycaster.camera.moveBackward(raycaster.world, sprintfactor);
-		}
-		if (keys[controls.moveLeft]) {
-			raycaster.camera.moveLeft(raycaster.world, sprintfactor);
-		}
-		if (keys[controls.moveRight]) {
-			raycaster.camera.moveRight(raycaster.world, sprintfactor);
+		
+		if (health.get() > 0) {
+			if (keys[controls.moveForward]) {
+				raycaster.camera.moveForward(raycaster.world, sprintfactor);
+			}
+			if (keys[controls.moveBackward]) {
+				raycaster.camera.moveBackward(raycaster.world, sprintfactor);
+			}
+			if (keys[controls.moveLeft]) {
+				raycaster.camera.moveLeft(raycaster.world, sprintfactor);
+			}
+			if (keys[controls.moveRight]) {
+				raycaster.camera.moveRight(raycaster.world, sprintfactor);
+			}
 		}
 	}
 
@@ -346,16 +372,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		}
 		
 		if (e.getKeyChar() == 'l') {
-			dwightList.maxDwights = 10;
-		}
-		
-		if (e.getKeyChar() == '[') {
-			health.lose(2);
-		}
-		
-		if (e.getKeyChar() == ']') {
-			health.gain(3);
-			coffee.gain(3);
+			dwightList.maxDwights = 5;
 		}
 	}
 
@@ -404,11 +421,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				if (e.getButton() == MouseEvent.BUTTON1) {
 					if (currentViewModel.primaryFire()) {
 						coffee.lose(Main.COFFEE_MELEE_COST);
+						dwightList.coffeePour(raycaster.getHitEntities(), raycaster.getClosestWallToCenter());
 						Wav.playSound("assets/soundfx/sizzle.wav");
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3) {
 					if (currentViewModel.secondaryFire()) {
 						coffee.lose(Main.COFFEE_CANNON_COST);
+						dwightList.coffeeCannon(raycaster.getHitEntities(), raycaster.getClosestWallToCenter());
 						Wav.playSound("assets/soundfx/coffee_rifle.wav");
 					}
 				}

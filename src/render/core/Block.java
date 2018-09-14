@@ -1,6 +1,9 @@
 package render.core;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
 
 import image.GeneralTexture;
 import image.SquareTexture;
@@ -206,6 +209,16 @@ public class Block {
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);
 		
 		public static final SquareTexture HUD_OVERLAY = new SquareTexture("assets/overlays/hud.png",200);
+		
+		public static BufferedImage DEATH = null;
+		
+		static {
+			try {
+				DEATH = ImageIO.read(new File("assets/overlays/death.png"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		
 		private static float thickness = 0.1f;
 		/**

@@ -62,11 +62,11 @@ public class HUD {
 	}
 	
 	public int getHealth() {
-		return health.get();
+		return (int)health.get();
 	}
 	
 	public int getCoffee() {
-		return coffee.get();
+		return (int)coffee.get();
 	}
 	
 	public Rectangle healthBar() {

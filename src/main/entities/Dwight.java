@@ -11,13 +11,13 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.FutureTask;
 
-import image.Entity;
+import image.Actor;
 import image.SquareTexture;
 import render.core.Block;
 import render.core.WorldMap;
 import render.math.Vector2;
 
-public class Dwight extends Entity {
+public class Dwight extends Actor {
 	public static final SquareTexture DEFAULT_TEXTURE = new SquareTexture("assets/textures/dwight_purple.png",200);
 	public SquareTexture texture = DEFAULT_TEXTURE;
 	public float speed = 0.03f;
