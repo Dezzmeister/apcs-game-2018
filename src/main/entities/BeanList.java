@@ -52,7 +52,7 @@ public class BeanList {
 		}
 	}
 	
-	public List<? extends Bean> getBeans() {
+	public List<Bean> getBeans() {
 		return beans;
 	}
 	

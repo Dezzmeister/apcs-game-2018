@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
 
-import image.Actor;
 import image.Entity;
 import image.GeneralTexture;
 import image.HUD;
@@ -22,6 +21,8 @@ import image.SquareTexture;
 import image.Texture;
 import image.ViewModel;
 import main.Game;
+import main.entities.Bean;
+import main.entities.Dwight;
 import render.light.Side;
 import render.math.RenderUtils;
 import render.math.Vector2;
@@ -57,7 +58,7 @@ public class Raycaster extends JPanel {
 	protected Graphics g;
 	public Camera camera;
 	public WorldMap world;
-	private volatile List<? extends Entity> sprites;
+	private volatile List <Entity> sprites;
 	
 	public static final float FULL_FOG_DISTANCE = 10f; //5f
 	public static final int OLD_SHADE_THRESHOLD = 100;
@@ -300,6 +301,10 @@ public class Raycaster extends JPanel {
 	
 	private void renderSprites() {
 		hitEntities = new ArrayList<Entity>();
+		sprites = new ArrayList<Entity>();
+		
+		sprites.addAll(dwightList);
+		sprites.addAll(beanList);
 		
 		for (int i = 0; i < sprites.size(); i++) {
 	    	sprites.get(i).order = i;
@@ -804,8 +809,25 @@ public class Raycaster extends JPanel {
 		renderers[renderers.length - 1] = new ThreadRenderer(step, WIDTH, rendererCount - 1);
 	}
 	
-	public void setEntities(List<? extends Entity> _entities) {
+	public void setEntities(List<Entity> _entities) {
 		sprites = _entities;
+	}
+	
+	private List<Dwight> dwightList;
+	
+	public void setDwights(List<Dwight> dwights) {
+		dwightList = dwights;
+	}
+	
+	private List<Bean> beanList;
+	
+	public void setBeans(List<Bean> beans) {
+		beanList = beans;
+	}
+	
+	public void setEntities(List<Dwight> dwights, List<Bean> beans) {
+		dwightList = dwights;
+		beanList = beans;
 	}
 
 	public void shutdown() {

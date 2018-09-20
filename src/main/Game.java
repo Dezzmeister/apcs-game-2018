@@ -36,7 +36,6 @@ import game.ViewModels;
 import image.Entity;
 import image.ViewModel;
 import main.entities.BeanList;
-import main.entities.Dwight;
 import main.entities.DwightList;
 import message_loop.Messenger;
 import render.core.Raycaster;
@@ -225,6 +224,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		isRunning.set(true);
 		
 		boolean secondPassed = false;
+		boolean deadInit = false;
+		
 		while (isRunning.get()) {
 			if (this.isFocusOwner() || health.get() <= 0) {
 				mouse.enable();
@@ -253,7 +254,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				if (raycaster != null) {
 					updateStepper();
 					
-					raycaster.setEntities(dwightList.getDwights());
+					//System.out.println(entities.size());
+					
+					//raycaster.setEntities(dwightList.getDwights());
+					raycaster.setEntities(dwightList.getDwights(), beanList.getBeans());
 					raycaster.setDwightsKilled(dwightList.getDwightsKilled());
 				}
 				if (secondPassed) {
@@ -286,6 +290,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					}
 				
 					delta--;
+				}
+			} else {
+				if (!deadInit) {
+					//play music
 				}
 			}
 			

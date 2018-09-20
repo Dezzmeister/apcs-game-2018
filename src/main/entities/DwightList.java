@@ -124,7 +124,7 @@ public class DwightList {
 		}
 	}
 	
-	public List<? extends Dwight> getDwights() {
+	public List<Dwight> getDwights() {
 		return dwights;
 	}
 	

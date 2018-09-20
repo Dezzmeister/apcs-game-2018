@@ -55,6 +55,7 @@ public class Main {
 		
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
+		manager.addSound("funeral", "assets/music/funeral.ogg");
 		//manager.play("giorgio");
 		
 		Game game = new Game(width, height).noCursor();
