@@ -134,6 +134,9 @@ public class MapGenerator {
 					case 22:
 						block = Block.DwightElements.MEDAVOY_WALL;
 						break;
+					case 23:
+						block = Block.DwightElements.SIMONE_WALL;
+						break;
 					default:
 						block = Block.DwightElements.ROOM_SPACE;
 						floor = spec.roomFloor;
@@ -251,6 +254,7 @@ public class MapGenerator {
 						break;
 					case 21:
 					case 22:
+					case 23:
 						color = 0x999999;
 						break;
 				}
@@ -442,6 +446,7 @@ public class MapGenerator {
 				
 				intMap[row+3][col] = 21;
 				intMap[row+3][col+4] = 22;
+				intMap[row+2][col] = 23;
 			}
 		}
 	}

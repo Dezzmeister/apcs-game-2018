@@ -29,6 +29,7 @@ import render.core.WorldMap;
 import render.math.Vector2;
 
 public class Main {
+	//use Covington font for plaques
 	
 	public static final int COFFEE_MELEE_COST = 5;
 	public static final int COFFEE_CANNON_COST = 10;

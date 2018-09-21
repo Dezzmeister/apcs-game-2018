@@ -204,6 +204,9 @@ public class Block {
 		
 		public static final SquareTexture SIPOWICZ = new SquareTexture("assets/textures/sipowiczwall512.png",512);
 		public static final Block SIPOWICZ_WALL = new Block("sipowicz").applyTexture(SIPOWICZ);
+		
+		public static final SquareTexture SIMONE = new SquareTexture("assets/textures/simonewall512.png",512);
+		public static final Block SIMONE_WALL = new Block("simone").applyTexture(SIMONE);
 
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);
