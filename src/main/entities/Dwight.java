@@ -13,19 +13,22 @@ import java.util.concurrent.FutureTask;
 
 import image.Actor;
 import image.SquareTexture;
+import main.GameConstants;
 import render.core.Block;
+import render.core.Camera;
 import render.core.WorldMap;
 import render.math.Vector2;
 
 public class Dwight extends Actor {
 	public static final SquareTexture DEFAULT_TEXTURE = new SquareTexture("assets/textures/dwight_purple.png",200);
 	public SquareTexture texture = DEFAULT_TEXTURE;
-	public float speed = 0.03f;
+	public float speed = GameConstants.DWIGHT_SPEED;
 	private WorldMap world;
 	private Queue<Node> path = null;
 	
-	public Dwight(Vector2 _pos) {
+	public Dwight(Vector2 _pos, Camera _player) {
 		super(_pos);
+		super.player = _player;
 	}
 
 	@Override

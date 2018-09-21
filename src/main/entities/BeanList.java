@@ -3,8 +3,9 @@ package main.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import audio.soundjunk.Wav;
 import game.BoundedStat;
-import image.Entity;
+import main.GameConstants;
 import render.core.Camera;
 import render.core.WorldMap;
 import render.math.Vector2;
@@ -25,12 +26,12 @@ public class BeanList {
 		coffee = _coffee;
 	}
 	
-	private static final float PLAYER_PICKUP_DISTANCE = 0.5f;
-	private int despawnDistance = 25;
-	private int maxSpawnRadius = 22;
-	private int minSpawnRadius = 14;
-	private int beanSpawnChance = 30;
-	private int maxBeans = 30;
+	private float pickupDistance = GameConstants.PLAYER_PICKUP_DISTANCE;
+	private int despawnDistance = GameConstants.BEAN_DESPAWN_DISTANCE;
+	private int maxSpawnRadius = GameConstants.MAX_BEAN_SPAWN_RADIUS;
+	private int minSpawnRadius = GameConstants.MIN_BEAN_SPAWN_RADIUS;
+	private int beanSpawnChance = GameConstants.BEAN_SPAWN_CHANCE;
+	private int maxBeans = GameConstants.MAX_BEANS;
 	
 	public void update() {
 		for (int i = beans.size() - 1; i >= 0; i--) {
@@ -41,9 +42,10 @@ public class BeanList {
 			if (d > despawnDistance) {
 				beans.remove(i);
 			}
-			if (d <= PLAYER_PICKUP_DISTANCE) {
+			if (d <= pickupDistance) {
 				coffee.gain(8);
 				beans.remove(i);
+				Wav.playSound("assets/soundfx/click.wav");
 			}
 		}
 		
@@ -61,14 +63,15 @@ public class BeanList {
 		int py = (int)player.pos.y;
 		
 		for (int y = py - maxSpawnRadius/2; y < py + maxSpawnRadius/2; y++) {
-			if (y >= 0 && y < world.height && Math.abs(py - y) > minSpawnRadius) {
+			if (y >= 0 && y < world.height && Math.abs(py - y) > minSpawnRadius/2) {
 				for (int x = px - maxSpawnRadius/2; x < px + maxSpawnRadius/2; x++) {
-					if (x >= 0 && x < world.width && Math.abs(px - x) > minSpawnRadius) {
+					if (x >= 0 && x < world.width && Math.abs(px - x) > minSpawnRadius/2) {
+						
 						if (!world.getBlockAt(x, y).isSolid() && !beanExistsAt(x,y)) {
 							int rand = (int)(Math.random() * beanSpawnChance);
 							
 							if (rand == beanSpawnChance - 1) {
-								beans.add(new Bean(new Vector2(x + 0.5f, y + 0.5f)));
+								beans.add(new Bean(new Vector2(x + 0.5f, y + 0.5f), player));
 							}
 							
 							if (beans.size() >= maxBeans) {

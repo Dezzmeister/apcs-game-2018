@@ -1,6 +1,7 @@
 package mapGen;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
@@ -17,14 +18,16 @@ class Junction {
 	public int xPos;
 	public int yPos;
 	
-	private double random(int c) {
-		
-		return c * Math.random();
+	private Random random;
+	
+	private float random(int c) {
+		return random.nextFloat() * c;
 	}
 	
-	public Junction(int x, int y, int direction) {
+	public Junction(int x, int y, int direction, Random _random) {
 		xPos = x;
 		yPos = y;
+		random = _random;
 		north = direction == 0;
 		south = direction == 1;
 		west = direction == 2;
@@ -33,25 +36,25 @@ class Junction {
 	
 	public boolean checkSpace(int count, int dir, int[][] lvl) {
 		if (dir == 0) {
-			Junction tJ = new Junction(xPos, yPos - count, 0);
+			Junction tJ = new Junction(xPos, yPos - count, 0, random);
 			if (lvl[tJ.xPos][tJ.yPos - 1] == 0 && lvl[tJ.xPos + 1][tJ.yPos] == 0 && lvl[tJ.xPos - 1][tJ.yPos] == 0
 					&& lvl[tJ.xPos][tJ.yPos] == 0) {
 				return true;
 			}
 		} else if (dir == 1) {
-			Junction tJ = new Junction(xPos, yPos + count, 0);
+			Junction tJ = new Junction(xPos, yPos + count, 0, random);
 			if (lvl[tJ.xPos][tJ.yPos + 1] == 0 && lvl[tJ.xPos + 1][tJ.yPos] == 0 && lvl[tJ.xPos - 1][tJ.yPos] == 0
 					&& lvl[tJ.xPos][tJ.yPos] == 0) {
 				return true;
 			}
 		} else if (dir == 2) {
-			Junction tJ = new Junction(xPos - count, yPos, 0);
+			Junction tJ = new Junction(xPos - count, yPos, 0, random);
 			if (lvl[tJ.xPos][tJ.yPos - 1] == 0 && lvl[tJ.xPos - 1][tJ.yPos] == 0 && lvl[tJ.xPos][tJ.yPos + 1] == 0
 					&& lvl[tJ.xPos][tJ.yPos] == 0) {
 				return true;
 			}
 		} else if (dir == 3) {
-			Junction tJ = new Junction(xPos + count, yPos, 0);
+			Junction tJ = new Junction(xPos + count, yPos, 0, random);
 			if (lvl[tJ.xPos][tJ.yPos - 1] == 0 && lvl[tJ.xPos + 1][tJ.yPos] == 0 && lvl[tJ.xPos][tJ.yPos + 1] == 0
 					&& lvl[tJ.xPos][tJ.yPos] == 0) {
 				return true;
@@ -73,22 +76,22 @@ class Junction {
 			for (int j = 0; j < wL; j++) {
 				int dir = (int) random(4);
 				if (dir == 0) {
-					if (wYC - 1 > 1 && new Junction(wXC, wYC, dir).checkSpace(1, dir, temp)) {
+					if (wYC - 1 > 1 && new Junction(wXC, wYC, dir, random).checkSpace(1, dir, temp)) {
 						wYC--;
 						temp[wXC][wYC] = 1;
 					}
 				} else if (dir == 1) {
-					if (wYC + 1 < temp[0].length - 2 && new Junction(wXC, wYC, dir).checkSpace(1, dir, temp)) {
+					if (wYC + 1 < temp[0].length - 2 && new Junction(wXC, wYC, dir, random).checkSpace(1, dir, temp)) {
 						wYC++;
 						temp[wXC][wYC] = 1;
 					}
 				} else if (dir == 2) {
-					if (wXC - 1 > 1 && new Junction(wXC, wYC, dir).checkSpace(1, dir, temp)) {
+					if (wXC - 1 > 1 && new Junction(wXC, wYC, dir, random).checkSpace(1, dir, temp)) {
 						wXC--;
 						temp[wXC][wYC] = 1;
 					}
 				} else if (dir == 3) {
-					if (wXC + 1 < temp.length - 2 && new Junction(wXC, wYC, dir).checkSpace(1, dir, temp)) {
+					if (wXC + 1 < temp.length - 2 && new Junction(wXC, wYC, dir, random).checkSpace(1, dir, temp)) {
 						wXC++;
 						temp[wXC][wYC] = 1;
 					}
@@ -103,7 +106,7 @@ class Junction {
 			for (int e = 0; e < temp[0].length; e++) {
 				if (temp[w][e] == 1) {
 					lvl[xPos + w][yPos + e] = 4;
-					cW.add(new Junction(xPos + w, yPos + e, 0));
+					cW.add(new Junction(xPos + w, yPos + e, 0, random));
 				} else if (temp[w][e] == 0) {
 					lvl[xPos + w][yPos + e] = 3;
 				}

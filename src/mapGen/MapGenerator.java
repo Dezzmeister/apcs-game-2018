@@ -4,11 +4,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 import image.SquareTexture;
-import main.entities.Dwight;
+import main.GameConstants;
 import render.core.Block;
 import render.core.WorldMap;
 import render.math.Vector2;
@@ -34,6 +35,9 @@ public class MapGenerator {
 	
 	private final MapSpecification spec;
 	
+	private Random random = new Random();
+	private long mapSeed = GameConstants.MAP_SEED;
+	
 	private WorldMap finalMap;
 	private Vector2 startPos;
 	
@@ -48,6 +52,7 @@ public class MapGenerator {
 		spec = specification;
 		
 		rooms = (WIDTH * HEIGHT) / 1333;
+		generateSeed();
 	}
 	
 	public static class MapSpecification {
@@ -71,6 +76,16 @@ public class MapGenerator {
 		generateExtras();
 		convertIntMap();		
 		debug_saveDebugImage();
+		printInformation();
+	}
+	
+	private void generateSeed() {
+		mapSeed = (mapSeed == -1) ? (long)(Math.random() * Long.MAX_VALUE) : mapSeed;
+		random.setSeed(mapSeed);
+	}
+	
+	private void printInformation() {
+		System.out.println("Seed: " + mapSeed);
 	}
 	
 	private void convertIntMap() {
@@ -268,8 +283,8 @@ public class MapGenerator {
 		ArrayList<Junction> jMap = new ArrayList<Junction>();
 		ArrayList<Junction> fullJMap = new ArrayList<Junction>();
 		
-		jMap.add(new Junction(2, intMap.length / 2, 2));
-		fullJMap.add(new Junction(2, intMap.length / 2, 2));
+		jMap.add(new Junction(2, intMap.length / 2, 2, random));
+		fullJMap.add(new Junction(2, intMap.length / 2, 2, random));
 		for (int k = 0; k < intMap.length; k++) {
 			for (int p = 0; p < intMap.length; p++) {
 				if (k == 0 || k == intMap.length - 1 || p == 0 || p == intMap.length - 1) {
@@ -294,8 +309,8 @@ public class MapGenerator {
 					}
 					if (i == 1) {
 					} else {
-						jMap.add(new Junction(temp.xPos, temp.yPos - i, 0));
-						fullJMap.add(new Junction(temp.xPos, temp.yPos - i, 0));
+						jMap.add(new Junction(temp.xPos, temp.yPos - i, 0, random));
+						fullJMap.add(new Junction(temp.xPos, temp.yPos - i, 0, random));
 					}
 				} else if (dir == 1 && !temp.south) {
 					jMap.get(jMap.size() - 1).south = true;
@@ -304,8 +319,8 @@ public class MapGenerator {
 					}
 					if (i == 1) {
 					} else {
-						jMap.add(new Junction(temp.xPos, temp.yPos + i, 1));
-						fullJMap.add(new Junction(temp.xPos, temp.yPos + i, 1));
+						jMap.add(new Junction(temp.xPos, temp.yPos + i, 1, random));
+						fullJMap.add(new Junction(temp.xPos, temp.yPos + i, 1, random));
 					}
 				} else if (dir == 2 && !temp.west) {
 					jMap.get(jMap.size() - 1).west = true;
@@ -314,8 +329,8 @@ public class MapGenerator {
 					}
 					if (i == 1) {
 					} else {
-						jMap.add(new Junction(temp.xPos - i, temp.yPos, 2));
-						fullJMap.add(new Junction(temp.xPos - i, temp.yPos, 2));
+						jMap.add(new Junction(temp.xPos - i, temp.yPos, 2, random));
+						fullJMap.add(new Junction(temp.xPos - i, temp.yPos, 2, random));
 					}
 				} else if (dir == 3 && !temp.east) {
 					jMap.get(jMap.size() - 1).east = true;
@@ -324,8 +339,8 @@ public class MapGenerator {
 					}
 					if (i == 1) {
 					} else {
-						jMap.add(new Junction(temp.xPos + i, temp.yPos, 3));
-						jMap.add(new Junction(temp.xPos + i, temp.yPos, 3));
+						jMap.add(new Junction(temp.xPos + i, temp.yPos, 3, random));
+						jMap.add(new Junction(temp.xPos + i, temp.yPos, 3, random));
 					}
 				}
 			}
@@ -402,7 +417,7 @@ public class MapGenerator {
 	}
 	
 	private void generateNYPDBlueRoom(int row, int col) {
-		int rand = (int)(Math.random() * nypdBlueRoomSpawnChance);
+		int rand = (int)(random.nextFloat() * nypdBlueRoomSpawnChance);
 		
 		if (rand == nypdBlueRoomSpawnChance - 1)  {
 			if (row + 6 < intMap.length && col + 5 < intMap[row].length) {
@@ -432,7 +447,7 @@ public class MapGenerator {
 	}
 	
 	private void generateSecretBlock(int row, int col) {
-		int rand = (int)(Math.random() * secretBlockSpawnChance);
+		int rand = (int)(random.nextFloat() * secretBlockSpawnChance);
 		
 		if (rand == secretBlockSpawnChance-1) {
 			intMap[row][col] = 20;
@@ -440,7 +455,7 @@ public class MapGenerator {
 	}
 	
 	private void generatePillar(int row, int col) {
-		int rand = (int)(Math.random() * pillarSpawnChance);
+		int rand = (int)(random.nextFloat() * pillarSpawnChance);
 		
 		if (rand == pillarSpawnChance-1) {
 			intMap[row][col] = 18;
@@ -448,7 +463,7 @@ public class MapGenerator {
 	}
 	
 	private void generateBar(int row, int col) {
-		int rand = (int)(Math.random() * barSpawnChance);
+		int rand = (int)(random.nextFloat() * barSpawnChance);
 		
 		if (rand == barSpawnChance-1) {
 			if (intMap[row-1][col] == 0 && intMap[row+1][col] == 0 && intMap[row][col-1] == 1 && intMap[row][col+1] == 1) {
@@ -460,15 +475,15 @@ public class MapGenerator {
 	}
 	
 	private void generateMoseBlock(int row, int col) {
-		int rand = (int)(Math.random() * moseBlockSpawnChance);
+		int rand = (int)(random.nextFloat() * moseBlockSpawnChance);
 		
 		if (rand == moseBlockSpawnChance-1) {
 			intMap[row][col] = 19;
 		}
 	}
 	
-	private double random(int c) {
+	private float random(int c) {
 		
-		return c * Math.random();
+		return c * random.nextFloat();
 	}
 }

@@ -303,17 +303,24 @@ public class Raycaster extends JPanel {
 		hitEntities = new ArrayList<Entity>();
 		sprites = new ArrayList<Entity>();
 		
-		sprites.addAll(dwightList);
-		sprites.addAll(beanList);
+		if (dwightList != null) {
+			sprites.addAll(dwightList);
+		}
+		if (beanList != null) {
+			sprites.addAll(beanList);
+		}
 		
 		for (int i = 0; i < sprites.size(); i++) {
 	    	sprites.get(i).order = i;
 	    	sprites.get(i).updateDistance();
 	    }
-	    sprites.sort(null);
+		
+		sprites.sort(null);
 		
 		for (int i = 0; i < sprites.size(); i++) {
-			Entity active = sprites.get(sprites.get(i).order);
+			//System.out.println(i + " " + sprites.get(i).distance);
+			
+			Entity active = sprites.get(i);
 			
 			Vector2 spriteVector = active.pos;
 	    	double spriteX = spriteVector.x - pos.x;
@@ -350,7 +357,7 @@ public class Raycaster extends JPanel {
 	    		hitEntities.add(active);
 	    	}
 	    	
-	    	SquareTexture texture = sprites.get(sprites.get(i).order).getActiveTexture();
+	    	SquareTexture texture = active.getActiveTexture();
 	    	
 	    	int texWidth = texture.SIZE;
 	    	int texHeight = texture.SIZE;
@@ -367,8 +374,34 @@ public class Raycaster extends JPanel {
 	    				int	color = index < texture.pixels.length && index >= 0 ? texture.pixels[index] : 0;
 	    				
 	    				if (color != active.alpha) {
-	    					float normValue = (float) (sprites.get(i).distance/FULL_FOG_DISTANCE);
+	    					/*
+	    					float normValue = (float) (active.distance/FULL_FOG_DISTANCE);
 	    					color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
+	    					img.setRGB(stripe, y, color);
+	    					*/
+	    					
+	    					float darkenBy;
+	    					if (linearShade) {
+	    						float normValue = (float) (active.distance / FULL_FOG_DISTANCE);
+	    						
+	    						darkenBy = (normValue >= 1 ? 1 : normValue) * SHADE_THRESHOLD;
+	    					} else {
+	    						float _x = (float) (active.distance >= FULL_FOG_DISTANCE ? FULL_FOG_DISTANCE : active.distance);
+	    						float a = SHADE_THRESHOLD/100.0f;
+	    						float b = 2 * FULL_FOG_DISTANCE;
+	    						darkenBy = (-(a * _x) * (_x - b));
+	    					}
+	    					
+	    					int red = (color >> 16) & 0xFF;
+	    					int green = (color >> 8) & 0xFF;
+	    					int blue = color & 0xFF;
+	    					
+	    					red -= (red - darkenBy >= 0) ? darkenBy : red;
+	    					green -= (green - darkenBy >= 0) ? darkenBy : green;
+	    					blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
+	    					
+	    					color = (red << 16) | (green << 8) | blue;
+
 	    					img.setRGB(stripe, y, color);
 	    				}
 	    			}

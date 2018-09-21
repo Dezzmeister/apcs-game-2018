@@ -18,8 +18,8 @@ public abstract class Entity implements Comparable<Entity> {
 	
 	public Vector2 pos;
 	private boolean invisible;
-	public float distance;
-	public int order;
+	public float distance = 0;
+	public int order = 0;
 	protected Camera player;
 	
 	public int xDrawBegin = 0;

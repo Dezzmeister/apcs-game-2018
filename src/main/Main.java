@@ -18,6 +18,7 @@ import image.GeneralTexture;
 import image.HUD;
 import image.Item;
 import image.SquareTexture;
+import main.entities.BeanList;
 import mapGen.MapGenerator;
 import mapGen.MapGenerator.MapSpecification;
 import render.core.Block;
@@ -35,7 +36,8 @@ public class Main {
 	public static void main(String[] args) {
 		// test();
 		mapGenerationTest();
-		//Arrays.toString(map.getIntMap());
+		// cubicleTest();
+		// Arrays.toString(map.getIntMap());
 		// vectorTest();
 	}
 	
@@ -43,11 +45,11 @@ public class Main {
 		int width = 1500;
 		int height = 1000;
 		
-		final BoundedStat health = new BoundedStat(0,100);
-		final BoundedStat coffee = new BoundedStat(0,100);
+		final BoundedStat health = new BoundedStat(0,GameConstants.MAX_HEALTH);
+		final BoundedStat coffee = new BoundedStat(0,GameConstants.MAX_COFFEE);
 		
 		MapSpecification spec = new MapSpecification(STANDARD_WALL_BLOCK, STANDARD_HALL_FLOOR, STANDARD_HALL_CEILING, STANDARD_ROOM_FLOOR, STANDARD_HALL_CEILING);
-		MapGenerator map = new MapGenerator(5000,5000, spec);
+		MapGenerator map = new MapGenerator(GameConstants.MAP_SIZE,GameConstants.MAP_SIZE, spec);
 		map.generate();
 		
 		WorldMap world = map.getFinalWorldMap();
@@ -62,7 +64,7 @@ public class Main {
 		game.setSoundManager(manager);
 		game.setHealthStat(health);
 		game.setCoffeeStat(coffee);
-		String testSound = "assets/soundfx/boom.wav";
+		//String testSound = "assets/soundfx/boom.wav";
 		//game.setStepPaths(testSound);
 		
 		Camera camera = new Camera().setPos(startPos).setDir(new Vector2(-0.75f, 0))
@@ -86,7 +88,7 @@ public class Main {
 	}
 	
 	static void cubicleTest() {
-		int width = 1500;
+		int width = 1000;
 		int height = 1000;
 		
 		SoundManager manager = new SoundManager();
@@ -150,9 +152,23 @@ public class Main {
 		
 		WorldMap world = new WorldMap(blocks).setBorder(block);
 		
+		final BoundedStat health = new BoundedStat(0,100);
+		final BoundedStat coffee = new BoundedStat(0,100);
+		
+		game.setHealthStat(health);
+		game.setCoffeeStat(coffee);
+		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
+		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
 		
-		world.addEntity(bean);
+		HUD hud = new HUD("assets/overlays/hud.png", health, coffee)
+				.fitTo(HUD.Fit.BOTTOM)
+				.autoFindBars()
+				.autoFindTransparency();
+		
+		raycaster.setHUD(hud);
+		
+		//world.addEntity(bean);
 		
 		game.setRaycaster(raycaster);
 		raycaster.start();

@@ -5,23 +5,24 @@ import java.util.List;
 
 import audio.soundjunk.Wav;
 import image.Entity;
+import main.GameConstants;
 import render.core.Camera;
 import render.core.WorldMap;
 import render.math.Vector2;
 
 public class DwightList {
-	public int maxDwights = 5;
+	public int maxDwights = GameConstants.MAX_DWIGHTS;
 	
-	private final int despawnDistance = 26;
+	private final int despawnDistance = GameConstants.DWIGHT_DESPAWN_DISTANCE;
 	
-	private int initialSpawnRadius = 20;
-	private int maxSpawnRadius = 24;
+	private int initialSpawnRadius = GameConstants.INITIAL_DWIGHT_SPAWN_RADIUS;
+	private int maxSpawnRadius = GameConstants.MAX_DWIGHT_SPAWN_RADIUS;
 	
 	private final float TWO_PI = (float) (Math.PI * 2.0f);
 	private float[] sineTable;
 	private float[] cosineTable;
 	
-	private int dwightSpawnInterval = 10;
+	private int dwightSpawnInterval = GameConstants.DWIGHT_SPAWN_INTERVAL;
 	
 	private List<Dwight> dwights = new ArrayList<Dwight>();
 	private Camera player;
@@ -65,13 +66,16 @@ public class DwightList {
 		Dwight hitDwight = null;
 		
 		for (int i = 0; i < hitDwights.size(); i++) {
-			Dwight dwight = (Dwight) hitDwights.get(i);
 			
-			float d = Vector2.distance(pos, dwight.pos);
+			if (hitDwights.get(i) instanceof Dwight) {
+				Dwight dwight = (Dwight) hitDwights.get(i);
 			
-			if (d < distance && d <= COFFEE_POUR_RANGE) {
-				distance = d;
-				hitDwight = dwight;
+				float d = Vector2.distance(pos, dwight.pos);
+			
+				if (d < distance && d <= COFFEE_POUR_RANGE) {
+					distance = d;
+					hitDwight = dwight;
+				}
 			}
 		}
 		
@@ -80,7 +84,7 @@ public class DwightList {
 		}
 	}
 	
-	public static final float DWIGHT_ATTACK_RANGE = 0.8f;
+	public static final float DWIGHT_ATTACK_RANGE = GameConstants.DWIGHT_ATTACK_RANGE;
 	
 	public boolean playerIsHit() {
 		for (int i = 0; i < dwights.size(); i++) {
@@ -98,12 +102,15 @@ public class DwightList {
 		Vector2 pos = player.pos;
 		
 		for (int i = 0; i < hitDwights.size(); i++) {
-			Dwight dwight = (Dwight) hitDwights.get(i);
 			
-			float d = Vector2.distance(pos, dwight.pos);
+			if (hitDwights.get(i) instanceof Dwight) {
+				Dwight dwight = (Dwight) hitDwights.get(i);
 			
-			if (d < closestWall) {
-				dwight.health.lose(50);
+				float d = Vector2.distance(pos, dwight.pos);
+			
+				if (d < closestWall) {
+					dwight.health.lose(50);
+				}
 			}
 		}
 	}
@@ -225,7 +232,7 @@ public class DwightList {
 	}
 	
 	private void addDwight(float x, float y) {
-		Dwight dwight = new Dwight(new Vector2(x, y));
+		Dwight dwight = new Dwight(new Vector2(x, y), player);
 		dwight.setCamera(player);
 		dwight.generatePath(player.pos, world);
 		
