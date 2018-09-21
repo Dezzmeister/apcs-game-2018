@@ -425,7 +425,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		
 		@Override
 		public void mousePressed(MouseEvent e) {
-			if (currentViewModel == ViewModels.CUP_VIEWMODEL) {
+			if (currentViewModel == ViewModels.CUP_VIEWMODEL && health.get() > 0) {
 				if (e.getButton() == MouseEvent.BUTTON1) {
 					if (currentViewModel.primaryFire()) {
 						coffee.lose(Main.COFFEE_MELEE_COST);

@@ -54,8 +54,8 @@ public final class GameConstants {
 		try {
 			List<String> file = Files.readAllLines(Paths.get(path));
 			
-			if (!file.get(0).equals("Dezzy")) {
-				System.err.println("first line of config file must be \"Dezzy\" you idiot");
+			if (!file.get(0).equals("joj")) {
+				System.err.println("first line of config file must be \"joj\" you idiot");
 				System.exit(0);
 			}
 			
