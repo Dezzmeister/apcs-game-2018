@@ -2,6 +2,7 @@ package render.math;
 
 import render.core.Pillar;
 import render.core.Wall;
+import render.core.true3D.Line;
 
 /**
  * This class holds utility methods for rendering and other stuff.
@@ -135,5 +136,11 @@ public class RenderUtils {
 			return maxVal;
 		}
 		return val;
+	}
+	
+	public Vector3 linePlaneIntersection(Line line, Triangle plane) {
+		float t = (Vector3.dot(Vector3.cross(plane.v1,plane.v2),line.v0.minus(plane.v0)))/(Vector3.dot(line.v1.minus(line.v0).negate(),Vector3.cross(plane.v1,plane.v2)));
+		
+		return line.v0.plus(line.v1.minus(line.v0).scale(t));		
 	}
 }

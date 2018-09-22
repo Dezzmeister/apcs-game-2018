@@ -6,6 +6,7 @@ import java.util.List;
 import audio.soundjunk.Wav;
 import image.Entity;
 import main.GameConstants;
+import render.core.Block;
 import render.core.Camera;
 import render.core.WorldMap;
 import render.math.Vector2;
@@ -49,7 +50,10 @@ public class DwightList {
 			
 			if (dwight.health.get() <= 0) {
 				dwightsKilled++;
-				dwights.remove(i);
+				Dwight removed = dwights.remove(i);
+				if (world.getFloorAt((int)removed.pos.x, (int)removed.pos.y) == Block.DwightElements.STANDARD_HALL_FLOOR) {
+					world.setFloorAt((int)removed.pos.x, (int)removed.pos.y, Block.DwightElements.BLOOD_FLOOR);
+				}
 				Wav.playSound("assets/soundfx/scream.wav");
 			}
 		}

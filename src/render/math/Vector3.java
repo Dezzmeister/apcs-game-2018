@@ -48,12 +48,20 @@ public class Vector3 {
 				((v0.x - v1.x) * (v0.x - v1.x)) + ((v0.y - v1.y) * (v0.y - v1.y)) + ((v0.z - v1.z) * (v0.z - v1.z)));
 	}
 	
-	public Vector3 add(Vector3 v) {
+	public Vector3 plus(Vector3 v) {
 		return new Vector3(x + v.x, y + v.y, z + v.z);
 	}
 	
 	public Vector3 minus(Vector3 v) {
 		return new Vector3(x - v.x, y - v.y, z = v.z);
+	}
+	
+	public Vector3 negate() {
+		return new Vector3(-x, -y, -z);
+	}
+	
+	public Vector3 scale(float f) {
+		return new Vector3(x * f, y * f, z * f);
 	}
 	
 	public static Vector3 cross(Vector3 a, Vector3 b) {
@@ -62,6 +70,10 @@ public class Vector3 {
 		float z = (a.x * b.y) - (a.y * b.x);
 		
 		return new Vector3(x, y, z);
+	}
+	
+	public static float dot(Vector3 v0, Vector3 v1) {
+		return (v0.x * v1.x) + (v0.y * v1.y) + (v0.z * v1.z); 
 	}
 	
 	/**

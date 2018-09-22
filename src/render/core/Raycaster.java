@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -23,6 +24,7 @@ import image.ViewModel;
 import main.Game;
 import main.entities.Bean;
 import main.entities.Dwight;
+import render.core.true3D.Model;
 import render.light.Side;
 import render.math.RenderUtils;
 import render.math.Vector2;
@@ -79,6 +81,9 @@ public class Raycaster extends JPanel {
 	private int dwightsKilled = 0;
 	private List<Entity> hitEntities = new ArrayList<Entity>();
 	private float closestWallAtCenter = 0;
+	private List<Block> modelQueue = new ArrayList<Block>();
+	
+	private double[] zbuf2;
 	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -143,6 +148,7 @@ public class Raycaster extends JPanel {
 	
 	private void init() {
 		zbuf = new double[WIDTH];
+		zbuf2 = new double[WIDTH * HEIGHT];
 		HALF_HEIGHT = HEIGHT / 2;
 		camera.setVerticalMouselookLimit(HEIGHT / 8);
 		
@@ -262,6 +268,9 @@ public class Raycaster extends JPanel {
 	private void resetZBuffer() {
 		for (int i = 0; i < WIDTH; i++) {
 			zbuf[i] = Double.POSITIVE_INFINITY;
+			for (int j = 0; j < HEIGHT; j++) {
+				zbuf2[i + j * WIDTH] = Double.POSITIVE_INFINITY;
+			}
 		}
 	}
 	
@@ -374,6 +383,9 @@ public class Raycaster extends JPanel {
 	    				int	color = index < texture.pixels.length && index >= 0 ? texture.pixels[index] : 0;
 	    				
 	    				if (color != active.alpha) {
+	    					
+	    					zbuf2[stripe + y * WIDTH] = transformY;
+	    					
 	    					/*
 	    					float normValue = (float) (active.distance/FULL_FOG_DISTANCE);
 	    					color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);

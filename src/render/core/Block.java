@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 
 import image.GeneralTexture;
 import image.SquareTexture;
+import render.core.true3D.Model;
 
 /**
  * Represents a 1x1 space in a world map. Can be either a full block or a custom
@@ -23,6 +24,7 @@ public class Block {
 	 * If this Block is custom, this will contain this Block's custom Walls.
 	 */
 	public Wall[] walls = null;
+	public Model model = null;
 	private boolean solid = true;
 	private boolean visible = true;
 	private int proximity = -1;
@@ -49,6 +51,11 @@ public class Block {
 	 */
 	public Block customize(Wall... _walls) {
 		walls = _walls;
+		return this;
+	}
+	
+	public Block defineAsModel(Model _model) {
+		model = _model;
 		return this;
 	}
 	
@@ -96,6 +103,10 @@ public class Block {
 	 */
 	public boolean isCustom() {
 		return walls != null;
+	}
+	
+	public boolean isModel() {
+		return model != null;
 	}
 	
 	public Block setProximity(int visibleDistance) {
@@ -207,6 +218,8 @@ public class Block {
 		
 		public static final SquareTexture SIMONE = new SquareTexture("assets/textures/simonewall512.png",512);
 		public static final Block SIMONE_WALL = new Block("simone").applyTexture(SIMONE);
+		
+		public static final SquareTexture BLOOD_FLOOR = new SquareTexture("assets/textures/dirt400_bloody.png",400);
 
 		public static final GeneralTexture CUBICLE = new GeneralTexture("assets/textures/joj32.png", 32, 32);
 		public static final GeneralTexture SIDE = new GeneralTexture("assets/textures/side.png", 2, 20);
