@@ -6,8 +6,11 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Queue;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -24,10 +27,12 @@ import image.ViewModel;
 import main.Game;
 import main.entities.Bean;
 import main.entities.Dwight;
-import render.core.true3D.Model;
+import render.core.true3D.Line;
 import render.light.Side;
 import render.math.RenderUtils;
+import render.math.Triangle;
 import render.math.Vector2;
+import render.math.Vector3;
 
 /**
  * Uses multiple threads to render a map. Uses a Camera holding player data such
@@ -81,7 +86,7 @@ public class Raycaster extends JPanel {
 	private int dwightsKilled = 0;
 	private List<Entity> hitEntities = new ArrayList<Entity>();
 	private float closestWallAtCenter = 0;
-	private List<Block> modelQueue = new ArrayList<Block>();
+	private List<Vector3> modelQueue = Collections.synchronizedList(new ArrayList<Vector3>());
 	
 	private double[] zbuf2;
 	
@@ -212,6 +217,7 @@ public class Raycaster extends JPanel {
 		finished = false;
 		handleMouseInput();
 		getCameraVectors();
+		resetModelQueue();
 		resetImage();
 	}
 
@@ -220,8 +226,10 @@ public class Raycaster extends JPanel {
 			preRender();
 			parallelRender();
 			renderSprites();
+			renderAllVisibleModels();
 			drawOverlays();
 			finalizeRender();
+			//renderAllVisibleModels();
 			postRender();
 		} else {
 			drawDeathScreen();
@@ -249,6 +257,10 @@ public class Raycaster extends JPanel {
 	
 	private void saveClosestWallAtCenter() {
 		closestWallAtCenter = (float) zbuf[WIDTH/2];
+	}
+	
+	private void resetModelQueue() {
+		modelQueue = new ArrayList<Vector3>();
 	}
 	
 	/**
@@ -385,12 +397,6 @@ public class Raycaster extends JPanel {
 	    				if (color != active.alpha) {
 	    					
 	    					zbuf2[stripe + y * WIDTH] = transformY;
-	    					
-	    					/*
-	    					float normValue = (float) (active.distance/FULL_FOG_DISTANCE);
-	    					color = RenderUtils.darkenWithThreshold(color,normValue >= 1 ? 1 : normValue,SHADE_THRESHOLD);
-	    					img.setRGB(stripe, y, color);
-	    					*/
 	    					
 	    					float darkenBy;
 	    					if (linearShade) {
@@ -561,6 +567,11 @@ public class Raycaster extends JPanel {
 							if (customHit != null) {
 								break dda;
 							}
+						} else if (block.isModel()) {
+							Vector3 location = new Vector3(mapX, mapY, 0);
+							
+							tryUpdateModelQueue(location);
+							
 						} else {
 							determineSideHit(stepX, stepY);
 							hit = true;
@@ -607,11 +618,28 @@ public class Raycaster extends JPanel {
 				// img.setRGB(x, drawEnd, 0xFFFF0000);
 
 				zbuf[x] = perpWallDist;
+				
+				for (int y = 0; y < HEIGHT; y++) {
+					zbuf2[x + y * WIDTH] = perpWallDist;
+				}
 
 				textureFloorAndCeiling(x);
 				if (x == (WIDTH / 2)) {
 					//System.out.println(sideHit);
 				}
+			}
+		}
+		
+		private void tryUpdateModelQueue(Vector3 location) {
+			
+			synchronized (modelQueue) {
+				for (int i = 0; i < modelQueue.size(); i++) {
+					if (modelQueue.get(i).equals(location)) {
+						return;
+					}
+				}
+			
+				modelQueue.add(location);
 			}
 		}
 		
@@ -800,6 +828,280 @@ public class Raycaster extends JPanel {
 				img.setRGB(x, (HEIGHT - y), ceilColor);
 			}
 		}
+	}
+	
+	//positive z points up
+	private void OLD_renderAllVisibleModels() {	
+		Map<Vector3, Vector3> renderedVertices = new HashMap<Vector3, Vector3>();
+		
+		Vector3 pos3D = new Vector3(camera.pos.x, 0.0f, camera.pos.y);
+		
+		Vector3 cameraPos = new Vector3(camera.pos.x, 0.5f, camera.pos.y);
+		//System.out.println("camerapos: " + cameraPos);
+		
+		Vector2 plane = camera.pos.add(camera.dir).add(camera.plane);
+		//System.out.println("plane: " + plane);
+		Vector2 negplane = camera.pos.add(camera.dir).add(new Vector2(-camera.plane.x,-camera.plane.y));
+		//System.out.println("negplane: " + negplane);
+		
+		Vector3 plane0 = new Vector3(plane.x, 0.0f, plane.y);
+		Vector3 plane1 = new Vector3(plane.x, 1.0f, plane.y);
+		Vector3 plane2 = new Vector3(negplane.x, 0.5f, negplane.y);
+		
+		Triangle viewPlane = new Triangle(plane0, plane2, plane1);		
+		
+		for (Vector3 location : modelQueue) {
+			Block block = world.getBlockAt((int)location.x, (int)location.z);
+			
+			for (Triangle t : block.model.triangles) {
+				Vector3 v0 = t.v0.plus(location);
+				Vector3 v1 = t.v1.plus(location);
+				Vector3 v2 = t.v2.plus(location);
+				
+				Line l0 = new Line(cameraPos,v0);
+				Line l1 = new Line(cameraPos,v1);
+				Line l2 = new Line(cameraPos,v2);
+				
+				Vector3 hit0;
+				Vector3 hit1;
+				Vector3 hit2;
+				
+				if (!renderedVertices.containsKey(v0)) {
+					hit0 = RenderUtils.linePlaneIntersection(l0, viewPlane);
+					//System.out.println("v0: " + v0);
+					//System.out.println("hit0: " + hit0);
+					renderedVertices.put(v0, hit0);
+				} else {
+					hit0 = renderedVertices.get(v0);
+				}
+				
+				if (!renderedVertices.containsKey(v1)) {
+					hit1 = RenderUtils.linePlaneIntersection(l1, viewPlane);
+					renderedVertices.put(v1, hit1);
+					//System.out.println("hit1: " + hit1);
+				} else {
+					hit1 = renderedVertices.get(v1);
+				}
+				
+				if (!renderedVertices.containsKey(v2)) {
+					hit2 = RenderUtils.linePlaneIntersection(l2, viewPlane);
+					renderedVertices.put(v2, hit2);
+				} else {
+					hit2 = renderedVertices.get(v2);
+				}
+				
+				//System.out.println(hit2);
+				
+				Vector2 screen0 = findPointOnScreen(hit0);
+				Vector2 screen1 = findPointOnScreen(hit1);
+				Vector2 screen2 = findPointOnScreen(hit2);
+				
+				
+				//System.out.println("screen0: " + screen0);
+				//System.out.println("screen1: " + screen1);
+				//System.out.println("screen2: " + screen2);
+				/*
+				g.setColor(new Color(t.debug_color));
+				int[] xPoints = {(int)screen0.x, (int)screen1.x, (int)screen2.x};
+				int[] yPoints = {(int)screen0.y, (int)screen1.y, (int)screen2.y};
+				g.fillPolygon(xPoints, yPoints, 3);
+				*/
+				rasterizer.rasterizeTriangle(screen0, screen1, screen2, t.debug_color);
+			}
+		}
+	}
+	
+	//x and y correspond to world map axes; z is vertical axis
+	private void renderAllVisibleModels() {
+		Map<Vector3, Vector3> renderedVertices = new HashMap<Vector3, Vector3>();
+		
+		//These three Vectors define the plane through which the player views the world, in world space
+		Vector3 plane0 = new Vector3(camera.pos.x + camera.dir.x + camera.plane.x, camera.pos.y + camera.dir.y + camera.plane.y, 0.0f);
+		Vector3 plane1 = new Vector3(camera.pos.x + camera.dir.x + camera.plane.x, camera.pos.y + camera.dir.y + camera.plane.y, 1.0f);
+		Vector3 plane2 = new Vector3(camera.pos.x + camera.dir.x - camera.plane.x, camera.pos.y + camera.dir.y - camera.plane.y, 0.0f);
+		
+		//plane2 is the left edge of the screen; plane0 is the right edge of the screen
+		
+		Vector3 cameraPos = new Vector3(camera.pos.x, camera.pos.y, 0.5f);
+		
+		Triangle viewPlane = new Triangle(plane0, plane1, plane2);
+		
+		for (Vector3 location : modelQueue) {
+			Block block = world.getBlockAt((int)location.x, (int)location.y);
+			
+			for (Triangle t : block.model.triangles) {
+				
+				//These three Vectors are the triangle's vertices, translated to world space
+				Vector3 v0 = location.plus(t.v0);
+				Vector3 v1 = location.plus(t.v1);
+				Vector3 v2 = location.plus(t.v2);
+				
+				if (isBehindPlayer(v0,v1,v2, plane2, plane0)) {
+					continue;
+				}
+				
+				Vector3 i0 = getOrCalculateAndStore(renderedVertices, cameraPos, v0, viewPlane);
+				Vector3 i1 = getOrCalculateAndStore(renderedVertices, cameraPos, v1, viewPlane);
+				Vector3 i2 = getOrCalculateAndStore(renderedVertices, cameraPos, v2, viewPlane);
+				
+				Vector2 s0 = locateOnScreen(i0, plane2, plane0);
+				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
+				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
+				
+				//System.out.println(s0);
+				
+				rasterizer.rasterizeTriangle(s0, s1, s2, t.debug_color);
+				/*
+				System.out.println();
+				System.out.println("plane0: " + plane0);
+				System.out.println("plane2: " + plane2);
+				System.out.println("v0: " + v0);
+				System.out.println("cameraPos: " + cameraPos);
+				System.out.println("i0: " + i0);
+				*/
+				//System.out.println(v0);
+				//System.out.println(Vector3.distance(i0, plane0) + Vector3.distance(i0, plane2));
+			}
+		}
+	}
+	
+	private boolean isBehindPlayer(Vector3 _v0, Vector3 _v1, Vector3 _v2, Vector3 _plane0, Vector3 _plane1) {
+		Vector2 v0 = _v0.discardZ();
+		Vector2 v1 = _v1.discardZ();
+		Vector2 v2 = _v2.discardZ();
+		Vector2 plane0 = _plane0.discardZ();
+		Vector2 plane1 = _plane1.discardZ();
+		
+		boolean first = RenderUtils.isLeftOfRay(plane1, plane0, v0);
+		boolean second = RenderUtils.isLeftOfRay(plane1, plane0, v1);
+		boolean third = RenderUtils.isLeftOfRay(plane1,plane0,v2);
+		
+		return first && second && third;
+	}
+	
+	private Vector2 locateOnScreen(Vector3 i, Vector3 plane0, Vector3 plane1) {
+		int y = (int)(i.z * HEIGHT);
+		
+		Vector2 p0 = new Vector2(plane0.x,plane0.y);
+		Vector2 p1 = new Vector2(plane1.x,plane1.y);
+		
+		Wall wall = new Wall(p0, p1);
+		Vector2 i2 = new Vector2(i.x,i.y);
+		
+		float norm = wall.getNorm(i2);
+		
+		Vector2 leftWallEndp = new Vector2(p0.x + camera.dir.x, p0.y + camera.dir.y);
+		
+		if (RenderUtils.isLeftOfRay(p0, leftWallEndp, i2)) {
+			norm = -norm;
+		}
+		
+		int x = (int) (norm * WIDTH);
+		
+		return new Vector2(x,y);
+	}
+	
+	private Vector3 getOrCalculateAndStore(Map<Vector3,Vector3> renderedVertices, Vector3 cameraPos, Vector3 v, Triangle viewPlane) {
+		if (renderedVertices.containsKey(v)) {
+			return renderedVertices.get(v);
+		} else {
+			Vector3 i = RenderUtils.linePlaneIntersection(new Line(cameraPos, v), viewPlane);
+			renderedVertices.put(v, i);
+			return i;
+		}
+	}
+	
+	private Vector2 findPointOnScreen(Vector3 v) {
+		//x -> x
+		//z -> y
+		Vector3 pos3D = new Vector3(camera.pos.x, 0.0f, camera.pos.y);
+		Vector2 plane = camera.pos.add(camera.dir).add(camera.plane);
+		Vector2 negplane = camera.pos.add(camera.dir).add(new Vector2(-camera.plane.x,-camera.plane.y));
+		
+		Vector3 plane0 = new Vector3(plane.x, 0.0f, plane.y);
+		Vector3 plane1 = new Vector3(negplane.x, 0.0f, negplane.y);
+		
+		float y = v.y * 1000;
+		float x = (Vector3.distance(v,plane0)) * 1000;
+		
+		//System.out.println(Vector3.distance(v,plane0) + Vector3.distance(v,plane1));
+		//System.out.println(Vector3.distance(plane0, plane1));
+		
+		return new Vector2(x,y);
+	}
+	
+	private Rasterizer rasterizer = new Rasterizer();
+	
+	@SuppressWarnings("serial")
+	private class Rasterizer {
+		
+		private void rasterizeTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color) {
+			List<Vector2> ySorted = new ArrayList<Vector2>() {{
+				add(v0);
+				add(v1);
+				add(v2);
+			}};
+			ySorted.sort((a, b) -> (int)(a.y - b.y));
+			
+			Vector2 _v1 = ySorted.get(0);
+			Vector2 _v2 = ySorted.get(1);
+			Vector2 _v3 = ySorted.get(2);
+			
+			if ((int)_v2.y == (int)_v3.y) {
+				rasterizeFlatBottomTriangle(_v1, _v2, _v3, color);
+			} else if ((int)_v1.y == (int)_v2.y) {
+				rasterizeFlatTopTriangle(_v1, _v2, _v3, color);
+			} else {
+				Vector2 _v4 = new Vector2((int)(_v1.x + ((_v2.y - _v1.y) / (_v3.y - _v1.y)) * (_v3.x - _v1.x)), _v2.y);
+				rasterizeFlatBottomTriangle(_v1, _v2, _v4, color);
+				rasterizeFlatTopTriangle(_v2, _v4, _v3, color);
+			}
+		}
+		
+		private void rasterizeFlatBottomTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color) {
+			float invslope1 = (v1.x - v0.x) / (v1.y - v0.y);
+			float invslope2 = (v2.x - v0.x) / (v2.y - v0.y);
+			
+			float curx1 = v0.x;
+			float curx2 = v0.x;
+			
+			for (int scanlineY = (int)v0.y; scanlineY <= v1.y; scanlineY++) {
+				drawHorizontalLine((int)curx1, (int)curx2, scanlineY, color);
+				curx1 += invslope1;
+				curx2 += invslope2;
+			}
+		}
+		
+		private void rasterizeFlatTopTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color) {
+			float invslope1 = (v2.x - v0.x) / (v2.y - v0.y); 
+			float invslope2 = (v2.x - v1.x) / (v2.y - v1.y);
+			
+			float curx1 = v2.x;
+			float curx2 = v2.x;
+			
+			for (int scanlineY = (int)v2.y; scanlineY > v1.y; scanlineY--) {
+				drawHorizontalLine((int)curx1, (int)curx2, scanlineY, color);
+				curx1 -= invslope1;
+				curx2 -= invslope2;
+			}
+		}
+		
+		private void drawHorizontalLine(int x0, int x1, int y, int color) {
+			int xBegin = Math.min(x0, x1);
+			int xEnd = Math.max(x0, x1);
+			
+			if (y >= 0 && y < HEIGHT) {
+				for (int x = xBegin; x < xEnd; x++) {
+					if (x >= 0 && x < WIDTH) {
+						img.setRGB(x, y, color);
+					}
+				}
+			}
+		}
+	}
+	
+	private boolean onScreen(Vector2 v) {
+		return v.x >= 0 && v.y >= 0 && v.x < WIDTH && v.y < HEIGHT;
 	}
 	
 	private class LatchRef {

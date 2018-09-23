@@ -12,4 +12,8 @@ public class Model {
 	public Model(Triangle ... _triangles) {
 		Arrays.stream(_triangles).forEach(triangles::add);
 	}
+	
+	public void addTriangle(Triangle t) {
+		triangles.add(t);
+	}
 }

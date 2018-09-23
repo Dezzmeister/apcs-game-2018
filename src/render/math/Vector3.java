@@ -1,5 +1,7 @@
 package render.math;
 
+import java.util.Objects;
+
 /**
  * Represents a Vector in 3D space.
  *
@@ -53,7 +55,7 @@ public class Vector3 {
 	}
 	
 	public Vector3 minus(Vector3 v) {
-		return new Vector3(x - v.x, y - v.y, z = v.z);
+		return new Vector3(x - v.x, y - v.y, z - v.z);
 	}
 	
 	public Vector3 negate() {
@@ -65,15 +67,19 @@ public class Vector3 {
 	}
 	
 	public static Vector3 cross(Vector3 a, Vector3 b) {
-		float x = (a.y * b.z) - (a.z * b.y);
-		float y = (a.z * b.x) - (a.x * b.z);
-		float z = (a.x * b.y) - (a.y * b.x);
-		
-		return new Vector3(x, y, z);
+		float _x = (a.y * b.z) - (a.z * b.y);
+		float _y = (a.z * b.x) - (a.x * b.z);
+		float _z = (a.x * b.y) - (a.y * b.x);
+		    
+		return new Vector3(_x,_y,_z);
 	}
 	
-	public static float dot(Vector3 v0, Vector3 v1) {
-		return (v0.x * v1.x) + (v0.y * v1.y) + (v0.z * v1.z); 
+	public static float dot(Vector3 a, Vector3 b) {
+		return (a.x * b.x) + (a.y * b.y) + (a.z * b.z); 
+	}
+	
+	public Vector2 discardZ() {
+		return new Vector2(x,y);
 	}
 	
 	/**
@@ -94,5 +100,33 @@ public class Vector3 {
 	 */
 	public void updateLength() {
 		length = distance(ORIGIN, this);
+	}
+	
+	@Override
+	public String toString() {
+		return "(" + x + "," + y + "," + z + ")";
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(x, y, z);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Vector3)) {
+			return false;
+		}
+		
+		if (o == this) {
+			return true;
+		}
+		
+		Vector3 v = (Vector3)o;
+		if (x == v.x && y == v.y && z == v.z) {
+			return true;
+		}
+		
+		return false;
 	}
 }

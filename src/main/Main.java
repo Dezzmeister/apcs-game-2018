@@ -18,7 +18,6 @@ import image.GeneralTexture;
 import image.HUD;
 import image.Item;
 import image.SquareTexture;
-import main.entities.BeanList;
 import mapGen.MapGenerator;
 import mapGen.MapGenerator.MapSpecification;
 import render.core.Block;
@@ -26,7 +25,10 @@ import render.core.Camera;
 import render.core.Raycaster;
 import render.core.Wall;
 import render.core.WorldMap;
+import render.core.true3D.Model;
+import render.math.Triangle;
 import render.math.Vector2;
+import render.math.Vector3;
 
 public class Main {
 	//use Covington font for plaques
@@ -36,8 +38,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		// test();
-		mapGenerationTest();
-		// cubicleTest();
+		// mapGenerationTest();
+		cubicleTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
 	}
@@ -112,6 +114,13 @@ public class Main {
 		SquareTexture rectangles = new SquareTexture("assets/textures/sos1024.png", 1024);
 		Block block = new Block("test").applyTexture(rectangles);
 		
+		Triangle testTriangle = new Triangle(new Vector3(0.2f, 0.2f, 0.2f), 
+											 new Vector3(0.4f, 0.5f, 0.4f),
+											 new Vector3(0.4f, 0.7f, 0.5f),
+											 0xFF00FF00);
+		Model model = new Model(testTriangle);
+		Block testModel = new Block("testModel").defineAsModel(model);
+		
 		Block[][] blocks = {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
@@ -128,7 +137,7 @@ public class Main {
 				{SPACE, SPACE, SPACE, CUBICLE_X, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
-						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
+						SPACE, testModel, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, block, SPACE, block, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,

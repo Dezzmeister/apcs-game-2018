@@ -9,7 +9,7 @@ import render.core.true3D.Line;
  *
  * @author Joe Desmond
  */
-public class RenderUtils {
+public final class RenderUtils {
 
 	public static final float HALF_PI = (float) Math.PI / 2.0f;
 	public static final float TWO_PI = (float) Math.PI * 2.0f;
@@ -138,9 +138,23 @@ public class RenderUtils {
 		return val;
 	}
 	
-	public Vector3 linePlaneIntersection(Line line, Triangle plane) {
-		float t = (Vector3.dot(Vector3.cross(plane.v1,plane.v2),line.v0.minus(plane.v0)))/(Vector3.dot(line.v1.minus(line.v0).negate(),Vector3.cross(plane.v1,plane.v2)));
-		
-		return line.v0.plus(line.v1.minus(line.v0).scale(t));		
+	public static Vector3 linePlaneIntersection(Line l, Triangle plane) {
+		Vector3 p0 = l.v0;
+		Vector3 p1 = l.v1;
+		Vector3 p_co = plane.v0;
+		Vector3 p_no = plane.getNormal();
+		final float epsilon = 0.000001f;
+		  
+		Vector3 u = p0.minus(p1);
+		float dot = Vector3.dot(p_no, u);
+		  
+		if (Math.abs(dot) > epsilon) {
+		  Vector3 w = p0.minus(p_co);
+		  float fac = -Vector3.dot(p_no,w) / dot;
+		  u = u.scale(fac);
+		  return p0.plus(u);
+		}
+		  
+		return null;
 	}
 }

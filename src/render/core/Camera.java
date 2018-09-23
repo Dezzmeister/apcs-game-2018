@@ -5,6 +5,7 @@ import java.util.Map;
 
 import render.math.RenderUtils;
 import render.math.Vector2;
+import render.math.Vector3;
 
 /**
  * Holds player data as 4 Vectors.
@@ -17,6 +18,8 @@ public class Camera {
 	public Vector2 dir;
 	public Vector2 plane;
 	private Vector2 sidedir;
+	
+	public Vector3 plane3D;
 	
 	private float moveSpeed = 0.055f;
 	private float rotSpeed = 0.005f;
