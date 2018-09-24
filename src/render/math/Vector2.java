@@ -56,6 +56,10 @@ public class Vector2 {
 		return new Vector2(v0.x + x, v0.y + y);
 	}
 	
+	public Vector2 scale(float f) {
+		return new Vector2(x * f, y * f);
+	}
+	
 	@Override
 	public String toString() {
 		return "(" + x + "," + y + ")";

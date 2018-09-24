@@ -13,7 +13,7 @@ public class Triangle {
 	
 	public GeneralTexture texture;
 	
-	public int debug_color = 0x0;
+	public int color = 0x0;
 	
 	public Triangle(Vector3 _v0, Vector3 _v1, Vector3 _v2) {
 		v0 = _v0;
@@ -21,13 +21,13 @@ public class Triangle {
 		v2 = _v2;
 	}
 	
-	public Triangle(Vector3 _v0, Vector3 _v1, Vector3 _v2, int color) {
+	public Triangle(Vector3 _v0, Vector3 _v1, Vector3 _v2, int _color) {
 		this(_v0, _v1, _v2);
-		debug_color = color;
+		color = _color;
 	}
 	
 	public Triangle setColor(int _color) {
-		debug_color = _color;
+		color = _color;
 		return this;
 	}
 	

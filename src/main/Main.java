@@ -120,14 +120,21 @@ public class Main {
 											 0xFF00FF00);
 		Model model = new Model(testTriangle);
 		
-		Triangle wall1 = new Triangle(new Vector3(0.25f, 0.25f, 1.0f),
-									  new Vector3(0.75f, 0.25f, 1.0f),
-									  new Vector3(0.50f, 0.50f, 0.6f),
-									  0xFF00FF00);
+		GeneralTexture testTexture = new GeneralTexture("assets/textures/medavoy.png",216,288);
 		
-		Triangle wall2 = new Triangle(new Vector3(0.25f,0.25f,1.0f),
-									  new Vector3(0.25f,0.75f,1.0f),
-									  new Vector3(0.50f,0.50f,0.6f),
+		Triangle wall1 = new Triangle(new Vector3(0.25f, 0.25f, 0.0f),
+									  new Vector3(0.75f, 0.25f, 0.0f),
+									  new Vector3(0.50f, 0.50f, 0.4f),
+									  0xFF00FF00)
+									  .setUVCoords(new Vector2(0,1), 
+											  	   new Vector2(1,1),
+											  	   new Vector2(0.5f, 0))
+									  .setTexture(testTexture);
+				;
+		
+		Triangle wall2 = new Triangle(new Vector3(0.25f,0.25f,0.0f),
+									  new Vector3(0.25f,0.75f,0.0f),
+									  new Vector3(0.50f,0.50f,0.4f),
 									  0xFF0000FF);
 		
 		Model testWalls = new Model(wall1,wall2);

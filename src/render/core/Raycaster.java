@@ -930,7 +930,7 @@ public class Raycaster extends JPanel {
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
 				
-				rasterizer.rasterizeTriangleBarycentric(s0, s1, s2, t.debug_color, v0, v1, v2, cameraPos);
+				rasterizer.rasterizeTriangleBarycentric(s0, s1, s2, t, v0, v1, v2, cameraPos);
 			}
 		}
 	}
@@ -950,7 +950,7 @@ public class Raycaster extends JPanel {
 	}
 	
 	private Vector2 locateOnScreen(Vector3 i, Vector3 plane0, Vector3 plane1) {
-		int y = (int)(i.z * HEIGHT);
+		int y = (int)((1 - i.z) * HEIGHT);
 		
 		Vector2 p0 = new Vector2(plane0.x,plane0.y);
 		Vector2 p1 = new Vector2(plane1.x,plane1.y);
@@ -1015,7 +1015,7 @@ public class Raycaster extends JPanel {
 	@SuppressWarnings("serial")
 	private class Rasterizer {
 		
-		private void rasterizeTriangleBarycentric(Vector2 v0, Vector2 v1, Vector2 v2, int color, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
+		private void rasterizeTriangleBarycentric(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
 			float v03Dist = Vector3.distance(v03, camera);
 			float v13Dist = Vector3.distance(v13, camera);
 			float v23Dist = Vector3.distance(v23, camera);
@@ -1080,10 +1080,31 @@ public class Raycaster extends JPanel {
 								continue;
 							}
 							
-							float distance = ((w0 * v03Dist) + (w1 * v13Dist) + (w2 * v23Dist))/3.0f;
+							float distance = (w0 * v03Dist) + (w1 * v13Dist) + (w2 * v23Dist);
 							
 							if (distance < zbuf2[x + y * WIDTH]) {
 								zbuf2[x + y * WIDTH] = distance;
+								
+								int color = triangle.color;
+								
+								if (triangle.uv0 != null) {
+									Vector2 uv0 = triangle.uv0.scale(w0);
+									Vector2 uv1 = triangle.uv1.scale(w1);
+									Vector2 uv2 = triangle.uv2.scale(w2);
+									
+									Vector2 uv = uv0.add(uv1).add(uv2);
+									
+									GeneralTexture texture = triangle.texture;
+									
+									int texX = (int) (uv.x * texture.width);
+									int texY = (int) (uv.y * texture.height);
+									
+									if (texX >= 0 && texX < texture.width && texY >= 0 && texY < texture.height) {
+										color = texture.pixels[texX + texY * texture.width];
+									} else {
+										color = 0;
+									}
+								}
 								
 								img.setRGB(x, y, shade(distance,color));
 							}
