@@ -17,7 +17,7 @@ public class Camera {
 	public Vector2 pos;
 	public Vector2 dir;
 	public Vector2 plane;
-	private Vector2 sidedir;
+	public Vector2 sidedir;
 	
 	public Vector3 plane3D;
 	

@@ -119,7 +119,20 @@ public class Main {
 											 new Vector3(0.4f, 0.7f, 0.5f),
 											 0xFF00FF00);
 		Model model = new Model(testTriangle);
-		Block testModel = new Block("testModel").defineAsModel(model);
+		
+		Triangle wall1 = new Triangle(new Vector3(0.25f, 0.25f, 1.0f),
+									  new Vector3(0.75f, 0.25f, 1.0f),
+									  new Vector3(0.50f, 0.50f, 0.6f),
+									  0xFF00FF00);
+		
+		Triangle wall2 = new Triangle(new Vector3(0.25f,0.25f,1.0f),
+									  new Vector3(0.25f,0.75f,1.0f),
+									  new Vector3(0.50f,0.50f,0.6f),
+									  0xFF0000FF);
+		
+		Model testWalls = new Model(wall1,wall2);
+		
+		Block testModel = new Block("testModel").defineAsModel(testWalls);
 		
 		Block[][] blocks = {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,

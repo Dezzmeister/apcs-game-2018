@@ -1,5 +1,6 @@
 package render.math;
 
+import image.GeneralTexture;
 
 public class Triangle {
 	public Vector3 v0;
@@ -9,6 +10,8 @@ public class Triangle {
 	public Vector2 uv0;
 	public Vector2 uv1;
 	public Vector2 uv2;
+	
+	public GeneralTexture texture;
 	
 	public int debug_color = 0x0;
 	
@@ -25,6 +28,11 @@ public class Triangle {
 	
 	public Triangle setColor(int _color) {
 		debug_color = _color;
+		return this;
+	}
+	
+	public Triangle setTexture(GeneralTexture _texture) {
+		texture = _texture;
 		return this;
 	}
 	

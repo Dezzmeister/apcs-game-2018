@@ -397,30 +397,8 @@ public class Raycaster extends JPanel {
 	    				if (color != active.alpha) {
 	    					
 	    					zbuf2[stripe + y * WIDTH] = transformY;
-	    					
-	    					float darkenBy;
-	    					if (linearShade) {
-	    						float normValue = (float) (active.distance / FULL_FOG_DISTANCE);
-	    						
-	    						darkenBy = (normValue >= 1 ? 1 : normValue) * SHADE_THRESHOLD;
-	    					} else {
-	    						float _x = (float) (active.distance >= FULL_FOG_DISTANCE ? FULL_FOG_DISTANCE : active.distance);
-	    						float a = SHADE_THRESHOLD/100.0f;
-	    						float b = 2 * FULL_FOG_DISTANCE;
-	    						darkenBy = (-(a * _x) * (_x - b));
-	    					}
-	    					
-	    					int red = (color >> 16) & 0xFF;
-	    					int green = (color >> 8) & 0xFF;
-	    					int blue = color & 0xFF;
-	    					
-	    					red -= (red - darkenBy >= 0) ? darkenBy : red;
-	    					green -= (green - darkenBy >= 0) ? darkenBy : green;
-	    					blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
-	    					
-	    					color = (red << 16) | (green << 8) | blue;
 
-	    					img.setRGB(stripe, y, color);
+	    					img.setRGB(stripe, y, shade(active.distance,color));
 	    				}
 	    			}
 	    		}
@@ -705,30 +683,8 @@ public class Raycaster extends JPanel {
 				} else {
 					color = 0;
 				}
-				
-				float darkenBy;
-				if (linearShade) {
-					float normValue = (float) (perpWallDist / FULL_FOG_DISTANCE);
-					
-					darkenBy = (normValue >= 1 ? 1 : normValue) * SHADE_THRESHOLD;
-				} else {
-					float _x = (float) (perpWallDist >= FULL_FOG_DISTANCE ? FULL_FOG_DISTANCE : perpWallDist);
-					float a = SHADE_THRESHOLD/100.0f;
-					float b = 2 * FULL_FOG_DISTANCE;
-					darkenBy = (-(a * _x) * (_x - b));
-				}
-				
-				int red = (color >> 16) & 0xFF;
-				int green = (color >> 8) & 0xFF;
-				int blue = color & 0xFF;
-				
-				red -= (red - darkenBy >= 0) ? darkenBy : red;
-				green -= (green - darkenBy >= 0) ? darkenBy : green;
-				blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
-				
-				color = (red << 16) | (green << 8) | blue;
 
-				img.setRGB(x, y, color);
+				img.setRGB(x, y, shade((float)perpWallDist,color));
 			}
 		}
 		
@@ -755,9 +711,7 @@ public class Raycaster extends JPanel {
 					color = texture.pixels[index];
 				}
 
-				float normValue = (float) (perpWallDist / FULL_FOG_DISTANCE);
-				color = RenderUtils.darkenWithThreshold(color, normValue >= 1 ? 1 : normValue, SHADE_THRESHOLD);
-				img.setRGB(x, y, color);
+				img.setRGB(x, y, shade((float)perpWallDist,color));
 			}
 		}
 		
@@ -820,14 +774,37 @@ public class Raycaster extends JPanel {
 				int color = (floortex.pixels[floortex.SIZE * floorTexY + floorTexX]);
 				
 				int ceilColor = (ceilingtex.pixels[ceilingtex.SIZE * ceilTexY + ceilTexX]);
-				
-				float normValue = (float) (currentDist / FULL_FOG_DISTANCE);
-				color = RenderUtils.darkenWithThreshold(color, normValue >= 1 ? 1 : normValue, SHADE_THRESHOLD);
-				ceilColor = RenderUtils.darkenWithThreshold(ceilColor, normValue >= 1 ? 1 : normValue, SHADE_THRESHOLD);
-				img.setRGB(x, y, color);
-				img.setRGB(x, (HEIGHT - y), ceilColor);
+
+				img.setRGB(x, y, shade((float)currentDist, color));
+				img.setRGB(x, HEIGHT-y, shade((float)currentDist,ceilColor));
 			}
 		}
+	}
+	
+	private int shade(float distance, int color) {
+		float darkenBy;
+		if (linearShade) {
+			float normValue = (float) (distance / FULL_FOG_DISTANCE);
+			
+			darkenBy = (normValue >= 1 ? 1 : normValue) * SHADE_THRESHOLD;
+		} else {
+			float _x = (float) (distance >= FULL_FOG_DISTANCE ? FULL_FOG_DISTANCE : distance);
+			float a = SHADE_THRESHOLD/100.0f;
+			float b = 2 * FULL_FOG_DISTANCE;
+			darkenBy = (-(a * _x) * (_x - b));
+		}
+		
+		int red = (color >> 16) & 0xFF;
+		int green = (color >> 8) & 0xFF;
+		int blue = color & 0xFF;
+		
+		red -= (red - darkenBy >= 0) ? darkenBy : red;
+		green -= (green - darkenBy >= 0) ? darkenBy : green;
+		blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
+		
+		color = (red << 16) | (green << 8) | blue;
+		
+		return color;
 	}
 	
 	//positive z points up
@@ -906,7 +883,7 @@ public class Raycaster extends JPanel {
 				int[] yPoints = {(int)screen0.y, (int)screen1.y, (int)screen2.y};
 				g.fillPolygon(xPoints, yPoints, 3);
 				*/
-				rasterizer.rasterizeTriangle(screen0, screen1, screen2, t.debug_color);
+				//rasterizer.rasterizeTriangle(screen0, screen1, screen2, t.debug_color);
 			}
 		}
 	}
@@ -923,6 +900,7 @@ public class Raycaster extends JPanel {
 		//plane2 is the left edge of the screen; plane0 is the right edge of the screen
 		
 		Vector3 cameraPos = new Vector3(camera.pos.x, camera.pos.y, 0.5f);
+		Vector3 cameraLeft = new Vector3(camera.pos.x - camera.plane.x, camera.pos.y - camera.plane.y, 0);
 		
 		Triangle viewPlane = new Triangle(plane0, plane1, plane2);
 		
@@ -936,7 +914,7 @@ public class Raycaster extends JPanel {
 				Vector3 v1 = location.plus(t.v1);
 				Vector3 v2 = location.plus(t.v2);
 				
-				if (isBehindPlayer(v0,v1,v2, plane2, plane0)) {
+				if (isBehindPlayer(v0,v1,v2, cameraLeft, cameraPos)) {
 					continue;
 				}
 				
@@ -944,23 +922,15 @@ public class Raycaster extends JPanel {
 				Vector3 i1 = getOrCalculateAndStore(renderedVertices, cameraPos, v1, viewPlane);
 				Vector3 i2 = getOrCalculateAndStore(renderedVertices, cameraPos, v2, viewPlane);
 				
+				if (i0 == null || i1 == null || i2 == null) {
+					continue;
+				}
+				
 				Vector2 s0 = locateOnScreen(i0, plane2, plane0);
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
 				
-				//System.out.println(s0);
-				
-				rasterizer.rasterizeTriangle(s0, s1, s2, t.debug_color);
-				/*
-				System.out.println();
-				System.out.println("plane0: " + plane0);
-				System.out.println("plane2: " + plane2);
-				System.out.println("v0: " + v0);
-				System.out.println("cameraPos: " + cameraPos);
-				System.out.println("i0: " + i0);
-				*/
-				//System.out.println(v0);
-				//System.out.println(Vector3.distance(i0, plane0) + Vector3.distance(i0, plane2));
+				rasterizer.rasterizeTriangleBarycentric(s0, s1, s2, t.debug_color, v0, v1, v2, cameraPos);
 			}
 		}
 	}
@@ -1032,68 +1002,193 @@ public class Raycaster extends JPanel {
 	
 	private Rasterizer rasterizer = new Rasterizer();
 	
+	private class VectorAssociate {
+		Vector2 v2;
+		Vector3 v3;
+		
+		public VectorAssociate(Vector2 _v2, Vector3 _v3) {
+			v2 = _v2;
+			v3 = _v3;
+		}
+	}
+	
 	@SuppressWarnings("serial")
 	private class Rasterizer {
 		
-		private void rasterizeTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color) {
-			List<Vector2> ySorted = new ArrayList<Vector2>() {{
-				add(v0);
-				add(v1);
-				add(v2);
+		private void rasterizeTriangleBarycentric(Vector2 v0, Vector2 v1, Vector2 v2, int color, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
+			float v03Dist = Vector3.distance(v03, camera);
+			float v13Dist = Vector3.distance(v13, camera);
+			float v23Dist = Vector3.distance(v23, camera);
+			
+			VectorAssociate a0 = new VectorAssociate(v0,v03);
+			VectorAssociate a1 = new VectorAssociate(v1,v13);
+			VectorAssociate a2 = new VectorAssociate(v2,v23);
+			
+			List<VectorAssociate> ySorted = new ArrayList<VectorAssociate>() {{
+				add(a0);
+				add(a1);
+				add(a2);
 			}};
-			ySorted.sort((a, b) -> (int)(a.y - b.y));
+			ySorted.sort((a, b) -> (int)(a.v2.y - b.v2.y));
 			
-			Vector2 _v1 = ySorted.get(0);
-			Vector2 _v2 = ySorted.get(1);
-			Vector2 _v3 = ySorted.get(2);
+			List<VectorAssociate> xSorted = new ArrayList<VectorAssociate>() {{
+				add(a0);
+				add(a1);
+				add(a2);
+			}};
+			xSorted.sort((a, b) -> (int)(a.v2.x - b.v2.x));
 			
-			if ((int)_v2.y == (int)_v3.y) {
-				rasterizeFlatBottomTriangle(_v1, _v2, _v3, color);
-			} else if ((int)_v1.y == (int)_v2.y) {
-				rasterizeFlatTopTriangle(_v1, _v2, _v3, color);
-			} else {
-				Vector2 _v4 = new Vector2((int)(_v1.x + ((_v2.y - _v1.y) / (_v3.y - _v1.y)) * (_v3.x - _v1.x)), _v2.y);
-				rasterizeFlatBottomTriangle(_v1, _v2, _v4, color);
-				rasterizeFlatTopTriangle(_v2, _v4, _v3, color);
+			int startX = (int)xSorted.get(0).v2.x;
+			int endX = (int)xSorted.get(2).v2.x;
+			
+			int startY = (int)ySorted.get(0).v2.y;
+			int endY = (int)ySorted.get(2).v2.y;
+			
+			for (int y = startY; y <= endY; y++) {
+				if (y >= 0 && y < HEIGHT) {
+					for (int x = startX; x <= endX; x++) {
+						if (x >= 0 && x < WIDTH) {
+							float w0;
+							float w1;
+							float w2;
+							
+							float yv1myv2 = v1.y - v2.y;
+							float pxmxv2 = x - v2.x;
+							float xv0mxv2 = v0.x - v2.x;
+							float xv2mxv1 = v2.x - v1.x;
+							float pymyv2 = y - v2.y;
+							float yv0myv2 = v0.y - v2.y;
+							float yv2myv0 = v2.y - v0.y;
+							
+							float denom = (yv1myv2 * xv0mxv2) + (xv2mxv1 * yv0myv2);
+							
+							w0 = ((yv1myv2 * pxmxv2) + (xv2mxv1 * pymyv2))/denom;
+							
+							if (w0 < 0) {
+								continue;
+							}
+							
+							w1 = ((yv2myv0 * pxmxv2) + (xv0mxv2 * pymyv2))/denom;
+							
+							if (w1 < 0) {
+								continue;
+							}
+							
+							w2 = 1 - w0 - w1;
+							
+							if (w2 < 0) {
+								continue;
+							}
+							
+							float distance = ((w0 * v03Dist) + (w1 * v13Dist) + (w2 * v23Dist))/3.0f;
+							
+							if (distance < zbuf2[x + y * WIDTH]) {
+								zbuf2[x + y * WIDTH] = distance;
+								
+								img.setRGB(x, y, shade(distance,color));
+							}
+						}
+					}
+				}
 			}
 		}
 		
-		private void rasterizeFlatBottomTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color) {
+		private void rasterizeTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
+			VectorAssociate a0 = new VectorAssociate(v0,v03);
+			VectorAssociate a1 = new VectorAssociate(v1,v13);
+			VectorAssociate a2 = new VectorAssociate(v2,v23);
+			
+			List<VectorAssociate> ySorted = new ArrayList<VectorAssociate>() {{
+				add(a0);
+				add(a1);
+				add(a2);
+			}};
+			ySorted.sort((a, b) -> (int)(a.v2.y - b.v2.y));
+			
+			Vector2 _v1 = ySorted.get(0).v2;
+			Vector2 _v2 = ySorted.get(1).v2;
+			Vector2 _v3 = ySorted.get(2).v2;
+			
+			Vector3 _v13 = ySorted.get(0).v3;
+			Vector3 _v23 = ySorted.get(1).v3;
+			Vector3 _v33 = ySorted.get(2).v3;
+			
+			float _v13Dist = Vector3.distance(camera, _v13);
+			float _v23Dist = Vector3.distance(camera, _v23);
+			float _v33Dist = Vector3.distance(camera, _v33);
+			
+			if ((int)_v2.y == (int)_v3.y) {
+				rasterizeFlatBottomTriangle(_v1, _v2, _v3, color, _v13Dist, _v23Dist, _v33Dist);
+			} else if ((int)_v1.y == (int)_v2.y) {
+				rasterizeFlatTopTriangle(_v1, _v2, _v3, color, _v13Dist, _v23Dist, _v33Dist);
+			} else {
+				Vector2 _v4 = new Vector2((int)(_v1.x + ((_v2.y - _v1.y) / (_v3.y - _v1.y)) * (_v3.x - _v1.x)), _v2.y);
+				
+				float _v43Dist = (_v13Dist + _v33Dist)/2.0f;
+				
+				rasterizeFlatBottomTriangle(_v1, _v2, _v4, color, _v13Dist, _v23Dist, _v43Dist);
+				rasterizeFlatTopTriangle(_v2, _v4, _v3, color, _v23Dist, _v43Dist, _v33Dist);
+			}
+		}
+		
+		private void rasterizeFlatBottomTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color, float topVertexDist, float leftVertexDist, float rightVertexDist) {
 			float invslope1 = (v1.x - v0.x) / (v1.y - v0.y);
 			float invslope2 = (v2.x - v0.x) / (v2.y - v0.y);
 			
 			float curx1 = v0.x;
 			float curx2 = v0.x;
 			
+			float yDiff = v1.y - v0.y;
+			float leftDistDiff = topVertexDist-leftVertexDist;
+			float rightDistDiff = topVertexDist-rightVertexDist;
+			
 			for (int scanlineY = (int)v0.y; scanlineY <= v1.y; scanlineY++) {
-				drawHorizontalLine((int)curx1, (int)curx2, scanlineY, color);
+				float leftSideDistance = (leftDistDiff * (scanlineY/yDiff)) + leftVertexDist;
+				float rightSideDistance = (rightDistDiff * (scanlineY/yDiff) + rightVertexDist);
+				
+				drawHorizontalLine((int)curx1, (int)curx2, scanlineY, color, leftSideDistance, rightSideDistance);
 				curx1 += invslope1;
 				curx2 += invslope2;
 			}
 		}
 		
-		private void rasterizeFlatTopTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color) {
+		private void rasterizeFlatTopTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color, float bottomVertexDist, float leftVertexDist, float rightVertexDist) {
 			float invslope1 = (v2.x - v0.x) / (v2.y - v0.y); 
 			float invslope2 = (v2.x - v1.x) / (v2.y - v1.y);
 			
 			float curx1 = v2.x;
 			float curx2 = v2.x;
 			
+			float yDiff = v2.y - v1.y;
+			float leftDistDiff = bottomVertexDist-leftVertexDist;
+			float rightDistDiff = bottomVertexDist-rightVertexDist;
+			
 			for (int scanlineY = (int)v2.y; scanlineY > v1.y; scanlineY--) {
-				drawHorizontalLine((int)curx1, (int)curx2, scanlineY, color);
+				float leftSideDistance = (leftDistDiff * (scanlineY/yDiff)) + leftVertexDist;
+				float rightSideDistance = (rightDistDiff * (scanlineY/yDiff) + rightVertexDist);
+				
+				drawHorizontalLine((int)curx1, (int)curx2, scanlineY, color, leftSideDistance, rightSideDistance);
 				curx1 -= invslope1;
 				curx2 -= invslope2;
 			}
 		}
 		
-		private void drawHorizontalLine(int x0, int x1, int y, int color) {
+		private void drawHorizontalLine(int x0, int x1, int y, int color, float leftDist, float rightDist) {
 			int xBegin = Math.min(x0, x1);
 			int xEnd = Math.max(x0, x1);
 			
+			float distDiff = rightDist-leftDist;
+			float xDiff = xEnd-xBegin;
+			
 			if (y >= 0 && y < HEIGHT) {
-				for (int x = xBegin; x < xEnd; x++) {
+				for (int x = xBegin; x < xEnd; x++) {					
 					if (x >= 0 && x < WIDTH) {
-						img.setRGB(x, y, color);
+						float distance = (distDiff * (x/xDiff)) + leftDist;
+						if (zbuf2[x + y * WIDTH] > distance) {
+							zbuf2[x + y * WIDTH] = distance;
+							
+							img.setRGB(x, y, shade(distance,color));
+						}
 					}
 				}
 			}

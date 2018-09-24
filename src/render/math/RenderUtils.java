@@ -151,6 +151,11 @@ public final class RenderUtils {
 		if (Math.abs(dot) > epsilon) {
 		  Vector3 w = p0.minus(p_co);
 		  float fac = -Vector3.dot(p_no,w) / dot;
+		  
+		  if (fac > 0) {
+			  return null;
+		  }
+		  
 		  u = u.scale(fac);
 		  return p0.plus(u);
 		}
