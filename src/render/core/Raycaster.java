@@ -38,9 +38,9 @@ import render.math.Vector3;
  * Uses multiple threads to render a map. Uses a Camera holding player data such
  * as position, direction, and FoV.
  * 
- * This rendering engine is a <u><i><b>BEAUTIFUL</b></i></u> hybrid that uses a DDA for blocks and ray/line-segment intersection
- * algorithm for custom walls. As of right now, it only supports vertical stripes of transparency because
- * supporting more would require a 2D z-buffer.
+ * This rendering engine is a <u><i><b>BEAUTIFUL</b></i></u> hybrid that uses a DDA for blocks, a ray/line-segment intersection
+ * algorithm for custom walls, and a line/plane intersection algorithm with barycentric rasterization for true 3D objects. 
+ * As of right now, it only supports vertical stripes of transparency in custom walls.
  *
  * @author Joe Desmond
  */
@@ -229,7 +229,6 @@ public class Raycaster extends JPanel {
 			renderAllVisibleModels();
 			drawOverlays();
 			finalizeRender();
-			//renderAllVisibleModels();
 			postRender();
 		} else {
 			drawDeathScreen();
@@ -888,7 +887,7 @@ public class Raycaster extends JPanel {
 		}
 	}
 	
-	//x and y correspond to world map axes; z is vertical axis
+	//x and y correspond to world map axes; z is vertical axis; positive z points up
 	private void renderAllVisibleModels() {
 		Map<Vector3, Vector3> renderedVertices = new HashMap<Vector3, Vector3>();
 		
@@ -904,15 +903,27 @@ public class Raycaster extends JPanel {
 		
 		Triangle viewPlane = new Triangle(plane0, plane1, plane2);
 		
+		float zTranslate = (FINAL_ASPECT - 1)/2;
+		
 		for (Vector3 location : modelQueue) {
 			Block block = world.getBlockAt((int)location.x, (int)location.y);
 			
 			for (Triangle t : block.model.triangles) {
 				
+				//These three Vectors are the triangle's vertices in model space
+				Vector3 _v0 = new Vector3(t.v0.x, t.v0.y, t.v0.z);
+				Vector3 _v1 = new Vector3(t.v1.x, t.v1.y, t.v1.z);
+				Vector3 _v2 = new Vector3(t.v2.x, t.v2.y, t.v2.z);
+				
+				//The vertices are scaled to fit with the final aspect ratio
+				_v0.z = (t.v0.z * FINAL_ASPECT) - zTranslate;
+				_v1.z = (t.v1.z * FINAL_ASPECT) - zTranslate;
+				_v2.z = (t.v2.z * FINAL_ASPECT) - zTranslate;
+				
 				//These three Vectors are the triangle's vertices, translated to world space
-				Vector3 v0 = location.plus(t.v0);
-				Vector3 v1 = location.plus(t.v1);
-				Vector3 v2 = location.plus(t.v2);
+				Vector3 v0 = location.plus(_v0);
+				Vector3 v1 = location.plus(_v1);
+				Vector3 v2 = location.plus(_v2);
 				
 				if (isBehindPlayer(v0,v1,v2, cameraLeft, cameraPos)) {
 					continue;
@@ -981,6 +992,7 @@ public class Raycaster extends JPanel {
 		}
 	}
 	
+	@Deprecated
 	private Vector2 findPointOnScreen(Vector3 v) {
 		//x -> x
 		//z -> y
@@ -1114,6 +1126,7 @@ public class Raycaster extends JPanel {
 			}
 		}
 		
+		@Deprecated
 		private void rasterizeTriangle(Vector2 v0, Vector2 v1, Vector2 v2, int color, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
 			VectorAssociate a0 = new VectorAssociate(v0,v03);
 			VectorAssociate a1 = new VectorAssociate(v1,v13);
@@ -1214,10 +1227,6 @@ public class Raycaster extends JPanel {
 				}
 			}
 		}
-	}
-	
-	private boolean onScreen(Vector2 v) {
-		return v.x >= 0 && v.y >= 0 && v.x < WIDTH && v.y < HEIGHT;
 	}
 	
 	private class LatchRef {

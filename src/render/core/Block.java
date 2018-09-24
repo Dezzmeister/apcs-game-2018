@@ -8,6 +8,9 @@ import javax.imageio.ImageIO;
 import image.GeneralTexture;
 import image.SquareTexture;
 import render.core.true3D.Model;
+import render.math.Triangle;
+import render.math.Vector2;
+import render.math.Vector3;
 
 /**
  * Represents a 1x1 space in a world map. Can be either a full block or a custom
@@ -227,6 +230,48 @@ public class Block {
 		public static final SquareTexture HUD_OVERLAY = new SquareTexture("assets/overlays/hud.png",200);
 		
 		public static BufferedImage DEATH = null;
+		
+		public static final GeneralTexture ILLUMINATI_TEXTURE = new GeneralTexture("assets/textures/illuminati.png",412,425);
+		
+		public static final Triangle ILLUMINATI_1 = new Triangle(new Vector3(0.25f,0.25f,0.0f),
+														   new Vector3(0.75f,0.25f,0.0f),
+														   new Vector3(0.50f,0.50f,0.8f),
+														   0)
+											  .setUVCoords(new Vector2(0,1),
+													  	   new Vector2(1,1),
+													  	   new Vector2(0.53f,0))
+											  .setTexture(ILLUMINATI_TEXTURE);
+		
+		public static final Triangle ILLUMINATI_2 = new Triangle(new Vector3(0.25f,0.25f,0.0f),
+														   new Vector3(0.25f,0.75f,0.0f),
+														   new Vector3(0.50f,0.50f,0.8f),
+														   0)
+											  .setUVCoords(new Vector2(1,1),
+													       new Vector2(0,1),
+													       new Vector2(0.53f,0))
+											  .setTexture(ILLUMINATI_TEXTURE);
+		
+		public static final Triangle ILLUMINATI_3 = new Triangle(new Vector3(0.25f,0.75f,0.0f),
+																 new Vector3(0.75f,0.75f,0.0f),
+																 new Vector3(0.50f,0.50f,0.8f),
+																 0)
+												    .setUVCoords(new Vector2(1,1),
+												    			 new Vector2(0,1),
+												    			 new Vector2(0.53f,0))
+												    .setTexture(ILLUMINATI_TEXTURE);
+		
+		public static final Triangle ILLUMINATI_4 = new Triangle(new Vector3(0.75f,0.75f,0.0f),
+																 new Vector3(0.75f,0.25f,0.0f),
+																 new Vector3(0.50f,0.50f,0.8f),
+																 0)
+													.setUVCoords(new Vector2(1,1),
+																 new Vector2(0,1),
+																 new Vector2(0.53f,0))
+													.setTexture(ILLUMINATI_TEXTURE);
+		
+		public static final Model ILLUMINATI_SPIRE = new Model(ILLUMINATI_1, ILLUMINATI_2, ILLUMINATI_3, ILLUMINATI_4);
+		
+		public static final Block ILLUMINATI_SPIRE_BLOCK = new Block("illuminati spire block").defineAsModel(ILLUMINATI_SPIRE);
 		
 		static {
 			try {

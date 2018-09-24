@@ -104,6 +104,11 @@ public class MapGenerator {
 					case 1:
 						block = Block.SPACE;
 						break;
+					case 4:
+						floor = spec.roomFloor;
+						ceil = spec.roomCeil;
+						block = Block.DwightElements.ILLUMINATI_SPIRE_BLOCK;
+						break;
 					case 11:
 						block = Block.DwightElements.DWIGHT_BLOCK;
 						floor = spec.roomFloor;
