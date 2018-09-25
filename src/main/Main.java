@@ -45,7 +45,7 @@ public class Main {
 	}
 	
 	static void mapGenerationTest() {
-		int width = 1500;
+		int width = 1000;
 		int height = 1000;
 		
 		final BoundedStat health = new BoundedStat(0,GameConstants.MAX_HEALTH);
@@ -76,7 +76,7 @@ public class Main {
 		Camera camera = new Camera().setPos(startPos).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
 		
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
 		
 		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
 		
@@ -94,7 +94,7 @@ public class Main {
 	}
 	
 	static void cubicleTest() {
-		int width = 1500;
+		int width = 1000;
 		int height = 1000;
 		
 		SoundManager manager = new SoundManager();

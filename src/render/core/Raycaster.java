@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +28,7 @@ import main.entities.Bean;
 import main.entities.Dwight;
 import render.core.true3D.Line;
 import render.light.Side;
+import render.math.Matrix2;
 import render.math.RenderUtils;
 import render.math.Triangle;
 import render.math.Vector2;
@@ -920,6 +920,8 @@ public class Raycaster extends JPanel {
 				_v1.z = (t.v1.z * FINAL_ASPECT) - zTranslate;
 				_v2.z = (t.v2.z * FINAL_ASPECT) - zTranslate;
 				
+				Triangle translatedTriangle = new Triangle(_v0, _v1, _v2).setUVCoords(t.uv0, t.uv1, t.uv2).setTexture(t.texture);
+				
 				//These three Vectors are the triangle's vertices, translated to world space
 				Vector3 v0 = location.plus(_v0);
 				Vector3 v1 = location.plus(_v1);
@@ -941,7 +943,7 @@ public class Raycaster extends JPanel {
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
 				
-				rasterizer.rasterizeTriangleBarycentric(s0, s1, s2, t, v0, v1, v2, cameraPos);
+				rasterizer.rasterizeTriangleBarycentric(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
 			}
 		}
 	}
@@ -1027,6 +1029,104 @@ public class Raycaster extends JPanel {
 	@SuppressWarnings("serial")
 	private class Rasterizer {
 		
+		private void perspectiveCorrectRaster(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
+			float v03Dist = Vector3.distance(v03, camera);
+			float v13Dist = Vector3.distance(v13, camera);
+			float v23Dist = Vector3.distance(v23, camera);
+			
+			VectorAssociate a0 = new VectorAssociate(v0,v03);
+			VectorAssociate a1 = new VectorAssociate(v1,v13);
+			VectorAssociate a2 = new VectorAssociate(v2,v23);
+			
+			List<VectorAssociate> ySorted = new ArrayList<VectorAssociate>() {{
+				add(a0);
+				add(a1);
+				add(a2);
+			}};
+			ySorted.sort((a, b) -> (int)(a.v2.y - b.v2.y));
+			
+			List<VectorAssociate> xSorted = new ArrayList<VectorAssociate>() {{
+				add(a0);
+				add(a1);
+				add(a2);
+			}};
+			xSorted.sort((a, b) -> (int)(a.v2.x - b.v2.x));
+			
+			Matrix2 T = new Matrix2(new float[] {
+					v0.x - v2.x, v1.x - v2.x,
+					v0.y - v2.y, v1.y - v2.y
+			});
+			
+			float det = T.determinant();
+			
+			int startX = (int)xSorted.get(0).v2.x;
+			int endX = (int)xSorted.get(2).v2.x;
+			
+			int startY = (int)ySorted.get(0).v2.y;
+			int endY = (int)ySorted.get(2).v2.y;
+			
+			for (int y = startY; y <= endY; y++) {
+				
+				if (y >= 0 && y < HEIGHT) {
+					for (int x = startX; x <= endX; x++) {
+						if (x >= 0 && x < WIDTH) {
+							float w0;
+							float w1;
+							float w2;
+							
+							w0 = (((v1.y - v2.y) * (x - v2.x)) + ((v2.x - v1.x) * (y - v2.y)))/det;
+							
+							if (w0 < 0) {
+								continue;
+							}
+							
+							w1 = (((v2.y - v0.y) * (x - v2.x)) + ((v0.x - v2.x) * (y - v2.y)))/det;
+							
+							if (w1 < 0) {
+								continue;
+							}
+							
+							w2 = 1 - w0 - w1;
+							
+							if (w2 < 0) {
+								continue;
+							}
+							
+							float distance = (w0 * v03Dist) + (w1 * v13Dist) + (w2 * v23Dist);
+							
+							if (distance < zbuf2[x + y * WIDTH]) {
+								zbuf2[x + y * WIDTH] = distance;
+								
+								int color = triangle.color;
+								
+								if (triangle.uv0 != null) {
+									
+									Vector2 uv0 = triangle.uv0.scale(w0);
+									Vector2 uv1 = triangle.uv1.scale(w1);
+									Vector2 uv2 = triangle.uv2.scale(w2);
+									
+									Vector2 uv = uv0.add(uv1).add(uv2);
+									
+									GeneralTexture texture = triangle.texture;
+									
+									int texX = (int) (uv.x * texture.width);
+									int texY = (int) (uv.y * texture.height);
+									
+									if (texX >= 0 && texX < texture.width && texY >= 0 && texY < texture.height) {
+										color = texture.pixels[texX + texY * texture.width];
+									} else {
+										color = 0;
+									}
+								}
+								
+								img.setRGB(x, y, shade(distance,color));
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		private void rasterizeTriangleBarycentric(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
 			float v03Dist = Vector3.distance(v03, camera);
 			float v13Dist = Vector3.distance(v13, camera);
@@ -1050,6 +1150,13 @@ public class Raycaster extends JPanel {
 			}};
 			xSorted.sort((a, b) -> (int)(a.v2.x - b.v2.x));
 			
+			Matrix2 T = new Matrix2(new float[] {
+					v0.x - v2.x, v1.x - v2.x,
+					v0.y - v2.y, v1.y - v2.y
+			});
+			
+			float det = T.determinant();
+			
 			int startX = (int)xSorted.get(0).v2.x;
 			int endX = (int)xSorted.get(2).v2.x;
 			
@@ -1064,23 +1171,13 @@ public class Raycaster extends JPanel {
 							float w1;
 							float w2;
 							
-							float yv1myv2 = v1.y - v2.y;
-							float pxmxv2 = x - v2.x;
-							float xv0mxv2 = v0.x - v2.x;
-							float xv2mxv1 = v2.x - v1.x;
-							float pymyv2 = y - v2.y;
-							float yv0myv2 = v0.y - v2.y;
-							float yv2myv0 = v2.y - v0.y;
-							
-							float denom = (yv1myv2 * xv0mxv2) + (xv2mxv1 * yv0myv2);
-							
-							w0 = ((yv1myv2 * pxmxv2) + (xv2mxv1 * pymyv2))/denom;
+							w0 = (((v1.y - v2.y) * (x - v2.x)) + ((v2.x - v1.x) * (y - v2.y)))/det;
 							
 							if (w0 < 0) {
 								continue;
 							}
 							
-							w1 = ((yv2myv0 * pxmxv2) + (xv0mxv2 * pymyv2))/denom;
+							w1 = (((v2.y - v0.y) * (x - v2.x)) + ((v0.x - v2.x) * (y - v2.y)))/det;
 							
 							if (w1 < 0) {
 								continue;
@@ -1100,6 +1197,7 @@ public class Raycaster extends JPanel {
 								int color = triangle.color;
 								
 								if (triangle.uv0 != null) {
+									
 									Vector2 uv0 = triangle.uv0.scale(w0);
 									Vector2 uv1 = triangle.uv1.scale(w1);
 									Vector2 uv2 = triangle.uv2.scale(w2);
