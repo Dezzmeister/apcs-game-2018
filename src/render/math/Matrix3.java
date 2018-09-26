@@ -45,4 +45,12 @@ public class Matrix3 {
                 in.x * values[2] + in.y * values[5] + in.z * values[8]
                 );
 	}
+	
+	public float determinant() {
+		float a = values[0]*((values[4]*values[8])-(values[5]*values[7]));
+		float b = values[1]*((values[3]*values[8])-(values[5]*values[6]));
+		float c = values[2]*((values[3]*values[7])-(values[4]*values[6]));
+		
+		return a-b+c;
+	}
 }

@@ -9,11 +9,12 @@ import java.util.Objects;
  */
 public class Vector3 {
 
-	public static final Vector3 ORIGIN = new Vector3(0, 0, 0, 0);
+	public static final Vector3 ORIGIN = new Vector3(0, 0, 0, 0, false);
 	
 	public float x;
 	public float y;
 	public float z;
+	public float w = 1;
 	
 	public float length;
 	
@@ -21,6 +22,15 @@ public class Vector3 {
 		x = _x;
 		y = _y;
 		z = _z;
+		
+		updateLength();
+	}
+	
+	public Vector3(float _x, float _y, float _z, float _w) {
+		x = _x;
+		y = _y;
+		z = _z;
+		w = _w; 
 		
 		updateLength();
 	}
@@ -37,7 +47,7 @@ public class Vector3 {
 	 * @param _z
 	 * @param _length
 	 */
-	private Vector3(float _x, float _y, float _z, float _length) {
+	private Vector3(float _x, float _y, float _z, float _length, boolean c) {
 		x = _x;
 		y = _y;
 		z = _z;

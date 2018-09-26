@@ -226,7 +226,7 @@ public class Raycaster extends JPanel {
 			preRender();
 			parallelRender();
 			renderSprites();
-			renderAllVisibleModels();
+			renderAllVisibleModelsWithoutMatrices();
 			drawOverlays();
 			finalizeRender();
 			postRender();
@@ -888,7 +888,7 @@ public class Raycaster extends JPanel {
 	}
 	
 	//x and y correspond to world map axes; z is vertical axis; positive z points up
-	private void renderAllVisibleModels() {
+	private void renderAllVisibleModelsWithoutMatrices() {
 		Map<Vector3, Vector3> renderedVertices = new HashMap<Vector3, Vector3>();
 		
 		//These three Vectors define the plane through which the player views the world, in world space
@@ -943,7 +943,7 @@ public class Raycaster extends JPanel {
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
 				
-				rasterizer.rasterizeTriangleBarycentric(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
+				rasterizer.affineRaster(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
 			}
 		}
 	}
@@ -1101,16 +1101,28 @@ public class Raycaster extends JPanel {
 								
 								if (triangle.uv0 != null) {
 									
-									Vector2 uv0 = triangle.uv0.scale(w0);
-									Vector2 uv1 = triangle.uv1.scale(w1);
-									Vector2 uv2 = triangle.uv2.scale(w2);
+									Vector2 u0 = triangle.uv0;
+									Vector2 u1 = triangle.uv1;
+									Vector2 u2 = triangle.uv2;
 									
-									Vector2 uv = uv0.add(uv1).add(uv2);
+									float s0 = w0/v03Dist;
+									float s1 = w1/v13Dist;
+									float s2 = w2/v23Dist;
+									
+									//System.out.println(s0);
+									
+									Vector2 u0s0 = u0.scale(s0);
+									Vector2 u1s1 = u1.scale(s1);
+									Vector2 u2s2 = u2.scale(s2);
+									
+									Vector2 numerator = u0s0.add(u1s1).add(u2s2);
+									
+									Vector2 v = numerator.scale(1/(s0 + s1 + s2));
 									
 									GeneralTexture texture = triangle.texture;
 									
-									int texX = (int) (uv.x * texture.width);
-									int texY = (int) (uv.y * texture.height);
+									int texX = (int) (v.x * texture.width);
+									int texY = (int) (v.y * texture.height);
 									
 									if (texX >= 0 && texX < texture.width && texY >= 0 && texY < texture.height) {
 										color = texture.pixels[texX + texY * texture.width];
@@ -1127,7 +1139,7 @@ public class Raycaster extends JPanel {
 			}
 		}
 		
-		private void rasterizeTriangleBarycentric(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
+		private void affineRaster(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13, Vector3 v23, Vector3 camera) {
 			float v03Dist = Vector3.distance(v03, camera);
 			float v13Dist = Vector3.distance(v13, camera);
 			float v23Dist = Vector3.distance(v23, camera);
