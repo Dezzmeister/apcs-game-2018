@@ -68,14 +68,14 @@ public final class RenderUtils {
 	 *            second wall
 	 * @return angle in radians
 	 */
-	@Deprecated
-	public static float oldAngleBetweenLines(Wall wall1, Wall wall2) {
+	public static float altAngleBetweenLines(Wall wall1, Wall wall2) {
 		float angle1 = (float) Math.atan2(wall1.v0.y - wall1.v1.y, wall1.v0.x - wall1.v1.x);
 		float angle2 = (float) Math.atan2(wall2.v0.y - wall2.v1.y, wall2.v0.x - wall2.v1.x);
 
 		return Math.abs(angle1 - angle2);
 	}
 	
+	@Deprecated
 	public static float angleBetweenLines(Wall wall1, Wall wall2) {
 		
 		return (float) Math.acos(cosOfAngleBetweenLines(wall1,wall2));

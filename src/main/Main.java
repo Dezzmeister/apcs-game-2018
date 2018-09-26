@@ -26,6 +26,9 @@ import render.core.Raycaster;
 import render.core.Wall;
 import render.core.WorldMap;
 import render.core.true3D.Model;
+import render.core.true3D.Transformer;
+import render.math.Matrix4;
+import render.math.RenderUtils;
 import render.math.Triangle;
 import render.math.Vector2;
 import render.math.Vector3;
@@ -38,10 +41,36 @@ public class Main {
 
 	public static void main(String[] args) {
 		// test();
-		mapGenerationTest();
-		// cubicleTest();
+		// mapGenerationTest();
+		cubicleTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
+		// matrixTest();
+		// angleTest();
+	}
+	
+	static void angleTest() {
+		Wall X_AXIS = new Wall(0,0,1,0);
+		
+		Wall w1 = new Wall(0,0,0,1);
+		Wall w2 = new Wall(0,0,0,-1);
+		Wall w3 = new Wall(0,0,500,0);
+		
+		System.out.println(RenderUtils.altAngleBetweenLines(X_AXIS, w1));
+		System.out.println(RenderUtils.altAngleBetweenLines(X_AXIS, w2));
+		System.out.println(RenderUtils.altAngleBetweenLines(X_AXIS, w3));
+	}
+	
+	static void matrixTest() {
+		Vector3 point = new Vector3(10,25,0.5f);
+		
+		Matrix4 scaler = Transformer.createScaleMatrix(1, 1, 1);
+		Matrix4 translator = Transformer.createTranslationMatrix(24, 0, 0);
+		Matrix4 rotator = Transformer.createZRotationMatrix(1.5f);
+		
+		Matrix4 transform = scaler.multiply(rotator).multiply(translator);
+		
+		System.out.println(transform.transform(point));
 	}
 	
 	static void mapGenerationTest() {
@@ -77,6 +106,7 @@ public class Main {
 				.setPlane(new Vector2(0, 0.5f));
 		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
+		raycaster.disableTrue3DTextures();
 		
 		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
 		

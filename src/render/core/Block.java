@@ -236,7 +236,7 @@ public class Block {
 		public static final Triangle ILLUMINATI_1 = new Triangle(new Vector3(0.25f,0.25f,0.0f),
 														   new Vector3(0.75f,0.25f,0.0f),
 														   new Vector3(0.50f,0.50f,0.8f),
-														   0)
+														   0xFF00FF00)
 											  .setUVCoords(new Vector2(0,1),
 													  	   new Vector2(1,1),
 													  	   new Vector2(0.53f,0))
@@ -245,7 +245,7 @@ public class Block {
 		public static final Triangle ILLUMINATI_2 = new Triangle(new Vector3(0.25f,0.25f,0.0f),
 														   new Vector3(0.25f,0.75f,0.0f),
 														   new Vector3(0.50f,0.50f,0.8f),
-														   0)
+														   0xFF00FF00)
 											  .setUVCoords(new Vector2(1,1),
 													       new Vector2(0,1),
 													       new Vector2(0.53f,0))
@@ -254,7 +254,7 @@ public class Block {
 		public static final Triangle ILLUMINATI_3 = new Triangle(new Vector3(0.25f,0.75f,0.0f),
 																 new Vector3(0.75f,0.75f,0.0f),
 																 new Vector3(0.50f,0.50f,0.8f),
-																 0)
+																 0xFF00FF00)
 												    .setUVCoords(new Vector2(1,1),
 												    			 new Vector2(0,1),
 												    			 new Vector2(0.53f,0))
@@ -263,7 +263,7 @@ public class Block {
 		public static final Triangle ILLUMINATI_4 = new Triangle(new Vector3(0.75f,0.75f,0.0f),
 																 new Vector3(0.75f,0.25f,0.0f),
 																 new Vector3(0.50f,0.50f,0.8f),
-																 0)
+																 0xFF00FF00)
 													.setUVCoords(new Vector2(1,1),
 																 new Vector2(0,1),
 																 new Vector2(0.53f,0))

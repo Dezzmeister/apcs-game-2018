@@ -375,10 +375,6 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			saveScreenShot();
 		}
 		
-		if (e.getKeyChar() == 'j') {
-			raycaster.linearShade = !raycaster.linearShade;
-		}
-		
 		if (e.getKeyChar() == 'l') {
 			dwightList.maxDwights = 5;
 		}
