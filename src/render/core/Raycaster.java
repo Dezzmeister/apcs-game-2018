@@ -827,10 +827,14 @@ public class Raycaster extends JPanel {
 		return color;
 	}
 	
-	private enum ShadeType {
+	public enum ShadeType {
 		NONE,
 		LINEAR,
 		QUADRATIC
+	}
+	
+	public void setShadeType(ShadeType type) {
+		shadeType = type;
 	}
 
 	// positive z points up
@@ -1231,9 +1235,9 @@ public class Raycaster extends JPanel {
 				Vector3 _v2 = new Vector3(t.v2.x, t.v2.y, t.v2.z);
 
 				// The vertices are scaled to fit with the final aspect ratio
-				_v0.z = (t.v0.z * FINAL_ASPECT) - zTranslate;
-				_v1.z = (t.v1.z * FINAL_ASPECT) - zTranslate;
-				_v2.z = (t.v2.z * FINAL_ASPECT) - zTranslate;
+				_v0.z -= zTranslate;
+				_v1.z -= zTranslate;
+				_v2.z -= zTranslate;
 
 				// These three Vectors are the triangle's vertices, translated to world space
 				Vector3 v0 = location.plus(_v0);

@@ -106,7 +106,7 @@ public class Main {
 				.setPlane(new Vector2(0, 0.5f));
 		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
-		raycaster.disableTrue3DTextures();
+		raycaster.enableTrue3DTextures();
 		
 		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
 		
@@ -124,7 +124,7 @@ public class Main {
 	}
 	
 	static void cubicleTest() {
-		int width = 1000;
+		int width = 1500;
 		int height = 1000;
 		
 		SoundManager manager = new SoundManager();
@@ -202,7 +202,7 @@ public class Main {
 						SPACE, SPACE, block, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
+				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, block, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
@@ -223,6 +223,7 @@ public class Main {
 		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
 		
 		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		raycaster.setShadeType(Raycaster.ShadeType.NONE);
 		
 		HUD hud = new HUD("assets/overlays/hud.png", health, coffee)
 				.fitTo(HUD.Fit.BOTTOM)

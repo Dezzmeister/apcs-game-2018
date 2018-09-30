@@ -14,14 +14,18 @@ public class Quad implements Geometric {
 		t1 = new Triangle(v2, v3, v0, color);
 	}
 
-	public void setUVCoords(Vector2 u0, Vector2 u1, Vector2 u2, Vector2 u3) {
+	public Quad setUVCoords(Vector2 u0, Vector2 u1, Vector2 u2, Vector2 u3) {
 		t0.setUVCoords(u0, u1, u2);
 		t1.setUVCoords(u2, u3, u0);
+		
+		return this;
 	}
 	
-	public void setTexture(GeneralTexture texture) {
+	public Quad setTexture(GeneralTexture texture) {
 		t0.setTexture(texture);
 		t1.setTexture(texture);
+		
+		return this;
 	}
 	
 	@Override

@@ -289,11 +289,16 @@ public class Block {
 													  .add(new Quad(new Vector3(legw,0,0), new Vector3(legw,legw,0), new Vector3(legw,legw,legh), new Vector3(legw,0,legh), legcolor))
 													  .add(new Quad(new Vector3(0,legw,0), new Vector3(legw,legw,0), new Vector3(legw,legw,legh), new Vector3(0,legw,legh), legcolor));
 		
+		private static final GeneralTexture tableTopTexture = new GeneralTexture("assets/textures/tabletop.png",100,100);
+		private static final Quad tabletopQuad = new Quad(new Vector3(topinset,topinset,tableh), new Vector3(1-topinset,topinset,tableh), new Vector3(1-topinset,1-topinset,tableh), new Vector3(topinset,1-topinset,tableh), tabletopcolor)
+												 .setTexture(tableTopTexture)
+												 .setUVCoords(new Vector2(0,0), new Vector2(0,1), new Vector2(1,1), new Vector2(1,0));
+		
 		private static Model TABLETOP = new Model().add(new Quad(new Vector3(topinset,topinset,0), new Vector3(1 - topinset,topinset,0), new Vector3(1-topinset,topinset,tableh), new Vector3(topinset,topinset,tableh), tabletopcolor))
 												   .add(new Quad(new Vector3(topinset,topinset,0), new Vector3(topinset,1-topinset,0), new Vector3(topinset,1-topinset,tableh), new Vector3(topinset,topinset,tableh), tabletopcolor))
 												   .add(new Quad(new Vector3(1-topinset,topinset,0), new Vector3(1-topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,tableh), new Vector3(1-topinset,topinset,tableh), tabletopcolor))
 												   .add(new Quad(new Vector3(topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,tableh), new Vector3(topinset,1-topinset,tableh), tabletopcolor))
-												   .add(new Quad(new Vector3(topinset,topinset,tableh), new Vector3(1-topinset,topinset,tableh), new Vector3(1-topinset,1-topinset,tableh), new Vector3(topinset,1-topinset,tableh), tabletopcolor));
+												   .add(tabletopQuad);
 		
 		private static final Matrix4 translateIn = Transformer.createTranslationMatrix(inset, inset, 0);
 		
