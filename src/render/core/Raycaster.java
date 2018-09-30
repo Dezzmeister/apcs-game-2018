@@ -96,7 +96,7 @@ public class Raycaster extends JPanel {
 
 	private double[] zbuf2;
 	
-	private boolean true3DTexturesEnabled;
+	private boolean true3DTexturesEnabled = true;
 
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -1047,6 +1047,136 @@ public class Raycaster extends JPanel {
 			
 			return new Vector2(x,y);
 		}
+		
+		private void affineRaster(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13,
+				Vector3 v23, Vector3 camera) {
+			float v03Dist = Vector3.distance(v03, camera);
+			float v13Dist = Vector3.distance(v13, camera);
+			float v23Dist = Vector3.distance(v23, camera);
+			
+			float maxDist = Math.max(Math.max(v03Dist, v13Dist),v23Dist);
+			float minDist = Math.min(Math.min(v03Dist, v13Dist), v23Dist);
+
+			VectorAssociate a0 = new VectorAssociate(v0, v03);
+			VectorAssociate a1 = new VectorAssociate(v1, v13);
+			VectorAssociate a2 = new VectorAssociate(v2, v23);
+
+			List<VectorAssociate> ySorted = new ArrayList<VectorAssociate>() {
+				
+				/**
+				* 
+				*/
+				private static final long serialVersionUID = 8563060661357225947L;
+				
+				{
+					add(a0);
+					add(a1);
+					add(a2);
+				}
+			};
+			ySorted.sort((a, b) -> (int) (a.v2.y - b.v2.y));
+
+			List<VectorAssociate> xSorted = new ArrayList<VectorAssociate>() {
+				
+				/**
+				* 
+				*/
+				private static final long serialVersionUID = 1240112325831393490L;
+				
+				{
+					add(a0);
+					add(a1);
+					add(a2);
+				}
+			};
+			xSorted.sort((a, b) -> (int) (a.v2.x - b.v2.x));
+			
+			int startX = (int) xSorted.get(0).v2.x;
+			int endX = (int) xSorted.get(2).v2.x;
+
+			int startY = (int) ySorted.get(0).v2.y;
+			int endY = (int) ySorted.get(2).v2.y;
+
+			for (int y = startY; y <= endY; y++) {
+				if (y >= 0 && y < HEIGHT) {
+					for (int x = startX; x <= endX; x++) {
+						if (x >= 0 && x < WIDTH) {
+							float xNorm = (2 * x) / ((float)WIDTH) - 1.0f;
+							
+							float rdirx = dir.x + plane.x * xNorm;
+							float rdiry = dir.y + plane.y * xNorm;
+							
+							float zNorm = 1 - (y/(float)HEIGHT);
+							
+							Vector3 inWorld = new Vector3(rdirx + camera.x, rdiry + camera.y, zNorm);
+							Line line = new Line(camera,inWorld);
+							Vector3 intersected = RenderUtils.linePlaneIntersection(line, triangle);
+							
+							if (intersected != null) {
+								Vector3 weights = computeBarycentricWeights(intersected,triangle);
+								
+								if (weights != null) {
+									float distance = Vector3.distance(intersected, camera);
+									
+									if (distance < zbuf2[x + y * WIDTH]) {
+										zbuf2[x + y * WIDTH] = distance;
+										
+										int color = triangle.color;
+										
+										if (triangle.uv0 != null && true3DTexturesEnabled) {
+											Vector2 uv0 = triangle.uv0.scale(weights.x);
+											Vector2 uv1 = triangle.uv1.scale(weights.y);
+											Vector2 uv2 = triangle.uv2.scale(weights.z);
+											
+											Vector2 normTexCoord = uv0.add(uv1).add(uv2);
+											
+											int texX = (int)(normTexCoord.x * triangle.texture.width);
+											int texY = (int)(normTexCoord.y * triangle.texture.height);
+											
+											int index = texX + texY * triangle.texture.width;
+											
+											if (index < triangle.texture.pixels.length) {
+												color = triangle.texture.pixels[index];
+											}
+										}
+										
+										img.setRGB(x, y, shade(distance,color));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		private Vector3 computeBarycentricWeights(Vector3 v, Triangle t) {
+			Vector3 v0 = t.bv0;
+			Vector3 v1 = t.bv1;
+			Vector3 v2 = v.minus(t.v0);
+			float d00 = t.d00;
+			float d01 = t.d01;
+			float d11 = t.d11;
+			float d20 = Vector3.dot(v2, v0);
+			float d21 = Vector3.dot(v2, v1);
+			float invDenom = t.invDenom;
+			
+			float w1 = (d11 * d20 - d01 * d21) * invDenom;
+			
+			if (w1 < 0) return null;
+			
+			float w2 = (d00 * d21 - d01 * d20) * invDenom;
+			
+			if (w2 < 0) return null;
+			
+			float w0 = 1.0f - w1 - w2;
+			
+			if (w0 < 0) {
+				return null;
+			} else {
+				return new Vector3(w0,w1,w2);
+			}
+		}
 	}
 	
 	private boolean isInFoV(Vector3 v0, Vector3 fovLeft, Vector3 fovRight, Vector3 camera) {
@@ -1105,13 +1235,13 @@ public class Raycaster extends JPanel {
 				_v1.z = (t.v1.z * FINAL_ASPECT) - zTranslate;
 				_v2.z = (t.v2.z * FINAL_ASPECT) - zTranslate;
 
-				Triangle translatedTriangle = new Triangle(_v0, _v1, _v2, t.color).setUVCoords(t.uv0, t.uv1, t.uv2)
-						.setTexture(t.texture);
-
 				// These three Vectors are the triangle's vertices, translated to world space
 				Vector3 v0 = location.plus(_v0);
 				Vector3 v1 = location.plus(_v1);
 				Vector3 v2 = location.plus(_v2);
+				
+				Triangle translatedTriangle = new Triangle(v0, v1, v2, t.color, t.bv0, t.bv1, t.d00, t.d01, t.d11, t.invDenom).setUVCoords(t.uv0, t.uv1, t.uv2)
+						.setTexture(t.texture);
 
 				if (!(isInFoV(v0,leftFoV,rightFoV,cameraPos) || isInFoV(v1,leftFoV,rightFoV,cameraPos) || isInFoV(v2,leftFoV,rightFoV,cameraPos))) {
 					continue;
@@ -1129,7 +1259,7 @@ public class Raycaster extends JPanel {
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
 
-				rasterizer.affineRaster(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
+				rasterizer2.affineRaster(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
 			}
 		}
 	}

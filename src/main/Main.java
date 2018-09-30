@@ -41,8 +41,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		// test();
-		mapGenerationTest();
-		// cubicleTest();
+		// mapGenerationTest();
+		cubicleTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
 		// matrixTest();
@@ -124,7 +124,7 @@ public class Main {
 	}
 	
 	static void cubicleTest() {
-		int width = 1500;
+		int width = 1000;
 		int height = 1000;
 		
 		SoundManager manager = new SoundManager();
