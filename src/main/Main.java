@@ -41,8 +41,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		// test();
-		// mapGenerationTest();
-		cubicleTest();
+		mapGenerationTest();
+		// cubicleTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
 		// matrixTest();
@@ -74,7 +74,7 @@ public class Main {
 	}
 	
 	static void mapGenerationTest() {
-		int width = 1000;
+		int width = 1500;
 		int height = 1000;
 		
 		final BoundedStat health = new BoundedStat(0,GameConstants.MAX_HEALTH);
@@ -124,7 +124,7 @@ public class Main {
 	}
 	
 	static void cubicleTest() {
-		int width = 1000;
+		int width = 1500;
 		int height = 1000;
 		
 		SoundManager manager = new SoundManager();
@@ -199,10 +199,10 @@ public class Main {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
-						SPACE, SPACE, Block.DwightElements.ILLUMINATI_SPIRE_BLOCK, SPACE, SPACE, SPACE},
+						SPACE, SPACE, block, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
+				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},

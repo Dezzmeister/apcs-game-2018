@@ -107,7 +107,13 @@ public class MapGenerator {
 					case 4:
 						floor = spec.roomFloor;
 						ceil = spec.roomCeil;
-						block = Block.DwightElements.ILLUMINATI_SPIRE_BLOCK;
+						block = Block.DwightElements.ROOM_SPACE;
+						//Used to be illuminati spire
+						break;
+					case 5:
+						floor = spec.roomFloor;
+						ceil = spec.roomCeil;
+						block = randomOfficeMisc();
 						break;
 					case 11:
 						block = Block.DwightElements.DWIGHT_BLOCK;
@@ -490,6 +496,12 @@ public class MapGenerator {
 		if (rand == moseBlockSpawnChance-1) {
 			intMap[row][col] = 19;
 		}
+	}
+	
+	private Block randomOfficeMisc() {
+		int rand = (int)(random.nextFloat() * Block.DwightElements.OFFICE_MISC.length);
+		
+		return Block.DwightElements.OFFICE_MISC[rand];
 	}
 	
 	private float random(int c) {

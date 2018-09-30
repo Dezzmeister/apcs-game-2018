@@ -24,8 +24,10 @@ import image.SquareTexture;
 import image.Texture;
 import image.ViewModel;
 import main.Game;
+import main.GameConstants;
 import main.entities.Bean;
 import main.entities.Dwight;
+import render.core.true3D.Frustum;
 import render.core.true3D.Line;
 import render.core.true3D.Transformer;
 import render.light.Side;
@@ -167,6 +169,7 @@ public class Raycaster extends JPanel {
 		populateWallDistLUT();
 		generateDimensionLUTs();
 		createThreadPoolRenderers();
+		createFrustum();
 	}
 
 	private void getCameraVectors() {
@@ -232,9 +235,10 @@ public class Raycaster extends JPanel {
 			preRender();
 			parallelRender();
 			renderSprites();
-			renderAllVisibleModelsWithMatrices();
+			renderAllVisibleModelsWithoutMatrices();
 			drawOverlays();
 			finalizeRender();
+			//renderAllVisibleModelsWithMatrices();
 			postRender();
 		} else {
 			drawDeathScreen();
@@ -908,23 +912,153 @@ public class Raycaster extends JPanel {
 		}
 	}
 	
-	private static final Wall Y_AXIS = new Wall(0, 0, 0, 1);
+	Frustum frustum2;
+	
+	private void createFrustum() {
+		camera.plane.updateLength();
+		camera.dir.updateLength();
+		
+		float dim = 0.816f;
+		
+		float top = dim;
+		float bottom = 0;
+		float left = 0;
+		float right = dim;
+		float near = camera.dir.length;
+		float far = GameConstants.TRUE_3D_MAX_RENDER_DISTANCE;
+		
+		frustum = new Frustum(top, bottom, left, right, near, far);
+	}
+	
+	private void createFrustum2() {
+		camera.plane.updateLength();
+		camera.dir.updateLength();
+		System.out.println(camera.dir.length);
+		
+		float top = 1f;
+		float bottom = 0.0f;
+		float left = -0.5f;
+		float right = 0.5f;
+		float near = 0.75f;
+		float far = GameConstants.TRUE_3D_MAX_RENDER_DISTANCE;
+		
+		frustum = new Frustum(top, bottom, left, right, near, far);
+	}
+	
+	private static final Vector2 Y_AXIS = new Vector2(0, 1);
+	private static final float FLOAT_PI = (float) Math.PI;
+	private Frustum frustum;
+	
+	private final Rasterizer2 rasterizer2 = new Rasterizer2();
 	
 	private void renderAllVisibleModelsWithMatrices() {
 		Map<Vector3, Vector3> renderedVertices = new HashMap<Vector3, Vector3>();
 		
 		Vector3 cameraInWorld = new Vector3(camera.pos.x, camera.pos.y, 0.5f);
+		Vector3 leftFoV = new Vector3(camera.pos.x + camera.dir.x - camera.plane.x, camera.pos.y + camera.dir.y - camera.plane.y, 0.5f);
+		Vector3 rightFoV = new Vector3(camera.pos.x + camera.dir.x + camera.plane.x, camera.pos.y + camera.dir.y + camera.plane.y, 0.5f);
 		
 		Matrix4 translator = Transformer.createTranslationMatrix(-cameraInWorld.x, -cameraInWorld.y, -cameraInWorld.z);
 		
-		float psi = RenderUtils.altAngleBetweenLines(Y_AXIS, new Wall(0,0,camera.dir.x,camera.dir.y));
+		//float psi = RenderUtils.altAngleBetweenLines(Y_AXIS, new Wall(0,0,camera.dir.x,camera.dir.y));
+		float psi = RenderUtils.angleBetweenVectors(Y_AXIS, camera.dir);
+		
+		if (!RenderUtils.isLeftOfRay(new Vector2(0,0), Y_AXIS, camera.dir)) {
+			psi = -psi;
+		}
 		
 		Matrix4 rotator = Transformer.createZRotationMatrix(-psi);
 		
+		/**
+		 * After this transformation, camera should be looking at positive Y from the origin
+		 */
 		Matrix4 viewMatrix = translator.multiply(rotator);
 		
-		//After this transformation, camera should be looking at positive Y from the origin
+		Matrix4 projectionMatrix = Transformer.createYDepthProjectionMatrix(frustum);
 		
+		Matrix4 transformation = viewMatrix.multiply(projectionMatrix);
+		
+		final float zTranslate = (FINAL_ASPECT - 1) / 2;
+		
+		for (Vector3 location : modelQueue) {
+			Block block = world.getBlockAt((int) location.x, (int) location.y);
+			
+			for (Triangle t : block.model.triangles) {
+				// These three Vectors are the triangle's vertices in model space
+				Vector3 _v0 = new Vector3(t.v0.x, t.v0.y, t.v0.z);
+				Vector3 _v1 = new Vector3(t.v1.x, t.v1.y, t.v1.z);
+				Vector3 _v2 = new Vector3(t.v2.x, t.v2.y, t.v2.z);
+
+				// The vertices are scaled to fit with the final aspect ratio
+				_v0.z = (t.v0.z * FINAL_ASPECT) - zTranslate;
+				_v1.z = (t.v1.z * FINAL_ASPECT) - zTranslate;
+				_v2.z = (t.v2.z * FINAL_ASPECT) - zTranslate;
+				
+				_v0.y = (t.v0.y * FINAL_ASPECT) - zTranslate;
+				_v1.y = (t.v1.y * FINAL_ASPECT) - zTranslate;
+				_v2.y = (t.v2.y * FINAL_ASPECT) - zTranslate;
+				
+				_v0.x = (t.v0.x * FINAL_ASPECT) - zTranslate;
+				_v1.x = (t.v1.x * FINAL_ASPECT) - zTranslate;
+				_v2.x = (t.v2.x * FINAL_ASPECT) - zTranslate;
+				
+				Vector3 v0 = location.plus(_v0);
+				Vector3 v1 = location.plus(_v1);
+				Vector3 v2 = location.plus(_v2);
+				
+				if (!(isInFoV(v0,leftFoV,rightFoV,cameraInWorld) || isInFoV(v1,leftFoV,rightFoV,cameraInWorld) || isInFoV(v2,leftFoV,rightFoV,cameraInWorld))) {
+					continue;
+				}
+				
+				Vector3 h0 = transformation.transform(v0);
+				Vector3 h1 = transformation.transform(v1);
+				Vector3 h2 = transformation.transform(v2);
+				
+				//System.out.println("before scale: " + s0);
+				
+				Vector3 s0 = h0.scale(1/h0.w);
+				Vector3 s1 = h1.scale(1/h1.w);
+				Vector3 s2 = h2.scale(1/h2.w);
+				
+				Vector2 t0 = rasterizer2.findOnScreen(frustum, s0);
+				Vector2 t1 = rasterizer2.findOnScreen(frustum, s1);
+				Vector2 t2 = rasterizer2.findOnScreen(frustum, s2);
+				
+				//System.out.println("after scale: " + s0);
+				
+				//rasterizer.affineRaster(t0, t1, t2, t, v0, v1, v2, cameraInWorld);
+				g.setColor(new Color(t.color));
+				
+				int[] xPoints = {(int) t0.x, (int) t1.x, (int) t2.x};
+				int[] yPoints = {(int) t0.y, (int) t1.y, (int) t2.y};
+				
+				g.fillPolygon(xPoints, yPoints, 3);
+				
+				//System.out.println(s0);
+			}
+		}
+	}
+	
+	private class Rasterizer2 {
+		
+		private Vector2 findOnScreen(Frustum f, Vector3 v) {
+			int x = WIDTH - (int)(((v.x - f.left)/(f.right - f.left)) * WIDTH);
+			int y = HEIGHT - (int)(((v.z - f.bottom)/(f.top - f.bottom)) * HEIGHT);
+			
+			return new Vector2(x,y);
+		}
+	}
+	
+	private boolean isInFoV(Vector3 v0, Vector3 fovLeft, Vector3 fovRight, Vector3 camera) {
+		Vector2 origin = camera.discardZ();
+		Vector2 rightEndp = fovRight.discardZ();
+		Vector2 leftEndp = fovLeft.discardZ();
+		Vector2 testpoint = v0.discardZ();
+		
+		boolean leftOfRightRay = RenderUtils.isLeftOfRay(origin, rightEndp, testpoint);
+		boolean rightOfLeftRay = !RenderUtils.isLeftOfRay(origin, leftEndp, testpoint);
+		
+		return 	leftOfRightRay && rightOfLeftRay;
 	}
 
 	// x and y correspond to world map axes; z is vertical axis; positive z points
@@ -948,6 +1082,9 @@ public class Raycaster extends JPanel {
 
 		Vector3 cameraPos = new Vector3(camera.pos.x, camera.pos.y, 0.5f);
 		Vector3 cameraLeft = new Vector3(camera.pos.x - camera.plane.x, camera.pos.y - camera.plane.y, 0);
+		
+		Vector3 leftFoV = new Vector3(camera.pos.x + camera.dir.x - camera.plane.x, camera.pos.y + camera.dir.y - camera.plane.y, 0.5f);
+		Vector3 rightFoV = new Vector3(camera.pos.x + camera.dir.x + camera.plane.x, camera.pos.y + camera.dir.y + camera.plane.y, 0.5f);
 
 		Triangle viewPlane = new Triangle(plane0, plane1, plane2);
 
@@ -976,7 +1113,7 @@ public class Raycaster extends JPanel {
 				Vector3 v1 = location.plus(_v1);
 				Vector3 v2 = location.plus(_v2);
 
-				if (isBehindPlayer(v0, v1, v2, cameraLeft, cameraPos)) {
+				if (!(isInFoV(v0,leftFoV,rightFoV,cameraPos) || isInFoV(v1,leftFoV,rightFoV,cameraPos) || isInFoV(v2,leftFoV,rightFoV,cameraPos))) {
 					continue;
 				}
 
@@ -1039,6 +1176,7 @@ public class Raycaster extends JPanel {
 			return renderedVertices.get(v);
 		} else {
 			Vector3 i = RenderUtils.linePlaneIntersection(new Line(cameraPos, v), viewPlane);
+			
 			renderedVertices.put(v, i);
 			return i;
 		}

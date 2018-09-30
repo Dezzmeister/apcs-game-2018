@@ -32,6 +32,8 @@ public final class GameConstants {
 	public static float DWIGHT_ATTACK_RANGE = 0.8f;
 	public static float DWIGHT_SPEED = 0.03f;
 	
+	public static float TRUE_3D_MAX_RENDER_DISTANCE = 1000;
+	
 	private static Map<Class<?>, Class<?>> primitivesToWrappers = new HashMap<Class<?>, Class<?>>();
 	
 	static {

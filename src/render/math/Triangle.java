@@ -1,8 +1,9 @@
 package render.math;
 
 import image.GeneralTexture;
+import render.math.geometry.Geometric;
 
-public class Triangle {
+public final class Triangle implements Geometric {
 	public Vector3 v0;
 	public Vector3 v1;
 	public Vector3 v2;
@@ -11,7 +12,7 @@ public class Triangle {
 	public Vector2 uv1;
 	public Vector2 uv2;
 	
-	public GeneralTexture texture;
+	public GeneralTexture texture = null;
 	
 	public int color = 0x0;
 	
@@ -46,5 +47,16 @@ public class Triangle {
 	
 	public Vector3 getNormal() {
 		return Vector3.cross(v1.minus(v0), v2.minus(v0)).normalize();
+	}
+	
+	@Override
+	public Triangle[] getTriangles() {
+		return new Triangle[]{this};
+	}
+	
+	public void transform(Matrix4 m) {
+		v0 = m.transform(v0);
+		v1 = m.transform(v1);
+		v2 = m.transform(v2);
 	}
 }

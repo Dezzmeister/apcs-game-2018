@@ -3,7 +3,7 @@ package render.math;
 import java.util.Objects;
 
 /**
- * Represents a Vector in 3D space.
+ * Represents a Vector in 3D space. Also has a w component that can be used in perspective transformations as a homogenous coordinate.
  *
  * @author Joe Desmond
  */
@@ -114,7 +114,7 @@ public class Vector3 {
 	
 	@Override
 	public String toString() {
-		return "(" + x + "," + y + "," + z + ")";
+		return "(" + x + "," + y + "," + z + "," + w + ")";
 	}
 	
 	@Override
@@ -133,7 +133,7 @@ public class Vector3 {
 		}
 		
 		Vector3 v = (Vector3)o;
-		if (x == v.x && y == v.y && z == v.z) {
+		if (x == v.x && y == v.y && z == v.z && w == v.w) {
 			return true;
 		}
 		

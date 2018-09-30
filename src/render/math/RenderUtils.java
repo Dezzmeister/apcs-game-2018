@@ -75,6 +75,17 @@ public final class RenderUtils {
 		return Math.abs(angle1 - angle2);
 	}
 	
+	public static float angleBetweenVectors(Vector2 v0, Vector2 v1) {
+		float dot = Vector2.dot(v0, v1);
+		
+		v0.updateLength();
+		v1.updateLength();
+		
+		float cos = dot/(v0.length * v1.length);
+		
+		return (float) Math.acos(cos);
+	}
+	
 	@Deprecated
 	public static float angleBetweenLines(Wall wall1, Wall wall2) {
 		

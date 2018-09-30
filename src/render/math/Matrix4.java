@@ -48,6 +48,18 @@ public class Matrix4 {
                 );
 	}
 	
+	public Triangle transform(Triangle t) {
+		Vector3 v0 = transform(t.v0);
+		Vector3 v1 = transform(t.v1);
+		Vector3 v2 = transform(t.v2);
+		
+		Triangle triangle = new Triangle(v0, v1, v2, t.color);
+		triangle.setUVCoords(t.uv0, t.uv1, t.uv2);
+		triangle.setTexture(t.texture);
+		
+		return triangle;
+	}
+	
 	public float determinant() {
 		float[] dets = new float[4];
 		for (int top = 0; top < 4; top++) {

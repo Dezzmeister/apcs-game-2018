@@ -48,6 +48,10 @@ public class Vector2 {
 		return (float) Math.sqrt(((_v0.x - _v1.x) * (_v0.x - _v1.x)) + ((_v0.y - _v1.y) * (_v0.y - _v1.y)));
 	}
 	
+	public static float dot(Vector2 v0, Vector2 v1) {
+		return (v0.x * v1.x) + (v0.y * v1.y);
+	}
+	
 	public Vector2 normalize() {
 		return new Vector2(x / length, y / length);
 	}
