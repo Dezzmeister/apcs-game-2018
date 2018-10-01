@@ -107,7 +107,7 @@ public class MapGenerator {
 					case 4:
 						floor = spec.roomFloor;
 						ceil = spec.roomCeil;
-						block = Block.DwightElements.ROOM_SPACE;
+						block = Block.DwightElements.ILLUMINATI_SPIRE_BLOCK;
 						//Used to be illuminati spire
 						break;
 					case 5:

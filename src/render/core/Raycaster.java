@@ -82,6 +82,7 @@ public class Raycaster extends JPanel {
 	protected ThreadPoolExecutor executor;
 	protected LatchRef latchref;
 	protected double[] wallDistLUT;
+	protected double[] euclideanWallDistLUT;
 	protected AtomicBoolean enabled = new AtomicBoolean(true);
 	protected Game parentGame;
 	protected int upDownEnabled = 0;
@@ -167,9 +168,35 @@ public class Raycaster extends JPanel {
 
 		resetZBuffer();
 		populateWallDistLUT();
+		populateEuclideanWallDistLUT();
 		generateDimensionLUTs();
 		createThreadPoolRenderers();
 		createFrustum();
+	}
+	
+	private void populateEuclideanWallDistLUT() {
+		euclideanWallDistLUT = new double[WIDTH/2];
+		
+		Vector2 dir = camera.dir;
+		dir.updateLength();
+		Vector2 plane = camera.plane;
+		plane.updateLength();
+		
+		Vector2 dir2 = new Vector2(0,dir.length);
+		dir2.updateLength();
+
+		Vector2 plane2 = new Vector2(plane.length,0);
+		plane2.updateLength();
+		System.out.println(plane2.length);
+		
+		for (int x = 0; x < WIDTH/2; x++) {
+			float rdirx = (x/((float)WIDTH/2.0f)) * plane2.length;
+			float rdiry = dir2.length;
+			
+			float angle0 = RenderUtils.angleBetweenVectors(dir2, new Vector2(rdirx,rdiry));
+			
+			euclideanWallDistLUT[x] = Math.cos(angle0);
+		}
 	}
 
 	private void getCameraVectors() {
@@ -586,6 +613,11 @@ public class Raycaster extends JPanel {
 					perpWallDist = ((adjMapY - pos.y + (1 - adjStepY) / 2)) / rdiry;
 				}
 				
+				/*
+				DRUGS:
+				perpWallDist -= (Math.random() * perpWallDist * 0.1);
+				*/
+				
 				lineHeight = (int) ((HEIGHT / perpWallDist) * FINAL_ASPECT);
 				
 				drawStart = -(lineHeight >> 1) + HALF_HEIGHT;
@@ -602,20 +634,18 @@ public class Raycaster extends JPanel {
 					textureBlock(x);
 				} else {
 					textureCustomBlock(x);
+					
+					zbuf[x] = perpWallDist;
+
+					for (int y = 0; y < HEIGHT; y++) {
+						zbuf2[x + y * WIDTH] = perpWallDist;
+					}
 				}
+				
 				// img.setRGB(x, drawStart, 0xFFFF0000);
 				// img.setRGB(x, drawEnd, 0xFFFF0000);
 				
-				zbuf[x] = perpWallDist;
-
-				for (int y = 0; y < HEIGHT; y++) {
-					zbuf2[x + y * WIDTH] = perpWallDist;
-				}
-				
 				textureFloorAndCeiling(x);
-				if (x == (WIDTH / 2)) {
-					// System.out.println(sideHit);
-				}
 			}
 		}
 
@@ -649,10 +679,36 @@ public class Raycaster extends JPanel {
 		}
 
 		private void textureBlock(int x) {
+			/**
+			 * Used to determine EXACTLY where the ray hit and set both z-buffers properly so that true 3D rendering works correctly
+			 */
+			Vector2 exact;
+			
 			if (side) {
 				wallX = (pos.x + ((adjMapY - pos.y + (1 - adjStepY) / 2) / rdiry) * rdirx);
+
+				if (sideHit == Side.POSY) {
+					exact = new Vector2((float)wallX, mapY + 1);
+				} else {
+					exact = new Vector2((float)wallX, mapY);
+				}
+				
 			} else {
 				wallX = (pos.y + ((adjMapX - pos.x + (1 - adjStepX) / 2) / rdirx) * rdiry);
+				
+				if (sideHit == Side.POSX) {
+					exact = new Vector2(mapX + 1, (float)wallX);
+				} else {
+					exact = new Vector2(mapX, (float)wallX);
+				}
+			}
+			
+			float trueDistance = Vector2.distance(pos,exact);
+			
+			zbuf[x] = trueDistance;
+
+			for (int y1 = 0; y1 < HEIGHT; y1++) {
+				zbuf2[x + y1 * WIDTH] = trueDistance;
 			}
 			
 			wallX -= Math.floor(wallX);
@@ -695,7 +751,7 @@ public class Raycaster extends JPanel {
 					color = 0;
 				}
 				
-				img.setRGB(x, y, shade((float) perpWallDist, color));
+				img.setRGB(x, y, shade((float) trueDistance, color));
 			}
 		}
 
@@ -1121,6 +1177,7 @@ public class Raycaster extends JPanel {
 								
 								if (weights != null) {
 									float distance = Vector3.distance(intersected, camera);
+									//float perpWallDist = Vector2.distance(inWorld.discardZ(), intersected.discardZ());
 									
 									if (distance < zbuf2[x + y * WIDTH]) {
 										zbuf2[x + y * WIDTH] = distance;

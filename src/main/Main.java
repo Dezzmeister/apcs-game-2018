@@ -124,7 +124,7 @@ public class Main {
 	}
 	
 	static void cubicleTest() {
-		int width = 1500;
+		int width = 1000;
 		int height = 1000;
 		
 		SoundManager manager = new SoundManager();
@@ -140,6 +140,9 @@ public class Main {
 		
 		SquareTexture coffeeBean = new SquareTexture("assets/textures/small bean.png",56);
 		Entity bean = new Item(coffeeBean, new Vector2(9,9),camera).setDrawableBounds(0, 0, 50, 50);
+		
+		SquareTexture joj = new SquareTexture("assets/textures/unnamed.jpg", 2365);
+		Block gendron = new Block("gendron").applyTexture(joj).tileFront(7, 3);
 		
 		SquareTexture rectangles = new SquareTexture("assets/textures/sos1024.png", 1024);
 		Block block = new Block("test").applyTexture(rectangles);
@@ -205,7 +208,7 @@ public class Main {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, block, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
-						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
+						SPACE, SPACE, gendron, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
@@ -222,7 +225,7 @@ public class Main {
 		game.setCoffeeStat(coffee);
 		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
 		
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 500, 500, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
 		raycaster.setShadeType(Raycaster.ShadeType.NONE);
 		
 		HUD hud = new HUD("assets/overlays/hud.png", health, coffee)
