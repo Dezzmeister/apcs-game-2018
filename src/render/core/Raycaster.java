@@ -82,7 +82,6 @@ public class Raycaster extends JPanel {
 	protected ThreadPoolExecutor executor;
 	protected LatchRef latchref;
 	protected double[] wallDistLUT;
-	protected double[] euclideanWallDistLUT;
 	protected AtomicBoolean enabled = new AtomicBoolean(true);
 	protected Game parentGame;
 	protected int upDownEnabled = 0;
@@ -168,35 +167,9 @@ public class Raycaster extends JPanel {
 
 		resetZBuffer();
 		populateWallDistLUT();
-		populateEuclideanWallDistLUT();
 		generateDimensionLUTs();
 		createThreadPoolRenderers();
 		createFrustum();
-	}
-	
-	private void populateEuclideanWallDistLUT() {
-		euclideanWallDistLUT = new double[WIDTH/2];
-		
-		Vector2 dir = camera.dir;
-		dir.updateLength();
-		Vector2 plane = camera.plane;
-		plane.updateLength();
-		
-		Vector2 dir2 = new Vector2(0,dir.length);
-		dir2.updateLength();
-
-		Vector2 plane2 = new Vector2(plane.length,0);
-		plane2.updateLength();
-		System.out.println(plane2.length);
-		
-		for (int x = 0; x < WIDTH/2; x++) {
-			float rdirx = (x/((float)WIDTH/2.0f)) * plane2.length;
-			float rdiry = dir2.length;
-			
-			float angle0 = RenderUtils.angleBetweenVectors(dir2, new Vector2(rdirx,rdiry));
-			
-			euclideanWallDistLUT[x] = Math.cos(angle0);
-		}
 	}
 
 	private void getCameraVectors() {
@@ -634,12 +607,6 @@ public class Raycaster extends JPanel {
 					textureBlock(x);
 				} else {
 					textureCustomBlock(x);
-					
-					zbuf[x] = perpWallDist;
-
-					for (int y = 0; y < HEIGHT; y++) {
-						zbuf2[x + y * WIDTH] = perpWallDist;
-					}
 				}
 				
 				// img.setRGB(x, drawStart, 0xFFFF0000);
@@ -759,6 +726,14 @@ public class Raycaster extends JPanel {
 			wallX = hitWall.getNorm(customHit);
 			
 			wallX -= Math.floor(wallX);
+			
+			float trueDistance = Vector2.distance(pos, customHit);
+			
+			zbuf[x] = trueDistance;
+
+			for (int y1 = 0; y1 < HEIGHT; y1++) {
+				zbuf2[x + y1 * WIDTH] = trueDistance;
+			}
 			
 			int texX;
 			GeneralTexture texture = hitWall.texture;

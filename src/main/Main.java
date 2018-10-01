@@ -41,8 +41,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		// test();
-		// mapGenerationTest();
-		cubicleTest();
+		mapGenerationTest();
+		// cubicleTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
 		// matrixTest();
@@ -144,6 +144,13 @@ public class Main {
 		SquareTexture joj = new SquareTexture("assets/textures/unnamed.jpg", 2365);
 		Block gendron = new Block("gendron").applyTexture(joj).tileFront(7, 3);
 		
+		GeneralTexture customTexture = new GeneralTexture("assets/textures/sos1024.png", 1024, 1024);
+		Block custom = new Block("custom test").customize(
+				new Wall(0.25f, 0.25f, 0.75f, 0.25f).setTexture(joj.asGeneralTexture()).tile(2, 4),
+				new Wall(0.75f, 0.25f, 0.75f, 0.75f).setTexture(customTexture),
+				new Wall(0.75f, 0.75f, 0.25f, 0.75f).setTexture(customTexture),
+				new Wall(0.25f, 0.75f, 0.25f, 0.25f).setTexture(customTexture));
+		
 		SquareTexture rectangles = new SquareTexture("assets/textures/sos1024.png", 1024);
 		Block block = new Block("test").applyTexture(rectangles);
 		
@@ -205,7 +212,7 @@ public class Main {
 						SPACE, SPACE, block, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, block, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
+				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, custom, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, gendron, SPACE, SPACE, SPACE},
