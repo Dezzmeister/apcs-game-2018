@@ -183,8 +183,14 @@ public class Camera {
 		plane.y = oldPlaneX * sr + plane.y * cr;
 	}
 	
+	private float deflectorFactor = 0.5f;
+	
 	public void moveForward(WorldMap map, float factor) {
 		float speed = factor * moveSpeed;
+		
+		if (map.getBlockAt((int)pos.x, (int)pos.y) == Block.DEFLECTOR) {
+			speed *= deflectorFactor;
+		}
 		
 		float xTimesSpeed = dir.x * speed;
 		float yTimesSpeed = dir.y * speed;
@@ -199,6 +205,10 @@ public class Camera {
 	
 	public void moveBackward(WorldMap map, float factor) {
 		float speed = factor * moveSpeed;
+		
+		if (map.getBlockAt((int)pos.x, (int)pos.y) == Block.DEFLECTOR) {
+			speed *= deflectorFactor;
+		}
 		
 		float xTimesSpeed = dir.x * speed;
 		float yTimesSpeed = dir.y * speed;
@@ -216,6 +226,10 @@ public class Camera {
 		
 		float speed = factor * moveSpeed;
 		
+		if (map.getBlockAt((int)pos.x, (int)pos.y) == Block.DEFLECTOR) {
+			speed *= deflectorFactor;
+		}
+		
 		float xTimesSpeed = sidedir.x * speed;
 		float yTimesSpeed = sidedir.y * speed;
 		
@@ -231,6 +245,10 @@ public class Camera {
 		computeSideDir();
 		
 		float speed = factor * moveSpeed;
+		
+		if (map.getBlockAt((int)pos.x, (int)pos.y) == Block.DEFLECTOR) {
+			speed *= deflectorFactor;
+		}
 		
 		float xTimesSpeed = sidedir.x * speed;
 		float yTimesSpeed = sidedir.y * speed;

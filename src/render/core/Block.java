@@ -2,11 +2,13 @@ package render.core;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
 import image.GeneralTexture;
 import image.SquareTexture;
+import main.GameConstants;
 import render.core.true3D.Model;
 import render.core.true3D.Transformer;
 import render.math.Matrix4;
@@ -25,6 +27,7 @@ public class Block {
 
 	public static final SquareTexture DEFAULT_TEXTURE = new SquareTexture("assets/textures/default32.png", 32);
 	public static final Block SPACE = new Block("space").fakeBlock().makeInvisible();
+	public static final Block DEFLECTOR = new Block("ray deflector").fakeBlock().makeInvisible();
 	
 	/**
 	 * If this Block is custom, this will contain this Block's custom Walls.
@@ -234,6 +237,8 @@ public class Block {
 		
 		public static BufferedImage DEATH = null;
 		
+		private static final Matrix4 aspectScaleMatrix = GameConstants.getAspectScaleMatrix();
+		
 		public static final GeneralTexture ILLUMINATI_TEXTURE = new GeneralTexture("assets/textures/illuminati.png",412,425);
 		
 		public static final Triangle ILLUMINATI_1 = new Triangle(new Vector3(0.25f,0.25f,0.0f),
@@ -272,7 +277,7 @@ public class Block {
 																 new Vector2(0.53f,0))
 													.setTexture(ILLUMINATI_TEXTURE);
 		
-		public static final Model ILLUMINATI_SPIRE = new Model(ILLUMINATI_1, ILLUMINATI_2, ILLUMINATI_3, ILLUMINATI_4);
+		public static final Model ILLUMINATI_SPIRE = new Model(ILLUMINATI_1, ILLUMINATI_2, ILLUMINATI_3, ILLUMINATI_4).transform(aspectScaleMatrix);
 		
 		public static final Block ILLUMINATI_SPIRE_BLOCK = new Block("illuminati spire block").defineAsModel(ILLUMINATI_SPIRE);
 		
@@ -284,20 +289,32 @@ public class Block {
 		private static final float topinset = 0.25f;
 		private static final int tabletopcolor = 0xFFA0522D;
 		
-		private static Model TABLE_LEG_0 = new Model().add(new Quad(new Vector3(0,0,0), new Vector3(legw,0,0), new Vector3(legw,0,legh), new Vector3(0,0,legh), legcolor))
+		private static Model TABLE_LEG_0 = new Model().add(new Quad(new Vector3(0,0,0), new Vector3(legw,0,0), new Vector3(legw,0,legh), new Vector3(0,0,legh), tabletopcolor))
 													  .add(new Quad(new Vector3(0,0,0), new Vector3(0,legw,0), new Vector3(0,legw,legh), new Vector3(0,0,legh), legcolor))
 													  .add(new Quad(new Vector3(legw,0,0), new Vector3(legw,legw,0), new Vector3(legw,legw,legh), new Vector3(legw,0,legh), legcolor))
-													  .add(new Quad(new Vector3(0,legw,0), new Vector3(legw,legw,0), new Vector3(legw,legw,legh), new Vector3(0,legw,legh), legcolor));
+													  .add(new Quad(new Vector3(0,legw,0), new Vector3(legw,legw,0), new Vector3(legw,legw,legh), new Vector3(0,legw,legh), tabletopcolor));
 		
 		private static final GeneralTexture tableTopTexture = new GeneralTexture("assets/textures/tabletop.png",100,100);
 		private static final Quad tabletopQuad = new Quad(new Vector3(topinset,topinset,tableh), new Vector3(1-topinset,topinset,tableh), new Vector3(1-topinset,1-topinset,tableh), new Vector3(topinset,1-topinset,tableh), tabletopcolor)
 												 .setTexture(tableTopTexture)
 												 .setUVCoords(new Vector2(0,0), new Vector2(0,1), new Vector2(1,1), new Vector2(1,0));
 		
-		private static Model TABLETOP = new Model().add(new Quad(new Vector3(topinset,topinset,0), new Vector3(1 - topinset,topinset,0), new Vector3(1-topinset,topinset,tableh), new Vector3(topinset,topinset,tableh), tabletopcolor))
-												   .add(new Quad(new Vector3(topinset,topinset,0), new Vector3(topinset,1-topinset,0), new Vector3(topinset,1-topinset,tableh), new Vector3(topinset,topinset,tableh), tabletopcolor))
-												   .add(new Quad(new Vector3(1-topinset,topinset,0), new Vector3(1-topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,tableh), new Vector3(1-topinset,topinset,tableh), tabletopcolor))
-												   .add(new Quad(new Vector3(topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,tableh), new Vector3(topinset,1-topinset,tableh), tabletopcolor))
+		private static Vector2 uv0 = new Vector2(0,0);
+		private static Vector2 uv1 = new Vector2((1- (2 * topinset))*2,0);
+		private static Vector2 uv2 = new Vector2((1- (2 * topinset))*2,tableh*2);
+		private static Vector2 uv3 = new Vector2(0,tableh*2);
+		private static Model TABLETOP = new Model().add(new Quad(new Vector3(topinset,topinset,0), new Vector3(1 - topinset,topinset,0), new Vector3(1-topinset,topinset,tableh), new Vector3(topinset,topinset,tableh), tabletopcolor)
+														.setUVCoords(uv0,uv1,uv2,uv3)
+														.setTexture(tableTopTexture))
+												   .add(new Quad(new Vector3(topinset,topinset,0), new Vector3(topinset,1-topinset,0), new Vector3(topinset,1-topinset,tableh), new Vector3(topinset,topinset,tableh), tabletopcolor)
+														.setUVCoords(uv0, uv1, uv2, uv3)
+														.setTexture(tableTopTexture))
+												   .add(new Quad(new Vector3(1-topinset,topinset,0), new Vector3(1-topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,tableh), new Vector3(1-topinset,topinset,tableh), tabletopcolor)
+														.setUVCoords(uv0, uv1, uv2, uv3)
+														.setTexture(tableTopTexture))
+												   .add(new Quad(new Vector3(topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,0), new Vector3(1-topinset,1-topinset,tableh), new Vector3(topinset,1-topinset,tableh), tabletopcolor)
+														.setUVCoords(uv0, uv1, uv2, uv3)
+														.setTexture(tableTopTexture))
 												   .add(tabletopQuad);
 		
 		private static final Matrix4 translateIn = Transformer.createTranslationMatrix(inset, inset, 0);
@@ -307,11 +324,11 @@ public class Block {
 		public static final Block TABLE_BLOCK;
 				
 		public static final Model TABLE_MODEL;
-		public static final Block CHAIR_BLOCK = createChair();
 		
 		public static final Block[] OFFICE_MISC;
 		
 		static {
+			
 			TABLE_LEG_0 = TABLE_LEG_0.transform(translateIn);
 			TABLETOP = TABLETOP.transform(translateUp);
 			
@@ -319,44 +336,18 @@ public class Block {
 			Model TABLE_LEG_2 = TABLE_LEG_0.transform(Transformer.createTranslationMatrix(1 - ((2 * inset) + legw), 1 - ((2 * inset) + legw), 0));
 			Model TABLE_LEG_3 = TABLE_LEG_0.transform(Transformer.createTranslationMatrix(0, 1 - ((2 * inset) + legw), 0));
 			
-			TABLE_MODEL = new Model().add(TABLE_LEG_0).add(TABLE_LEG_1).add(TABLE_LEG_2).add(TABLE_LEG_3).add(TABLETOP);
+			TABLE_MODEL = new Model().add(TABLE_LEG_0).add(TABLE_LEG_1).add(TABLE_LEG_2).add(TABLE_LEG_3).add(TABLETOP).transform(aspectScaleMatrix);
 			
 			TABLE_BLOCK = new Block("wooden table").defineAsModel(TABLE_MODEL);
 			
 			
-			OFFICE_MISC = new Block[]{TABLE_BLOCK, CHAIR_BLOCK};		
+			OFFICE_MISC = new Block[]{TABLE_BLOCK};		
 			
 			try {
 				DEATH = ImageIO.read(new File("assets/overlays/death.png"));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		
-		private static Block createChair() {
-			float legh = 0.2f;
-			float legw = 0.05f;
-			float legin = legh/2.0f;
-			int legcolor = 0xFFC0C0C0;
-			int legcolor2 = 0xFFB6B6B6;
-			
-			Quad q0 = new Quad(new Vector3(0,0,0), new Vector3(legw,0,0), new Vector3(legw+legin,0,legh), new Vector3(legin,0,legh), legcolor2);
-			Quad q1 = new Quad(new Vector3(0,0,0), new Vector3(0,legw,0), new Vector3(legin,legw,legh), new Vector3(legin,0,legh), legcolor);
-			Quad q2 = new Quad(new Vector3(legw,0,0), new Vector3(legw,legw,0), new Vector3(legin+legw,legw,legh), new Vector3(legin+legw,0,legh), legcolor);
-			Quad q3 = new Quad(new Vector3(0,legw,0), new Vector3(legw,legw,0), new Vector3(legin+legw,legw,legh), new Vector3(legin,legw,legh), legcolor2);
-			
-			Model leg = new Model().add(q0).add(q1).add(q2).add(q3);
-			
-			float inset = 0.35f;
-			
-			Matrix4 translateIn = Transformer.createTranslationMatrix(inset, inset, 0);
-			
-			Model LEG_0 = leg.transform(translateIn);
-			Model LEG_1 = LEG_0.transform(Transformer.createTranslationMatrix(0, 1 - ((2 * inset) + legw), 0));
-			Model LEG_PAIR_0 = new Model().add(LEG_0).add(LEG_1);
-			
-			Model CHAIR_MODEL = new Model().add(LEG_0).add(LEG_1);
-			return new Block("chair").defineAsModel(CHAIR_MODEL);
 		}
 		
 		private static float thickness = 0.1f;

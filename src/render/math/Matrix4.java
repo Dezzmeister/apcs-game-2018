@@ -147,4 +147,19 @@ public class Matrix4 {
 		
 		return mat.multiply(invdet);
 	}
+	
+	public void print() {
+		for (int y = 0; y < 4; y++) {
+			System.out.print("[");
+			for (int x = 0; x < 4; x++) {
+				
+				System.out.print(values[x + y * 4]);
+				
+				if (x != 3) {
+					System.out.print(",");
+				}
+			}
+			System.out.println("]");
+		}
+	}
 }

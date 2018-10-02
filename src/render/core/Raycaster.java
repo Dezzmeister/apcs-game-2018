@@ -155,6 +155,8 @@ public class Raycaster extends JPanel {
 		FINAL_ASPECT = FINAL_WIDTH / (float) FINAL_HEIGHT;
 
 		ASPECT = WIDTH / (float) HEIGHT;
+		
+		HUD__TRUE_HEIGHT = HEIGHT;
 
 		init();
 	}
@@ -489,6 +491,8 @@ public class Raycaster extends JPanel {
 				
 				boolean hit = false;
 				
+				boolean deflected = false;
+				
 				if (rdirx < 0) {
 					stepX = -1;
 					sideDistX = (pos.x - mapX) * deltaDistX;
@@ -522,7 +526,18 @@ public class Raycaster extends JPanel {
 						side = true;
 					}
 					block = world.getBlockAt(mapX, mapY);
-					if (block.isVisible() && (block.getProximity() == -1
+					if (block == Block.DEFLECTOR) {
+						/*
+						if (!deflected) {
+							double temp = deltaDistX;
+							
+							deltaDistX = deltaDistY;
+							deltaDistY = temp;
+							deflected = true;
+						}
+						*/
+						deflected = true;
+					} else if (block.isVisible() && (block.getProximity() == -1
 							|| block.getProximity() > Vector2.distance(pos, new Vector2(mapX, mapY)))) {
 						if (block.isCustom()) {
 							currentLoc = new Vector2(mapX, mapY);
@@ -591,7 +606,13 @@ public class Raycaster extends JPanel {
 				perpWallDist -= (Math.random() * perpWallDist * 0.1);
 				*/
 				
-				lineHeight = (int) ((HEIGHT / perpWallDist) * FINAL_ASPECT);
+				if (deflected && sideHit == Side.POSX) {
+					//perpWallDist -= (Math.random() * perpWallDist * 0.05);
+					
+					perpWallDist *= 2.0f;
+				}
+				
+				lineHeight = (int) ((HEIGHT / (perpWallDist)) * FINAL_ASPECT);
 				
 				drawStart = -(lineHeight >> 1) + HALF_HEIGHT;
 				trueDrawStart = drawStart;
@@ -1133,7 +1154,7 @@ public class Raycaster extends JPanel {
 			int endY = (int) ySorted.get(2).v2.y;
 
 			for (int y = startY; y <= endY; y++) {
-				if (y >= 0 && y < HEIGHT) {
+				if (y >= 0 && y < HUD__TRUE_HEIGHT) {
 					for (int x = startX; x <= endX; x++) {
 						if (x >= 0 && x < WIDTH) {
 							float xNorm = (2 * x) / ((float)WIDTH) - 1.0f;
@@ -1870,9 +1891,12 @@ public class Raycaster extends JPanel {
 				break;
 		}
 	}
-
+	
+	private int HUD__TRUE_HEIGHT;
+	
 	private void drawHUDOnBottom() {
 		int startAt = (int) (hud.beginAt * HEIGHT);
+		HUD__TRUE_HEIGHT = startAt;
 
 		for (int y = startAt; y < HEIGHT; y++) {
 			for (int x = 0; x < WIDTH; x++) {

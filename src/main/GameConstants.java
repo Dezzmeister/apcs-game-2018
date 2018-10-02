@@ -7,7 +7,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import render.core.Raycaster;
+import render.core.true3D.Transformer;
+import render.math.Matrix4;
+
 public final class GameConstants {
+	public static int RENDER_SIZE = 300;
+	public static int SCREEN_WIDTH = 1500;
+	public static int SCREEN_HEIGHT = 1000;
+	public static int RAYCAST_THREADS = 4;
+	public static Raycaster.ShadeType SHADE_TYPE = Raycaster.ShadeType.QUADRATIC;
+	
 	public static int MAP_SIZE = 5000;
 	public static long MAP_SEED = -1;
 	
@@ -34,7 +44,7 @@ public final class GameConstants {
 	
 	public static float TRUE_3D_MAX_RENDER_DISTANCE = 1000;
 	
-	private static Map<Class<?>, Class<?>> primitivesToWrappers = new HashMap<Class<?>, Class<?>>();
+	private static Map<Class<?>, Class<?>> typeMap = new HashMap<Class<?>, Class<?>>();
 	
 	static {
 		fillMap();
@@ -42,14 +52,22 @@ public final class GameConstants {
 	}
 	
 	private static void fillMap() {
-		primitivesToWrappers.put(int.class, Integer.class);
-		primitivesToWrappers.put(float.class, Float.class);
-		primitivesToWrappers.put(long.class, Long.class);
+		typeMap.put(int.class, Integer.class);
+		typeMap.put(float.class, Float.class);
+		typeMap.put(long.class, Long.class);
+		//typeMap.put(Raycaster.ShadeType.class, Raycaster.ShadeType.class);
+	}
+	
+	public static Matrix4 getAspectScaleMatrix() {
+		final float ASPECT = SCREEN_WIDTH/(float)SCREEN_HEIGHT;
+		
+		return Transformer.createScaleMatrix(1, 1, ASPECT);
 	}
 	
 	/**
 	 * insane reflection
 	 */
+	@SuppressWarnings("unchecked")
 	private static void loadConfig() {
 		String path = "config/config.txt";
 		
@@ -68,13 +86,17 @@ public final class GameConstants {
 				
 					Field field = GameConstants.class.getDeclaredField(name);
 					
-					Class<?> type = primitivesToWrappers.get(field.getType());
+					Class<?> type = typeMap.get(field.getType());
 					
-					String conversionMethodName = "parse" + field.getType().getSimpleName().substring(0,1).toUpperCase() + field.getType().getSimpleName().substring(1);
-					
-					Object value = type.getDeclaredMethod(conversionMethodName, String.class).invoke(null, stringValue);
-				
-					field.set(null, value);
+					if (type == null) {
+						if (Enum.class.isAssignableFrom(field.getType())) {
+							field.set(null, Enum.valueOf((Class<Enum>) field.getType(), stringValue));
+						}
+					} else {
+						String conversionMethodName = "parse" + field.getType().getSimpleName().substring(0,1).toUpperCase() + field.getType().getSimpleName().substring(1);
+						Object value = type.getDeclaredMethod(conversionMethodName, String.class).invoke(null, stringValue);
+						field.set(null, value);
+					}
 				}
 			}
 			

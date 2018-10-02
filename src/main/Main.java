@@ -74,8 +74,8 @@ public class Main {
 	}
 	
 	static void mapGenerationTest() {
-		int width = 1500;
-		int height = 1000;
+		int width = GameConstants.SCREEN_WIDTH;
+		int height = GameConstants.SCREEN_HEIGHT;
 		
 		final BoundedStat health = new BoundedStat(0,GameConstants.MAX_HEALTH);
 		final BoundedStat coffee = new BoundedStat(0,GameConstants.MAX_COFFEE);
@@ -105,7 +105,8 @@ public class Main {
 		Camera camera = new Camera().setPos(startPos).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
 		
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, GameConstants.RENDER_SIZE, GameConstants.RENDER_SIZE, GameConstants.RAYCAST_THREADS);
+		raycaster.setShadeType(GameConstants.SHADE_TYPE);
 		raycaster.enableTrue3DTextures();
 		
 		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
@@ -124,8 +125,8 @@ public class Main {
 	}
 	
 	static void cubicleTest() {
-		int width = 1000;
-		int height = 1000;
+		int width = GameConstants.SCREEN_WIDTH;
+		int height = GameConstants.SCREEN_HEIGHT;
 		
 		SoundManager manager = new SoundManager();
 		
@@ -177,7 +178,7 @@ public class Main {
 									  new Vector3(0.50f,0.50f,0.4f),
 									  0xFF0000FF);
 		
-		Model testWalls = new Model(wall1,wall2);
+		Model testWalls = new Model(wall1,wall2).transform(GameConstants.getAspectScaleMatrix());
 		
 		Block testModel = new Block("testModel").defineAsModel(testWalls);
 		
@@ -211,8 +212,8 @@ public class Main {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, block, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
-						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, custom, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
+						SPACE, Block.DEFLECTOR, SPACE, SPACE, SPACE, SPACE},
+				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, block, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, gendron, SPACE, SPACE, SPACE},
@@ -232,8 +233,8 @@ public class Main {
 		game.setCoffeeStat(coffee);
 		game.setCurrentViewModel(ViewModels.CUP_VIEWMODEL);
 		
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 300, 300, 4);
-		raycaster.setShadeType(Raycaster.ShadeType.NONE);
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, GameConstants.RENDER_SIZE, GameConstants.RENDER_SIZE, 4);
+		raycaster.setShadeType(GameConstants.SHADE_TYPE);
 		
 		HUD hud = new HUD("assets/overlays/hud.png", health, coffee)
 				.fitTo(HUD.Fit.BOTTOM)
