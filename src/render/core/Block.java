@@ -2,7 +2,6 @@ package render.core;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -15,6 +14,7 @@ import render.math.Matrix4;
 import render.math.Triangle;
 import render.math.Vector2;
 import render.math.Vector3;
+import render.math.geometry.OBJModel;
 import render.math.geometry.Quad;
 
 /**
@@ -325,6 +325,12 @@ public class Block {
 				
 		public static final Model TABLE_MODEL;
 		
+		private static final Matrix4 MODEL_SCALER = Transformer.createScaleMatrix(0.01f, 0.01f, 0.01f);
+		
+		public static final Model CHAIR_MODEL = loadChair();
+		public static final Block CHAIR_BLOCK;
+		public static final Block FILE_CABINET = new Block("file cabinet").defineAsModel(new OBJModel("assets/models/filecabinet.obj").transform(MODEL_SCALER));
+		
 		public static final Block[] OFFICE_MISC;
 		
 		static {
@@ -340,14 +346,21 @@ public class Block {
 			
 			TABLE_BLOCK = new Block("wooden table").defineAsModel(TABLE_MODEL);
 			
+			CHAIR_BLOCK = new Block("metal chair").defineAsModel(CHAIR_MODEL);
 			
-			OFFICE_MISC = new Block[]{TABLE_BLOCK};		
+			OFFICE_MISC = new Block[]{TABLE_BLOCK, CHAIR_BLOCK, FILE_CABINET};		
 			
 			try {
 				DEATH = ImageIO.read(new File("assets/overlays/death.png"));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		
+		private static Model loadChair() {
+			
+			OBJModel chair = new OBJModel("assets/models/chair.obj");
+			return chair.transform(MODEL_SCALER);
 		}
 		
 		private static float thickness = 0.1f;

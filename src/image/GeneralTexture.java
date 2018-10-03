@@ -1,5 +1,11 @@
 package image;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 /**
  * Represents a Texture with differing width and height.
  *
@@ -33,5 +39,18 @@ public class GeneralTexture extends Texture {
 		pixels = _pixels;
 		width = _width;
 		height = _height;
+	}
+	
+	public GeneralTexture(String _path) {
+		path = _path;
+		try {
+			BufferedImage img = ImageIO.read(new File(path));
+			width = img.getWidth();
+			height = img.getHeight();
+			pixels = new int[width * height];
+			img.getRGB(0, 0, width, height, pixels, 0, width);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

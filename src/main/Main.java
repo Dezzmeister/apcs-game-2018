@@ -9,6 +9,9 @@ import static render.core.Block.DwightElements.STANDARD_ROOM_FLOOR;
 import static render.core.Block.DwightElements.STANDARD_WALL_BLOCK;
 import static render.core.WorldMap.DEFAULT_CEILING;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.localized.Speaker;
 import game.BoundedStat;
@@ -43,10 +46,18 @@ public class Main {
 		// test();
 		mapGenerationTest();
 		// cubicleTest();
+		// pathsTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
 		// matrixTest();
 		// angleTest();
+	}
+	
+	static void pathsTest() {
+		Path path = Paths.get("C:/folder/joj/sos/file.txt");
+		
+		Path directory = path.getParent();
+		System.out.println(directory);
 	}
 	
 	static void angleTest() {
@@ -187,7 +198,7 @@ public class Main {
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
+				{SPACE, SPACE, SPACE, SPACE, SPACE, Block.DwightElements.FILE_CABINET, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
