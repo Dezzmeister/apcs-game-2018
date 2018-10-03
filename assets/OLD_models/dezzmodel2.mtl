@@ -1,0 +1,8 @@
+# Exported from 3D Builder
+
+newmtl test_mtl_0
+Kd 0.000000 0.749020 0.501961
+
+newmtl Mat_0
+Kd 1.000000 1.000000 1.000000
+map_Kd g-dawg!!!!!!!.jpg
