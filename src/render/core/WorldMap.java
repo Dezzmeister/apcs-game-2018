@@ -18,11 +18,12 @@ import render.light.cellmaps.FakeBlockCellMap;
  * @author Joe Desmond
  */
 public class WorldMap {
+	
 	public static final int LIGHT_RESOLUTION = 100;
-
+	
 	public static final SquareTexture DEFAULT_FLOOR = new SquareTexture("assets/textures/floor32.png", 32);
 	public static final SquareTexture DEFAULT_CEILING = new SquareTexture("assets/textures/ceil32.png", 32);
-	
+
 	private Block[][] blocks;
 	private SquareTexture[][] floorMap;
 	private SquareTexture[][] ceilMap;
@@ -31,56 +32,56 @@ public class WorldMap {
 	public List<Entity> entities = new ArrayList<Entity>();
 	public int width;
 	public int height;
-
-	// private Speaker[] speakers;
 	
+	// private Speaker[] speakers;
+
 	public WorldMap(Block[][] _blocks) {
 		blocks = _blocks;
 		floorMap = new SquareTexture[blocks.length][blocks[0].length];
 		ceilMap = new SquareTexture[blocks.length][blocks[0].length];
 		lightmaps = new CellMap[blocks.length][blocks[0].length];
-		
+
 		initDefaultFloorMap();
 		initDefaultCeilingMap();
-		
+
 		height = blocks.length;
 		width = blocks[0].length;
-		//initEmptyLightMaps();
+		// initEmptyLightMaps();
 	}
-	
+
 	public WorldMap(Block[][] _blocks, SquareTexture[][] _floorMap, SquareTexture[][] _ceilMap) {
 		blocks = _blocks;
 		floorMap = _floorMap;
 		ceilMap = _ceilMap;
-		
+
 		height = blocks.length;
 		width = blocks[0].length;
-		//initEmptyLightMaps();
+		// initEmptyLightMaps();
 	}
-	
+
 	public WorldMap setFloorMap(SquareTexture[][] _floorMap) {
 		floorMap = _floorMap;
 		return this;
 	}
-	
+
 	public WorldMap setCeilingMap(SquareTexture[][] _ceilMap) {
 		ceilMap = _ceilMap;
 		return this;
 	}
-	
+
 	public WorldMap addEntity(Entity entity) {
 		entities.add(entity);
 		return this;
 	}
-	
-	public WorldMap addEntities(Entity ... _entities) {
+
+	public WorldMap addEntities(Entity... _entities) {
 		for (Entity e : _entities) {
 			entities.add(e);
 		}
-		
+
 		return this;
 	}
-	
+
 	/*
 	 * public WorldMap setSpeakers(Speaker ... _speakers) { speakers = _speakers;
 	 * return this; }
@@ -96,15 +97,15 @@ public class WorldMap {
 			blocks[0][col] = block;
 			blocks[blocks.length - 1][col] = block;
 		}
-		
+
 		for (int row = 0; row < blocks.length; row++) {
 			blocks[row][0] = block;
 			blocks[row][blocks[0].length - 1] = block;
 		}
-		
+
 		return this;
 	}
-	
+
 	private void initDefaultFloorMap() {
 		for (int row = 0; row < floorMap.length; row++) {
 			for (int col = 0; col < floorMap[row].length; col++) {
@@ -112,7 +113,7 @@ public class WorldMap {
 			}
 		}
 	}
-	
+
 	private void initDefaultCeilingMap() {
 		for (int row = 0; row < ceilMap.length; row++) {
 			for (int col = 0; col < ceilMap[row].length; col++) {
@@ -120,44 +121,44 @@ public class WorldMap {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void initEmptyLightMaps() {
 		for (int row = 0; row < lightmaps.length; row++) {
 			for (int col = 0; col < lightmaps[row].length; col++) {
 				Block block = blocks[row][col];
-				
+
 				if (!block.isSolid() && block != Block.SPACE) {
-					lightmaps[row][col] = new FakeBlockCellMap(col,row,LIGHT_RESOLUTION);
+					lightmaps[row][col] = new FakeBlockCellMap(col, row, LIGHT_RESOLUTION);
 				} else if (block.isCustom()) {
-					lightmaps[row][col] = new CustomBlockCellMap(col,row,LIGHT_RESOLUTION);
+					lightmaps[row][col] = new CustomBlockCellMap(col, row, LIGHT_RESOLUTION);
 				} else if (block == Block.SPACE) {
-					lightmaps[row][col] = new EmptyCellMap(col,row,LIGHT_RESOLUTION);
+					lightmaps[row][col] = new EmptyCellMap(col, row, LIGHT_RESOLUTION);
 				} else {
-					lightmaps[row][col] = new BlockCellMap(col,row,LIGHT_RESOLUTION);
+					lightmaps[row][col] = new BlockCellMap(col, row, LIGHT_RESOLUTION);
 				}
 			}
 		}
 	}
-	
+
 	public void setFloorAt(int x, int y, SquareTexture texture) {
 		floorMap[y][x] = texture;
 	}
-	
+
 	public Block getBlockAt(int x, int y) {
 		return blocks[y][x];
 	}
-	
+
 	public Block setBlockAt(int x, int y, Block block) {
 		Block old = blocks[y][x];
 		blocks[y][x] = block;
 		return old;
 	}
-	
+
 	public SquareTexture getFloorAt(int x, int y) {
 		return floorMap[y][x];
 	}
-	
+
 	public SquareTexture getCeilingAt(int x, int y) {
 		return ceilMap[y][x];
 	}

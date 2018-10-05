@@ -18,9 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,7 +31,6 @@ import audio.soundjunk.SoundManager;
 import audio.soundjunk.Wav;
 import game.BoundedStat;
 import game.ViewModels;
-import image.Entity;
 import image.ViewModel;
 import main.entities.BeanList;
 import main.entities.DwightList;
@@ -46,16 +43,17 @@ import render.core.Raycaster;
  * @author Joe Desmond
  */
 public class Game extends JFrame implements Runnable, MouseMotionListener, KeyListener {
+	
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -16764364630071584L;	
+	private static final long serialVersionUID = -16764364630071584L;
 	public static final BufferedImage CURSOR_IMG = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 	public static final Cursor BLANK_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(CURSOR_IMG,
 			new Point(0, 0), "blank cursor");
-	
+
 	private MouseListener mouseListener = new MouseListener();
-	
+
 	private Raycaster raycaster;
 	private SoundManager soundManager;
 	public Container pane;
@@ -71,123 +69,124 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	private final AtomicInteger stepRate = new AtomicInteger(0);
 	private BoundedStat health;
 	private BoundedStat coffee;
-	
+
 	private Messenger messenger = new Messenger();
-	
+
 	private ViewModel currentViewModel = null;
-	
+
 	{
 		addMouseMotionListener(this);
 		addMouseListener(mouseListener);
 		addKeyListener(this);
 		addWindowListener(new WindowListener() {
-			
+
 			@Override
 			public void windowOpened(WindowEvent e) {
 				// TODO Auto-generated method stub
-
+				
 			}
-			
+
 			@Override
 			public void windowClosing(WindowEvent e) {
 				System.out.println("Window closing!");
-
+				
 				if (raycaster != null) {
 					raycaster.shutdown();
 				}
-
+				
 				if (soundManager != null) {
 					soundManager.shutdown();
 				}
 			}
-			
+
 			@Override
 			public void windowClosed(WindowEvent e) {
 				// TODO Auto-generated method stub
-
+				
 			}
-			
+
 			@Override
 			public void windowIconified(WindowEvent e) {
 				// TODO Auto-generated method stub
-
+				
 			}
-			
+
 			@Override
 			public void windowDeiconified(WindowEvent e) {
 				// TODO Auto-generated method stub
-
+				
 			}
-			
+
 			@Override
 			public void windowActivated(WindowEvent e) {
 				// TODO Auto-generated method stub
-
+				
 			}
-			
+
 			@Override
 			public void windowDeactivated(WindowEvent e) {
 				// TODO Auto-generated method stub
-
+				
 			}
-
+			
 		});
 	}
-	
+
 	public Game(int resolutionWidth, int resolutionHeight) {
 		pack();
-		setSize(resolutionWidth + getInsets().left + getInsets().right, resolutionHeight + getInsets().bottom + getInsets().top);
+		setSize(resolutionWidth + getInsets().left + getInsets().right,
+				resolutionHeight + getInsets().bottom + getInsets().top);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
+
 		pane = getContentPane();
 		mouse = new MouseRobot(resolutionWidth, resolutionHeight, pane);
 	}
-	
+
 	public Game setRaycaster(Raycaster _raycaster) {
 		raycaster = _raycaster;
 		dwightList = new DwightList(raycaster.camera, raycaster.world);
 		beanList = new BeanList(raycaster.camera, raycaster.world, coffee);
 		pane.add(raycaster, BorderLayout.CENTER);
-		
+
 		if (currentViewModel != null) {
 			raycaster.setCurrentViewModel(currentViewModel);
 		}
-		
+
 		setVisible(true);
 		raycaster.setDoubleBuffered(true);
 		return this;
 	}
-
+	
 	public Game setSoundManager(SoundManager _manager) {
 		soundManager = _manager;
 		return this;
 	}
-	
+
 	public Game setMessenger(Messenger _messenger) {
 		messenger = _messenger;
 		return this;
 	}
-	
+
 	public void setCurrentViewModel(ViewModel _currentViewModel) {
 		currentViewModel = _currentViewModel;
 		if (raycaster != null) {
 			raycaster.setCurrentViewModel(currentViewModel);
 		}
 	}
-	
+
 	public void setHealthStat(BoundedStat _health) {
 		health = _health;
 	}
-	
+
 	public void setCoffeeStat(BoundedStat _coffee) {
 		coffee = _coffee;
-		
+
 		if (beanList != null) {
 			beanList.setCoffeeStat(coffee);
 		}
 	}
-	
+
 	/**
 	 * Creates a new Thread and starts this Game on it.
 	 *
@@ -196,22 +195,22 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	public Thread startAndRun() {
 		Thread gameThread = new Thread(this, "Coffee Bean Game Thread");
 		gameThread.start();
-		
+
 		return gameThread;
 	}
-	
+
 	public Game noCursor() {
 		pane.setCursor(BLANK_CURSOR);
 		return this;
 	}
-	
-	public void setStepPaths(String ... paths) {
+
+	public void setStepPaths(String... paths) {
 		stepper = new Repeater(stepRate, 400, paths);
 		stepper.enable();
 		stepperThread = new Thread(stepper);
 		stepperThread.start();
 	}
-	
+
 	@Override
 	public void run() {
 		requestFocus();
@@ -222,17 +221,17 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		long timer = System.currentTimeMillis();
 		int frames = 0;
 		isRunning.set(true);
-		
+
 		boolean secondPassed = false;
 		boolean deadInit = false;
-		
+
 		while (isRunning.get()) {
 			if (this.isFocusOwner() || health.get() <= 0) {
 				mouse.enable();
 			} else {
 				mouse.disable();
 			}
-			
+
 			if (coffee.get() <= 0 || health.get() <= 0) {
 				if (currentViewModel == ViewModels.CUP_VIEWMODEL) {
 					currentViewModel.setDefaultState("empty");
@@ -245,18 +244,18 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					currentViewModel.unlock();
 				}
 			}
-			
+
 			if (health.get() > 0) {
 				long now = System.nanoTime();
 				delta += (now - last) / ns;
 				last = now;
-				
+
 				if (raycaster != null) {
 					updateStepper();
-					
-					//System.out.println(entities.size());
-					
-					//raycaster.setEntities(dwightList.getDwights());
+
+					// System.out.println(entities.size());
+
+					// raycaster.setEntities(dwightList.getDwights());
 					raycaster.setEntities(dwightList.getDwights(), beanList.getBeans());
 					raycaster.setDwightsKilled(dwightList.getDwightsKilled());
 				}
@@ -264,55 +263,56 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					dwightList.regeneratePaths();
 					secondPassed = false;
 				}
-			
+				
 				while (delta >= 1 && raycaster.finished) {
 					if (raycaster != null) {
 						handleKeyboardInput(delta);
 						dwightList.updateDwights(delta);
 						beanList.update();
 					}
-					
+
 					if (currentViewModel != null) {
 						currentViewModel.update();
 					}
-				
+					
 					if (dwightList.playerIsHit()) {
-						health.lose((float)(delta * 0.195f));
+						health.lose((float) (delta * 0.195f));
 					}
-				
+					
 					if (soundManager != null) {
 						if (raycaster != null) {
 							soundManager.getLocalizer().setListener(raycaster.camera.pos);
 							soundManager.getLocalizer()
-								.setListenerDirection(raycaster.camera.dir.add(raycaster.camera.pos));
+									.setListenerDirection(raycaster.camera.dir.add(raycaster.camera.pos));
 						}
 						soundManager.update();
 					}
-				
+					
 					delta--;
 				}
 			} else {
 				if (!deadInit) {
-					//play music
+					// play music
 				}
 			}
-			
+
 			repaint();
-			
+
 			frames++;
-			
+
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				secondPassed = true;
-				
+
 				frames = 0;
 			}
 		}
 	}
-	
+
 	private void updateStepper() {
 		if (health.get() > 0) {
-			if (!keys[controls.moveForward] && !keys[controls.moveBackward] && !keys[controls.moveLeft] && !keys[controls.moveRight]) {
+			if (!keys[controls.moveForward] && !keys[controls.moveBackward] && !keys[controls.moveLeft]
+					&& !keys[controls.moveRight]) {
 				stepRate.set(0);
 			} else {
 				if (keys[controls.sprint]) {
@@ -323,13 +323,13 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			}
 		}
 	}
-	
+
 	private void handleKeyboardInput(double delta) {
-		
+
 		// Movement
 		float sprintfactor = (float) (delta * ((keys[controls.sprint]) ? 2 : 1));
 		stepRate.set(0);
-		
+
 		if (health.get() > 0) {
 			if (keys[controls.moveForward]) {
 				raycaster.camera.moveForward(raycaster.world, sprintfactor);
@@ -345,47 +345,47 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			}
 		}
 	}
-
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() < 256) {
 			keys[e.getKeyCode()] = true;
 		}
 	}
-
+	
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() < 256) {
 			keys[e.getKeyCode()] = false;
 		}
-		
+
 		if (e.getKeyChar() == 'k') {
-			//soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
-			//soundManager.play("boom");
+			// soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
+			// soundManager.play("boom");
 			Wav.playSound("assets/soundfx/boom.wav");
 		}
-		
+
 		if (e.getKeyCode() == controls.screenshot) {
 			saveScreenShot();
 		}
-		
+
 		if (e.getKeyChar() == 'l') {
 			dwightList.maxDwights = 5;
 		}
 	}
-
+	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
+	
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		Point p = new Point(e.getX(), e.getY());
@@ -393,21 +393,21 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		mouse.x(p.x);
 		mouse.y(p.y);
 	}
-	
+
 	public void saveScreenShot() {
 		Rectangle screen = getBounds();
 		Date date = new Date();
 		String dateString = SCREENSHOT_DATE_FORMAT.format(date);
 		String fileName = "screenshots/screenshot-" + dateString + ".png";
 		File file = new File(fileName);
-		
+
 		int copyIndex = 0;
 		while (file.exists()) {
 			fileName = "screenshots/screenshot-" + dateString + "(" + copyIndex + ")" + ".png";
 			file = new File(fileName);
 			copyIndex++;
 		}
-		
+
 		try {
 			BufferedImage image = new Robot().createScreenCapture(screen);
 			ImageIO.write(image, "png", file);
@@ -416,9 +416,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			e1.printStackTrace();
 		}
 	}
-	
+
 	private class MouseListener extends MouseAdapter {
-		
+
 		@Override
 		public void mousePressed(MouseEvent e) {
 			if (currentViewModel == ViewModels.CUP_VIEWMODEL && health.get() > 0) {

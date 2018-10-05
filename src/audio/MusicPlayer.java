@@ -12,9 +12,9 @@ import javax.sound.midi.Sequencer;
  * @since 2018-6-18
  */
 public class MusicPlayer {
-
+	
 	private Sequencer player;
-
+	
 	public MusicPlayer() {
 		try {
 			player = MidiSystem.getSequencer();
@@ -23,7 +23,7 @@ public class MusicPlayer {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void setSong(Song s) {
 		stop();
 		try {
@@ -34,15 +34,15 @@ public class MusicPlayer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 	}
-
+	
 	public void stop() {
 		if (player.isRunning()) {
 			player.stop();
 		}
 	}
-
+	
 	// public static MusicPlayer m = new MusicPlayer();
-
+	
 }

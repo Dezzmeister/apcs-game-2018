@@ -3,11 +3,12 @@ package main;
 import java.awt.event.KeyEvent;
 
 /**
- * Contains controls for a Game. 
+ * Contains controls for a Game.
  *
  * @author Joe Desmond
  */
 public class Controls {
+	
 	public int moveLeft = KeyEvent.VK_A;
 	public int moveRight = KeyEvent.VK_D;
 	public int moveForward = KeyEvent.VK_W;

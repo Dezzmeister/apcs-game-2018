@@ -17,50 +17,50 @@ import javax.sound.sampled.SourceDataLine;
  * @author Joe Desmond
  */
 final class OggFile extends JavaSoundFile {
-
+	
 	private AudioInputStream din;
-
+	
 	public OggFile(String _path) {
 		super(_path);
 	}
-
+	
 	@Override
 	public synchronized void play() {
 		ended = false;
 		try {
 			File file = new File(path);
 			AudioInputStream in = AudioSystem.getAudioInputStream(file);
-
+			
 			if (in != null) {
 				AudioFormat baseFormat = in.getFormat();
 				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(),
 						16, baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
 				din = AudioSystem.getAudioInputStream(decodedFormat, in);
 				if (waitingForFirstUpdate) {
-					while(!firstUpdate) {
-						
+					while (!firstUpdate) {
+
 					}
 				}
 				rawPlay(decodedFormat);
-				
+
 				in.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	private void rawPlay(AudioFormat targetFormat) throws IOException, LineUnavailableException, InterruptedException {
 		byte[] data = new byte[1024];
 		line = getLine(targetFormat);
-
+		
 		if (line != null) {
 			line.start();
 			int bytesRead = 0;
 			int bytesWritten = 0;
-
+			
 			while (bytesRead != -1 && !ended) {
-
+				
 				if (!paused.get()) {
 					bytesRead = din.read(data, 0, data.length);
 					if (bytesRead != -1) {
@@ -68,7 +68,7 @@ final class OggFile extends JavaSoundFile {
 					}
 				}
 			}
-
+			
 			line.drain();
 			line.stop();
 			line.close();
@@ -76,7 +76,7 @@ final class OggFile extends JavaSoundFile {
 			ended = true;
 		}
 	}
-
+	
 	private SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException {
 		SourceDataLine line = null;
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);

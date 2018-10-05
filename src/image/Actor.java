@@ -4,10 +4,11 @@ import game.BoundedStat;
 import render.math.Vector2;
 
 public class Actor extends Entity {
-	public BoundedStat health = new BoundedStat(0,100);
-
+	
+	public BoundedStat health = new BoundedStat(0, 100);
+	
 	private SquareTexture[] views;
-
+	
 	/*
 	 * public BufferedImage getImage() {
 	 *
@@ -32,16 +33,16 @@ public class Actor extends Entity {
 	 * public void displayImage() { java.awt.EventQueue.invokeLater(new Runnable() {
 	 * public void run() { setVisible(true); } });
 	 */
-
+	
 	// the actors in the array must be in a certain order, which will be set TBD
 	public Actor(SquareTexture[] _views) {
 		views = _views;
 	}
-	
+
 	public Actor(Vector2 _pos) {
 		super(_pos);
 	}
-
+	
 	@Override
 	public SquareTexture getActiveTexture() {
 		// TODO Auto-generated method stub

@@ -12,10 +12,10 @@ import javax.imageio.ImageIO;
  * @author Joe Desmond
  */
 public class GeneralTexture extends Texture {
-
+	
 	public int width;
 	public int height;
-	
+
 	/**
 	 * Loads an image at the specified path with the specified width and height as a
 	 * GeneralTexture.
@@ -34,13 +34,13 @@ public class GeneralTexture extends Texture {
 		pixels = new int[width * height];
 		load();
 	}
-	
+
 	public GeneralTexture(int[] _pixels, int _width, int _height) {
 		pixels = _pixels;
 		width = _width;
 		height = _height;
 	}
-	
+
 	public GeneralTexture(String _path) {
 		path = _path;
 		try {

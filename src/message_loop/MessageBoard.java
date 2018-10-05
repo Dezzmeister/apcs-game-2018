@@ -20,13 +20,13 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("serial")
 class MessageBoard extends ArrayList<String> {
-
+	
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -1190259904235914730L;
 	static final int MAX_LENGTH = 10;
-
+	
 	@Override
 	public boolean add(String s) {
 		if (size() == MAX_LENGTH) {
@@ -36,7 +36,7 @@ class MessageBoard extends ArrayList<String> {
 		System.out.println(s);
 		return false;
 	}
-
+	
 }
 
 /**

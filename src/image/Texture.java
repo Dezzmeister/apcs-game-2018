@@ -6,7 +6,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 public abstract class Texture {
-
+	
 	/**
 	 * Some weird purple color (242,35,248)
 	 * <p>
@@ -15,14 +15,14 @@ public abstract class Texture {
 	 * pixel will remain. This only works for sprites.
 	 */
 	public static final int ALPHA = 0xFFF223F8;
-	
+
 	public int[] pixels;
 	public String path;
-	
+
 	public Texture() {
-		
+
 	}
-	
+
 	protected void load() {
 		try {
 			BufferedImage image = ImageIO.read(new File(path));

@@ -25,21 +25,21 @@ import audio.soundjunk.localized.Speaker;
  * @author Joe Desmond
  */
 public class SoundManager {
-	
+
 	private static final List<Class<? extends SoundFile>> supportedTypes = new ArrayList<Class<? extends SoundFile>>();
 	private final ThreadPoolExecutor executor;
 	private final Map<String, SoundFile> sounds = new HashMap<String, SoundFile>();
 	private final Map<String, List<Speaker>> speakers = new HashMap<String, List<Speaker>>();
-	private final Localizer localizer = new Localizer(10,-20);
-	
+	private final Localizer localizer = new Localizer(10, -20);
+
 	static {
 		supportedTypes.add(OggFile.class);
 	}
-
+	
 	public SoundManager(int threads) {
 		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threads);
 	}
-
+	
 	/**
 	 * Creates a SoundManager with 5 threads, meaning that it will be able to play 5
 	 * sounds simultaneously.
@@ -47,24 +47,24 @@ public class SoundManager {
 	public SoundManager() {
 		this(5);
 	}
-	
+
 	public void quickPlayAt(String path, float x, float y) {
 		try {
 			SoundFile sound = createSoundFile(path).waitForFirstUpdate();
-			String id = "temp "+path+sound.hashCode()+Math.random();
+			String id = "temp " + path + sound.hashCode() + Math.random();
 			sounds.put(id, sound);
-			
+
 			List<Speaker> list = new ArrayList<Speaker>();
-			list.add(new Speaker(x,y));
+			list.add(new Speaker(x, y));
 			speakers.put(id, list);
-			
+
 			executor.execute(sound);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void addSound(String name, String path) {
 		try {
 			sounds.put(name, createSoundFile(path));
@@ -72,7 +72,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void addSound(String name, String path, Speaker initial) {
 		try {
 			sounds.put(name, createSoundFile(path).waitForFirstUpdate());
@@ -83,8 +83,8 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-	
-	public void addSpeakers(String name, Speaker ... _speakers) {
+
+	public void addSpeakers(String name, Speaker... _speakers) {
 		try {
 			for (Speaker s : _speakers) {
 				speakers.get(name).add(s);
@@ -93,29 +93,29 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void update() {
 		for (Entry<String, List<Speaker>> entry : speakers.entrySet()) {
 			SoundFile sound = sounds.get(entry.getKey());
-			
+
 			float balance = localizer.findBalance(entry.getValue());
 			float gain = localizer.findGain(entry.getValue());
-			
+
 			sound.setPan(balance);
-			if (gain != Float.NEGATIVE_INFINITY) { 
+			if (gain != Float.NEGATIVE_INFINITY) {
 				sound.setGain(gain);
 			} else {
 				sound.setGain(sound.minGain().get());
 			}
-			
+
 			registerUpdate(entry.getKey());
-			
+
 			if (entry.getKey().substring(0, 4).equals("temp ") && sound.hasEnded()) {
 				sounds.remove(entry.getKey());
 			}
 		}
 	}
-	
+
 	public synchronized void registerUpdate(String name) {
 		try {
 			sounds.get(name).registerUpdate();
@@ -123,7 +123,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Checks if path's file format is supported, then attempts to load the audio
 	 * file at path and wrap it with an object of the class supporting its format.
@@ -144,19 +144,19 @@ public class SoundManager {
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if (path.lastIndexOf(".") != -1) {
 			String extension = path.substring(path.lastIndexOf(".")).toLowerCase();
-
+			
 			Class<? extends SoundFile> soundClass = null;
-
+			
 			for (Class<? extends SoundFile> c : supportedTypes) {
 				String className = c.getSimpleName();
 				String supportedExtension = "." + className.substring(0, className.lastIndexOf("File")).toLowerCase();
-
+				
 				if (supportedExtension.equals(extension)) {
 					soundClass = c;
 					break;
 				}
 			}
-
+			
 			if (soundClass != null) {
 				Constructor<? extends SoundFile> constructor = soundClass.getDeclaredConstructor(String.class);
 				SoundFile file = constructor.newInstance(path);
@@ -164,12 +164,12 @@ public class SoundManager {
 			} else {
 				throw new UnsupportedAudioFileException("File extension " + extension + " is not supported!");
 			}
-
+			
 		} else {
 			throw new UnsupportedAudioFileException("File extension not present in file " + path + "!");
 		}
 	}
-	
+
 	/**
 	 * Starts the audio from the beginning.
 	 *
@@ -183,7 +183,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Stops the audio without destroying its thread.
 	 *
@@ -196,7 +196,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public synchronized void pause(String name) {
 		try {
 			sounds.get(name).pause();
@@ -204,7 +204,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public synchronized void resume(String name) {
 		try {
 			sounds.get(name).resume();
@@ -212,7 +212,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Attempts to set the gain of the audio, if this control is supported. Gain is
 	 * essentially volume, for our purposes.
@@ -229,7 +229,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Returns the maximum possible gain, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
@@ -244,10 +244,10 @@ public class SoundManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return Optional.empty();
 	}
-	
+
 	/**
 	 * Returns the minimum possible gain, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
@@ -262,10 +262,10 @@ public class SoundManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return Optional.empty();
 	}
-	
+
 	/**
 	 * Returns the maximum possible volume, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
@@ -280,10 +280,10 @@ public class SoundManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return Optional.empty();
 	}
-	
+
 	/**
 	 * Returns the minimum possible volume, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
@@ -298,10 +298,10 @@ public class SoundManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return Optional.empty();
 	}
-	
+
 	/**
 	 * Attempts to set the left/right balance of the audio, if this control is
 	 * supported.
@@ -318,7 +318,7 @@ public class SoundManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Stops all sound and destroys all threads.
 	 */
@@ -326,7 +326,7 @@ public class SoundManager {
 		executor.shutdownNow();
 		System.out.println("Shutting down all sound threads.");
 	}
-
+	
 	/**
 	 * Lets the SoundManager know about a <code>Class</code> that can open audio
 	 * files of a specific format. For example, if you were to write a class to
@@ -340,7 +340,7 @@ public class SoundManager {
 	public static void addSupportedType(Class<? extends SoundFile> clazz) {
 		supportedTypes.add(clazz);
 	}
-	
+
 	/**
 	 * Returns the {@link Localizer} object responsible for managing sound
 	 * localization for this SoundManager.

@@ -18,27 +18,27 @@ import java.util.Optional;
  * @author Joe Desmond
  */
 public interface SoundFile extends Runnable {
-	
+
 	/**
 	 * Starts the audio from the beginning.
 	 */
 	void play();
-
+	
 	/**
 	 * Stops the audio completely.
 	 */
 	void end();
-	
-	void pause();
 
+	void pause();
+	
 	void resume();
-	
+
 	boolean hasEnded();
-	
+
 	SoundFile waitForFirstUpdate();
-	
+
 	void registerUpdate();
-	
+
 	/**
 	 * Attempts to set the gain of the audio, if this control is supported. Gain is
 	 * essentially volume, for our purposes.
@@ -47,35 +47,35 @@ public interface SoundFile extends Runnable {
 	 *            gain value from <code>minGain()</code> to <code>maxGain()</code>
 	 */
 	void setGain(float gain);
-	
+
 	/**
 	 * Returns the maximum possible gain, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
 	 * will be empty.
 	 */
 	Optional<Float> maxGain();
-	
+
 	/**
 	 * Returns the minimum possible gain, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
 	 * will be empty.
 	 */
 	Optional<Float> minGain();
-
+	
 	/**
 	 * Returns the maximum possible volume, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
 	 * will be empty.
 	 */
 	Optional<Float> maxVolume();
-	
+
 	/**
 	 * Returns the minimum possible volume, if this control is supported. If this
 	 * control is not supported, the <code>Optional<</>Float></></code> returned
 	 * will be empty.
 	 */
 	Optional<Float> minVolume();
-	
+
 	/**
 	 * Attempts to set the left/right balance of the audio, if this control is
 	 * supported.
@@ -84,7 +84,7 @@ public interface SoundFile extends Runnable {
 	 *            value from -1.0f (left) to 1.0f (right)
 	 */
 	void setPan(float panValue);
-	
+
 	@Override
 	default void run() {
 		play();

@@ -10,9 +10,9 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 */
 public class Item extends Entity {
-
+	
 	private SquareTexture texture;
-
+	
 	public Item(SquareTexture _texture, Vector2 initialPosition, Camera _player) {
 		super(initialPosition);
 		texture = _texture;
@@ -20,7 +20,7 @@ public class Item extends Entity {
 		xDrawEnd = texture.SIZE;
 		yDrawEnd = texture.SIZE;
 	}
-
+	
 	@Override
 	public SquareTexture getActiveTexture() {
 		return texture;

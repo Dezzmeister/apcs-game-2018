@@ -15,10 +15,10 @@ import render.math.Vector3;
  * @author Joe Desmond
  */
 public class Wall {
-
+	
 	public static final Vector3 VERTICAL = new Vector3(0, 0, 1);
 	public static final GeneralTexture DEFAULT_TEXTURE = new GeneralTexture("assets/textures/default32.png", 32, 32);
-	
+
 	/**
 	 * One endpoint of this Wall
 	 */
@@ -35,11 +35,11 @@ public class Wall {
 	public GeneralTexture texture = DEFAULT_TEXTURE;
 	public float xTiles = 1;
 	public float yTiles = 1;
-	
+
 	public Wall() {
-		
+
 	}
-	
+
 	public Wall(float x1, float y1, float x2, float y2, GeneralTexture _texture) {
 		v0 = new Vector2(x1, y1);
 		v1 = new Vector2(x2, y2);
@@ -47,34 +47,34 @@ public class Wall {
 		updateLength();
 		calculateNormalVector();
 	}
-	
+
 	public Wall(float x1, float y1, float x2, float y2) {
 		v0 = new Vector2(x1, y1);
 		v1 = new Vector2(x2, y2);
 		updateLength();
 		calculateNormalVector();
 	}
-	
+
 	public Wall(Vector2 _v0, Vector2 _v1) {
 		v0 = _v0;
 		v1 = _v1;
 		updateLength();
 		calculateNormalVector();
 	}
-	
+
 	public Wall setTexture(GeneralTexture _texture) {
 		texture = _texture;
 		return this;
 	}
-	
+
 	public Texture getTexture() {
 		return texture;
 	}
-	
+
 	public void updateLength() {
 		length = Vector2.distance(v0, v1);
 	}
-	
+
 	/**
 	 * Allows a texture to be repeated multiple times (tiled) along a wall. By
 	 * default, xTiles is 1 and yTiles is 1, so the texture is stretched to fit the
@@ -97,7 +97,7 @@ public class Wall {
 		yTiles = _yTiles;
 		return this;
 	}
-	
+
 	/**
 	 * Calls <code>updateLength()</code> before returning the updated length. As
 	 * opposed to dereferencing <code>length</code>, this returns an updated length.
@@ -108,7 +108,7 @@ public class Wall {
 		updateLength();
 		return length;
 	}
-	
+
 	/**
 	 * Takes a Vector that is assumed to lie on this Wall and returns the normalized
 	 * distance from the first endpoint of this wall to this Vector. For the purpose
@@ -123,14 +123,14 @@ public class Wall {
 	public float getNorm(Vector2 v) {
 		return Vector2.distance(v, v0) / length;
 	}
-	
+
 	public void calculateNormalVector() {
 		float x = v1.x - v0.x;
 		float y = v1.y - v0.y;
 		float z = 0;
-		
+
 		Vector3 perp = Vector3.cross(VERTICAL, new Vector3(x, y, z));
-		
+
 		normal = perp.normalize();
 	}
 }

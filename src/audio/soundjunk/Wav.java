@@ -7,6 +7,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
 public class Wav {
+	
 	public static void playSound(String path) {
 		File url = new File(path);
 		try {
@@ -17,6 +18,6 @@ public class Wav {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 }

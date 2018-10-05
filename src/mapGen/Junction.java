@@ -9,21 +9,21 @@ import java.util.Random;
  * @author Joe Amendolare
  */
 class Junction {
-	
+
 	public boolean north;
 	public boolean south;
 	public boolean east;
 	public boolean west;
-	
+
 	public int xPos;
 	public int yPos;
-	
+
 	private Random random;
-	
+
 	private float random(int c) {
 		return random.nextFloat() * c;
 	}
-	
+
 	public Junction(int x, int y, int direction, Random _random) {
 		xPos = x;
 		yPos = y;
@@ -33,7 +33,7 @@ class Junction {
 		west = direction == 2;
 		east = direction == 3;
 	}
-	
+
 	public boolean checkSpace(int count, int dir, int[][] lvl) {
 		if (dir == 0) {
 			Junction tJ = new Junction(xPos, yPos - count, 0, random);
@@ -62,11 +62,11 @@ class Junction {
 		}
 		return false;
 	}
-	
+
 	public ArrayList<Junction> genRoom(int[][] lvl, int rX, int rY) {
 		ArrayList<Junction> cW = new ArrayList<Junction>();
 		int[][] temp = new int[rX][rY];
-		
+
 		int numWalls = 2 + (int) random(3);
 		int wL = 3 + (int) random(4);
 		for (int k = 0; k < numWalls - 1; k++) {
@@ -95,13 +95,13 @@ class Junction {
 						wXC++;
 						temp[wXC][wYC] = 1;
 					}
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		for (int w = 0; w < temp.length; w++) {
 			for (int e = 0; e < temp[0].length; e++) {
 				if (temp[w][e] == 1) {
@@ -112,11 +112,11 @@ class Junction {
 				}
 			}
 		}
-		
+
 		return cW;
-		
+
 	}
-	
+
 	public int getAround(int[][] lvl) {
 		int count = 0;
 		if (lvl[xPos][yPos - 1] >= 4) {
@@ -130,5 +130,5 @@ class Junction {
 		}
 		return count + 3;
 	}
-	
+
 }

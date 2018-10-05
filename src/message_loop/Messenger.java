@@ -11,9 +11,9 @@ import java.util.ArrayList;
  * @since 2018-06-07
  */
 public class Messenger {
-
+	
 	private MessageBoard m = new MessageBoard();
-
+	
 	/**
 	 * Appends the given message to m
 	 *
@@ -24,7 +24,7 @@ public class Messenger {
 	public void post(String s) {
 		m.add(s);
 	}
-
+	
 	/**
 	 * Returns an ArrayList of all of the messages in m
 	 *
@@ -33,7 +33,7 @@ public class Messenger {
 	public ArrayList<String> getMessages() {
 		return new ArrayList<String>(m);
 	}
-
+	
 	/**
 	 * Returns true if a given String is contained in m, false otherwise
 	 *
@@ -44,7 +44,7 @@ public class Messenger {
 	public boolean containsMessage(String message) {
 		return m.stream().anyMatch(s -> s == message);
 	}
-
+	
 	/**
 	 * Returns ArrayList of Strings for every message pertaining to a specific type
 	 * (keypress, event, etc.), "<typeName>:" not included (see message format)
@@ -55,12 +55,12 @@ public class Messenger {
 	 */
 	public ArrayList<String> getOfType(String type) {
 		return new ArrayList<String>() {
-
+			
 			/**
 			*
 			*/
 			private static final long serialVersionUID = 6387753689642356466L;
-
+			
 			{
 				for (String s : m) {
 					if (s.indexOf(type) == 0) {
@@ -69,7 +69,7 @@ public class Messenger {
 				}
 			}
 		};
-
+		
 	}
-
+	
 }

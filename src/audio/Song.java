@@ -11,11 +11,11 @@ import javax.sound.midi.Sequence;
  */
 public enum Song {
 	GAME, TITLE, WIN, LOSE;
-	
+
 	public Sequence getSequence() {
 		return SONGS[ordinal()];
 	}
-	
+
 	private static final Sequence[] SONGS = new Sequence[] {
 			// TODO: add file names
 			// ex. MidiSystem.getSequence(new File("song.mid"));
