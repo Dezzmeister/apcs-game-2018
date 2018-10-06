@@ -1,0 +1,9 @@
+#Handwritten by The Dezzy
+
+newmtl Metal
+Kd 1.0 1.0 1.0
+map_Kd metal.png
+
+newmtl Metal_Machine_0
+Kd 1.0 1.0 1.0
+map_Kd machine_interface.png
