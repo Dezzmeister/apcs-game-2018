@@ -35,6 +35,7 @@ import render.math.RenderUtils;
 import render.math.Triangle;
 import render.math.Vector2;
 import render.math.Vector3;
+import render.math.geometry.OBJModel;
 
 public class Main {
 	// use Covington font for plaques
@@ -44,8 +45,8 @@ public class Main {
 	
 	public static void main(String[] args) {
 		// test();
-		mapGenerationTest();
-		// cubicleTest();
+		// mapGenerationTest();
+		cubicleTest();
 		// pathsTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
@@ -182,13 +183,25 @@ public class Main {
 		Model testWalls = new Model(wall1, wall2).transform(GameConstants.getAspectScaleMatrix());
 
 		Block testModel = new Block("testModel").defineAsModel(testWalls);
+		Model torus = new OBJModel("assets/OLD_models/torus.obj")
+					     .transform(Transformer.createScaleMatrix(0.01f, 0.01f, 0.01f))
+					     .transform(GameConstants.getAspectScaleMatrix())
+					     .shadeAll(120,0.7f);
+		
+		Model cylinder = new OBJModel("assets/OLD_models/cylinder.obj")
+						 .transform(Transformer.createScaleMatrix(0.01f, 0.01f, 0.01f))
+						 .transform(GameConstants.getAspectScaleMatrix())
+						 .shadeAll(120, 1);
+		
+		Block TORUS = new Block("torus").defineAsModel(torus);
+		Block CYLINDER = new Block("cylinder").defineAsModel(cylinder);
 
 		Block[][] blocks = {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, Block.DwightElements.FILE_CABINET, SPACE, SPACE, SPACE, SPACE,
+				{SPACE, SPACE, SPACE, SPACE, SPACE, Block.DwightElements.CHAIR_BLOCK, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
@@ -200,7 +213,7 @@ public class Main {
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, testModel, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
+				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, TORUS, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, block, SPACE, block, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
@@ -208,7 +221,7 @@ public class Main {
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, block, SPACE, block, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
-				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
+				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, CYLINDER, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, block, SPACE, SPACE, SPACE},

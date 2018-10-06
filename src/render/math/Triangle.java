@@ -22,6 +22,10 @@ public final class Triangle implements Geometric {
 	public float d01;
 	public float d11;
 	public float invDenom;
+	public float xWeight = 0.5f;
+	public int shadeThreshold = 75;
+	public int darkenBy = 0;
+	public float specular = 0.0f;
 
 	public GeneralTexture texture = null;
 
@@ -40,23 +44,54 @@ public final class Triangle implements Geometric {
 		color = _color;
 	}
 
-	public Triangle(Vector3 _v0, Vector3 _v1, Vector3 _v2, int _color, Vector3 _bv0, Vector3 _bv1, float _d00,
-			float _d01, float _d11, float _invDenom) {
+	public Triangle(Vector3 _v0, Vector3 _v1, Vector3 _v2, int _color, float _specular, Vector3 _bv0, Vector3 _bv1, float _d00,
+			float _d01, float _d11, float _invDenom, float _shadeVal, float _xWeight, int _darkenBy) {
 		v0 = _v0;
 		v1 = _v1;
 		v2 = _v2;
 		color = _color;
+		specular = _specular;
 		bv0 = _bv0;
 		bv1 = _bv1;
 		d00 = _d00;
 		d01 = _d01;
 		d11 = _d11;
 		invDenom = _invDenom;
+		shadeVal = _shadeVal;
+		xWeight = _xWeight;
+		darkenBy = _darkenBy;
+	}
+	
+	public Triangle setShadeThreshold(int threshold) {
+		shadeThreshold = threshold;
+		
+		darkenBy = (int)(shadeVal * shadeThreshold);
+		
+		return this;
+	}
+	
+	public Triangle setXWeight(float _xWeight) {
+		xWeight = _xWeight;
+		
+		return this;
 	}
 
-	private void precomputeShadeVal() {
+	public Triangle computeShadeValue() {
 		Vector3 norm = getNormal().normalize();
 		
+		float xCos = Vector3.dot(norm, X_AXIS);
+		float zCos = Vector3.dot(norm, Z_AXIS);
+		xCos += RenderUtils.HALF_PI;
+		zCos += RenderUtils.HALF_PI;
+		
+		float zWeight = 1 - xWeight;
+		
+		float normVal = ((xWeight * xCos) + (zWeight * zCos))/(float)Math.PI;
+		shadeVal = normVal;
+		
+		darkenBy = (int)(shadeVal * shadeThreshold);
+		
+		return this;
 	}
 
 	public Triangle setColor(int _color) {

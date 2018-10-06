@@ -172,6 +172,7 @@ public class Raycaster extends JPanel {
 	public static final float FULL_FOG_DISTANCE = 10f; // 5f
 	public static final int OLD_SHADE_THRESHOLD = 100;
 	public static final int SHADE_THRESHOLD = 200;
+	public static final int TRUE_3D_SHADE_THRESHOLD = 75;
 	
 	protected int rendererCount;
 	protected ThreadRenderer[] renderers;
@@ -1199,7 +1200,7 @@ public class Raycaster extends JPanel {
 			return new Vector2(x, y);
 		}
 
-		private void affineRaster(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13,
+		private void perspectiveCorrectRaster(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13,
 				Vector3 v23, Vector3 camera) {
 
 			VectorAssociate a0 = new VectorAssociate(v0, v03);
@@ -1241,6 +1242,8 @@ public class Raycaster extends JPanel {
 			
 			int startY = (int) ySorted.get(0).v2.y;
 			int endY = (int) ySorted.get(2).v2.y;
+			
+			int darkenBy = triangle.darkenBy;
 			
 			for (int y = startY; y <= endY; y++) {
 				if (y >= 0 && y < HUD__TRUE_HEIGHT) {
@@ -1284,6 +1287,16 @@ public class Raycaster extends JPanel {
 												color = triangle.texture.pixels[index];
 											}
 										}
+										
+										int red = (color >> 16) & 0xFF;
+										int green = (color >> 8) & 0xFF;
+										int blue = color & 0xFF;
+										
+										red -= (red - darkenBy >= 0) ? darkenBy : red;
+										green -= (green - darkenBy >= 0) ? darkenBy : green;
+										blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
+										
+										color = (red << 16) | (green << 8) | blue;
 
 										img.setRGB(x, y, shade(distance, color));
 									}
@@ -1391,8 +1404,8 @@ public class Raycaster extends JPanel {
 				Vector3 v1 = location.plus(_v1);
 				Vector3 v2 = location.plus(_v2);
 
-				Triangle translatedTriangle = new Triangle(v0, v1, v2, t.color, t.bv0, t.bv1, t.d00, t.d01, t.d11,
-						t.invDenom).setUVCoords(t.uv0, t.uv1, t.uv2).setTexture(t.texture);
+				Triangle translatedTriangle = new Triangle(v0, v1, v2, t.color, t.specular, t.bv0, t.bv1, t.d00, t.d01, t.d11,
+						t.invDenom, t.shadeVal, t.xWeight, t.darkenBy).setUVCoords(t.uv0, t.uv1, t.uv2).setTexture(t.texture);
 				
 				if (!(isInFoV(v0, leftFoV, rightFoV, cameraPos) || isInFoV(v1, leftFoV, rightFoV, cameraPos)
 						|| isInFoV(v2, leftFoV, rightFoV, cameraPos))) {
@@ -1411,7 +1424,7 @@ public class Raycaster extends JPanel {
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
 				
-				rasterizer2.affineRaster(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
+				rasterizer2.perspectiveCorrectRaster(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
 			}
 		}
 	}

@@ -29,6 +29,30 @@ public class Model {
 		triangles.addAll(m.triangles);
 		return this;
 	}
+	
+	public Model applyAll(TriangleOperator operator) {
+		for (int i = 0; i < triangles.size(); i++) {
+			operator.operate(triangles.get(i));
+		}
+		return this;
+	}
+	
+	public Model shadeAll(int shadeThreshold, float xWeight) {
+		for (int i = 0; i < triangles.size(); i++) {
+			triangles.get(i).setShadeThreshold(shadeThreshold);
+			triangles.get(i).setXWeight(xWeight);
+			triangles.get(i).computeShadeValue();
+		}
+		
+		return this;
+	}
+	
+	public Model computeShadeValues() {
+		for (int i = 0; i < triangles.size(); i++) {
+			triangles.get(i).computeShadeValue();
+		}
+		return this;
+	}
 
 	public Model transform(Matrix4 m) {
 		List<Triangle> temp = new ArrayList<Triangle>();

@@ -49,6 +49,10 @@ public class Matrix4 {
 		Triangle triangle = new Triangle(v0, v1, v2, t.color);
 		triangle.setUVCoords(t.uv0, t.uv1, t.uv2);
 		triangle.setTexture(t.texture);
+		
+		triangle.setShadeThreshold(t.shadeThreshold);
+		triangle.setXWeight(t.xWeight);
+		triangle.computeShadeValue();
 
 		return triangle;
 	}

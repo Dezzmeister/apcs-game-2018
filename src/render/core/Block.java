@@ -348,7 +348,8 @@ public class Block {
 					.transform(Transformer.createTranslationMatrix(0, 1 - ((2 * inset) + legw), 0));
 
 			TABLE_MODEL = new Model().add(TABLE_LEG_0).add(TABLE_LEG_1).add(TABLE_LEG_2).add(TABLE_LEG_3).add(TABLETOP)
-					.transform(aspectScaleMatrix);
+					.transform(aspectScaleMatrix)
+					.shadeAll(75, 0.7f);
 
 			TABLE_BLOCK = new Block("wooden table").defineAsModel(TABLE_MODEL);
 
@@ -366,6 +367,10 @@ public class Block {
 		private static Model loadChair() {
 
 			OBJModel chair = new OBJModel("assets/models/chair.obj");
+			chair.applyAll(t -> t.setShadeThreshold(120))
+				 .applyAll(t -> t.setXWeight(0.7f))
+				 .computeShadeValues();
+			
 			return chair.transform(MODEL_SCALER);
 		}
 

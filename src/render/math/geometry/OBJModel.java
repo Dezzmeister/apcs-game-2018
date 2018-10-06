@@ -141,7 +141,8 @@ public class OBJModel extends Model {
 						int color = currentMaterial.Kd();
 
 						Triangle triangle = new Triangle(v0, v1, v2, color).setUVCoords(uv0, uv1, uv2)
-								.setTexture(texture);
+								.setTexture(texture)
+								.computeShadeValue();
 						faces.add(triangle);
 					}
 				}
