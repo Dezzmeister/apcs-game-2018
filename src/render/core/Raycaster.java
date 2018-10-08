@@ -253,7 +253,7 @@ public class Raycaster extends JPanel {
 		
 		ASPECT = WIDTH / (float) HEIGHT;
 
-		HUD__TRUE_HEIGHT = HEIGHT;
+		HUD_TRUE_HEIGHT = HEIGHT;
 		
 		init();
 	}
@@ -1096,8 +1096,6 @@ public class Raycaster extends JPanel {
 	private static final float FLOAT_PI = (float) Math.PI;
 	private Frustum frustum;
 
-	private final Rasterizer2 rasterizer2 = new Rasterizer2();
-
 	private void renderAllVisibleModelsWithMatrices() {
 		Map<Vector3, Vector3> renderedVertices = new HashMap<Vector3, Vector3>();
 
@@ -1172,9 +1170,9 @@ public class Raycaster extends JPanel {
 				Vector3 s1 = h1.scale(1 / h1.w);
 				Vector3 s2 = h2.scale(1 / h2.w);
 
-				Vector2 t0 = rasterizer2.findOnScreen(frustum, s0);
-				Vector2 t1 = rasterizer2.findOnScreen(frustum, s1);
-				Vector2 t2 = rasterizer2.findOnScreen(frustum, s2);
+				Vector2 t0 = findOnScreen(frustum, s0);
+				Vector2 t1 = findOnScreen(frustum, s1);
+				Vector2 t2 = findOnScreen(frustum, s2);
 
 				// System.out.println("after scale: " + s0);
 
@@ -1190,18 +1188,250 @@ public class Raycaster extends JPanel {
 			}
 		}
 	}
+	
+	private Vector2 findOnScreen(Frustum f, Vector3 v) {
+		int x = WIDTH - (int) (((v.x - f.left) / (f.right - f.left)) * WIDTH);
+		int y = HEIGHT - (int) (((v.z - f.bottom) / (f.top - f.bottom)) * HEIGHT);
+
+		return new Vector2(x, y);
+	}
 
 	private class Rasterizer2 {
+		Vector2 v0;
+		Vector2 v1;
+		Vector2 v2;
+		Triangle triangle;
+		Vector3 v03;
+		Vector3 v13;
+		Vector3 v23;
+		Vector3 camera;
+		int darkenBy;
+		
+		public void set(Vector2 _v0, Vector2 _v1, Vector2 _v2, Triangle _triangle, Vector3 _v03, Vector3 _v13, Vector3 _v23, Vector3 _camera) {
+			v0 = _v0;
+			v1 = _v1;
+			v2 = _v2;
+			triangle = _triangle;
+			darkenBy = triangle.darkenBy;
+			v03 = _v03;
+			v13 = _v13;
+			v23 = _v23;
+			camera = _camera;
+		}
+		
+		private class Rect {
+			Vector2 v0;
+			Vector2 v1;
+			Vector2 v2;
+			Vector2 v3;
+			
+			public Rect(Vector2 _v0, Vector2 _v2) {
+				v0 = _v0;
+				v2 = _v2;
+				
+				v1 = new Vector2(v2.x,v0.y);
+				v3 = new Vector2(v0.x,v2.y);
+			}
+		}
+		
+		private void perspectiveCorrectScanlineRaster() {
+			int minX = (int) Math.min(v0.x, Math.min(v1.x, v2.x));
+			int maxX = (int) Math.max(v0.x, Math.max(v1.x, v2.x));
+			
+			int minY = (int) Math.min(v0.y, Math.min(v1.y, v2.y));
+			int maxY = (int) Math.max(v0.y, Math.max(v1.y, v2.y));
+			
+			if (minY < 0) {
+				minY = 0;
+			} else if (minY >= HUD_TRUE_HEIGHT) {
+				return;
+			}
+			
+			if (maxY >= HUD_TRUE_HEIGHT) {
+				maxY = HUD_TRUE_HEIGHT-1;
+			} else if (maxY < 0) {
+				return;
+			}
+			
+			if (minX < 0) {
+				minX = 0;
+			} else if (minX >= WIDTH) {
+				return;
+			}
+			
+			if (maxX >= WIDTH) {
+				maxX = WIDTH-1;
+			} else if (maxX < 0) {
+				return;
+			}
+			
+			for (int y = minY; y <= maxY; y++) {
+				rasterizeLine(y,minX,maxX);
+			}
+		}
+		
+		private void rasterizeLine(int y, int minX, int maxX) {			
+			boolean drawn = false;
+			for (int x = minX; x <= maxX; x++) {
+				Vector2 s0 = new Vector2(x,y);
+				
+				if (tryDraw(s0)) {
+					drawn = true;
+				} else {
+					if (drawn) {
+						return;
+					}
+				}
+			}
+		}
+		
+		private List<Rect> subdivide(int subdivisions, List<Rect> rects) {
+			if (subdivisions <= 0) {
+				return rects;
+			}
+			
+			if (rects.size() > 0) {
+				Rect r = rects.get(0);
+				Vector2 v0 = r.v0;
+				Vector2 v1 = r.v2;
+				
+				if (v0.x - v1.x <= 2) {
+					return rects;
+				}
+			}
+			
+			for (int i = rects.size() - 1; i >= 0; i--) {
+				Rect rect = rects.remove(i);
+				Vector2 v0 = rect.v0;
+				Vector2 v1 = rect.v1;
+				Vector2 v2 = rect.v2;
+				Vector2 v3 = rect.v3;
+				
+				Vector2 center = new Vector2(v1.x - v0.x, v3.y - v1.y);
+				Vector2 topCenter = new Vector2(center.x, v0.y);
+				Vector2 bottomCenter = new Vector2(center.x, v3.y);
+				Vector2 leftCenter = new Vector2(v0.x, center.y);
+				Vector2 rightCenter = new Vector2(v1.x, center.y);
+				
+				boolean centerHit = tryDraw(center);
+				boolean topLeftHit = tryDraw(v0);
+				boolean topRightHit = tryDraw(v1);
+				boolean bottomRightHit = tryDraw(v2);
+				boolean bottomLeftHit = tryDraw(v3);
+				
+				boolean topCenterHit = tryDraw(topCenter);
+				boolean bottomCenterHit = tryDraw(bottomCenter);
+				boolean leftCenterHit = tryDraw(leftCenter);
+				boolean rightCenterHit = tryDraw(rightCenter);
+				
+				if (topLeftHit || topCenterHit || leftCenterHit || centerHit) {
+					rects.add(new Rect(v0,center));
+				}
+				
+				if (topCenterHit || topRightHit || rightCenterHit || centerHit) {
+					rects.add(new Rect(topCenter,rightCenter));
+				}
+				
+				if (centerHit || rightCenterHit || bottomRightHit || bottomCenterHit) {
+					rects.add(new Rect(center,v2));
+				}
+				
+				if (leftCenterHit || centerHit || bottomCenterHit || bottomLeftHit) {
+					rects.add(new Rect(leftCenter,bottomCenter));
+				}				
+			}
+			
+			return subdivide(subdivisions-1,rects);
+		}
+		
+		private void perspectiveCorrectSubdivisionRaster() {
+			int minX = (int) Math.min(v0.x, Math.min(v1.x, v2.x));
+			int maxX = (int) Math.max(v0.x, Math.max(v1.x, v2.x));
+			
+			int minY = (int) Math.min(v0.y, Math.min(v1.y, v2.y));
+			int maxY = (int) Math.max(v0.y, Math.max(v1.y, v2.y));
+			
+			Vector2 topLeft = new Vector2(minX,minY);
+			Vector2 bottomRight = new Vector2(maxX,maxY);
+			Rect drawSpace = new Rect(topLeft,bottomRight);
+			
+			List<Rect> rects = new ArrayList<Rect>();
+			rects.add(drawSpace);
+			
+			rects = subdivide(8,rects);
+		}
+		
+		private boolean tryDraw(Vector2 onScreen) {
+			int x = (int) onScreen.x;
+			int y = (int) onScreen.y;
+			
+			Vector3 inWorld = reverseProject(onScreen);
+			
+			Line line = new Line(camera, inWorld);
+			Vector3 intersected = RenderUtils.linePlaneIntersection(line, triangle);
 
-		private Vector2 findOnScreen(Frustum f, Vector3 v) {
-			int x = WIDTH - (int) (((v.x - f.left) / (f.right - f.left)) * WIDTH);
-			int y = HEIGHT - (int) (((v.z - f.bottom) / (f.top - f.bottom)) * HEIGHT);
+			if (intersected != null) {
+				Vector3 weights = computeBarycentricWeights(intersected);
 
-			return new Vector2(x, y);
+				if (weights != null) {
+					float distance = Vector3.distance(intersected, camera);
+
+					if (distance < zbuf2[x + y * WIDTH]) {
+						zbuf2[x + y * WIDTH] = distance;
+
+						int color = triangle.color;
+
+						if (triangle.uv0 != null && true3DTexturesEnabled) {
+							Vector2 uv0 = triangle.uv0.scale(weights.x);
+							Vector2 uv1 = triangle.uv1.scale(weights.y);
+							Vector2 uv2 = triangle.uv2.scale(weights.z);
+
+							Vector2 normTexCoord = uv0.add(uv1).add(uv2);
+
+							int texX = (int) (normTexCoord.x * triangle.texture.width);
+							int texY = (int) (normTexCoord.y * triangle.texture.height);
+
+							int index = texX + texY * triangle.texture.width;
+
+							if (index < triangle.texture.pixels.length) {
+								color = triangle.texture.pixels[index];
+							}
+						}
+						
+						int red = (color >> 16) & 0xFF;
+						int green = (color >> 8) & 0xFF;
+						int blue = color & 0xFF;
+						
+						red -= (red - darkenBy >= 0) ? darkenBy : red;
+						green -= (green - darkenBy >= 0) ? darkenBy : green;
+						blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
+						
+						color = (red << 16) | (green << 8) | blue;
+
+						img.setRGB(x, y, shade(distance, color));
+					}
+					
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		private Vector3 reverseProject(Vector2 v) {
+			float xNorm = (2 * v.x) / ((float) WIDTH) - 1.0f;
+
+			float rdirx = dir.x + plane.x * xNorm;
+			float rdiry = dir.y + plane.y * xNorm;
+
+			float zNorm = 1 - (v.y / (float) HEIGHT);
+
+			Vector3 inWorld = new Vector3(rdirx + camera.x, rdiry + camera.y, zNorm);
+			
+			return inWorld;
 		}
 
-		private void perspectiveCorrectRaster(Vector2 v0, Vector2 v1, Vector2 v2, Triangle triangle, Vector3 v03, Vector3 v13,
-				Vector3 v23, Vector3 camera) {
+		private void perspectiveCorrectRaster() {
 
 			VectorAssociate a0 = new VectorAssociate(v0, v03);
 			VectorAssociate a1 = new VectorAssociate(v1, v13);
@@ -1246,22 +1476,16 @@ public class Raycaster extends JPanel {
 			int darkenBy = triangle.darkenBy;
 			
 			for (int y = startY; y <= endY; y++) {
-				if (y >= 0 && y < HUD__TRUE_HEIGHT) {
+				if (y >= 0 && y < HUD_TRUE_HEIGHT) {
 					for (int x = startX; x <= endX; x++) {
 						if (x >= 0 && x < WIDTH) {
-							float xNorm = (2 * x) / ((float) WIDTH) - 1.0f;
-
-							float rdirx = dir.x + plane.x * xNorm;
-							float rdiry = dir.y + plane.y * xNorm;
-
-							float zNorm = 1 - (y / (float) HEIGHT);
-
-							Vector3 inWorld = new Vector3(rdirx + camera.x, rdiry + camera.y, zNorm);
+							Vector3 inWorld = reverseProject(new Vector2(x,y));
+							
 							Line line = new Line(camera, inWorld);
 							Vector3 intersected = RenderUtils.linePlaneIntersection(line, triangle);
 
 							if (intersected != null) {
-								Vector3 weights = computeBarycentricWeights(intersected, triangle);
+								Vector3 weights = computeBarycentricWeights(intersected);
 
 								if (weights != null) {
 									float distance = Vector3.distance(intersected, camera);
@@ -1308,16 +1532,16 @@ public class Raycaster extends JPanel {
 			}
 		}
 
-		private Vector3 computeBarycentricWeights(Vector3 v, Triangle t) {
-			Vector3 v0 = t.bv0;
-			Vector3 v1 = t.bv1;
-			Vector3 v2 = v.minus(t.v0);
-			float d00 = t.d00;
-			float d01 = t.d01;
-			float d11 = t.d11;
+		private Vector3 computeBarycentricWeights(Vector3 v) {
+			Vector3 v0 = triangle.bv0;
+			Vector3 v1 = triangle.bv1;
+			Vector3 v2 = v.minus(triangle.v0);
+			float d00 = triangle.d00;
+			float d01 = triangle.d01;
+			float d11 = triangle.d11;
 			float d20 = Vector3.dot(v2, v0);
 			float d21 = Vector3.dot(v2, v1);
-			float invDenom = t.invDenom;
+			float invDenom = triangle.invDenom;
 
 			float w1 = (d11 * d20 - d01 * d21) * invDenom;
 
@@ -1352,6 +1576,8 @@ public class Raycaster extends JPanel {
 
 		return leftOfRightRay && rightOfLeftRay;
 	}
+	
+	private Rasterizer2 rasterizer2 = new Rasterizer2();
 	
 	// x and y correspond to world map axes; z is vertical axis; positive z points
 	// up
@@ -1423,8 +1649,10 @@ public class Raycaster extends JPanel {
 				Vector2 s0 = locateOnScreen(i0, plane2, plane0);
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
-				
-				rasterizer2.perspectiveCorrectRaster(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
+								
+				rasterizer2.set(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
+				//rasterizer2.perspectiveCorrectRaster();
+				rasterizer2.perspectiveCorrectScanlineRaster();
 			}
 		}
 	}
@@ -2000,11 +2228,11 @@ public class Raycaster extends JPanel {
 		}
 	}
 
-	private int HUD__TRUE_HEIGHT;
+	private int HUD_TRUE_HEIGHT;
 
 	private void drawHUDOnBottom() {
 		int startAt = (int) (hud.beginAt * HEIGHT);
-		HUD__TRUE_HEIGHT = startAt;
+		HUD_TRUE_HEIGHT = startAt;
 		
 		for (int y = startAt; y < HEIGHT; y++) {
 			for (int x = 0; x < WIDTH; x++) {
