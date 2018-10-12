@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
+
+import com.aparapi.Kernel;
+import com.aparapi.Range;
 
 import image.Entity;
 import image.GeneralTexture;
@@ -192,6 +196,7 @@ public class Raycaster extends JPanel {
 	private List<Vector3> modelQueue = Collections.synchronizedList(new ArrayList<Vector3>());
 	
 	private double[] zbuf2;
+	private int[] screen;
 
 	private boolean true3DTexturesEnabled = true;
 	
@@ -261,6 +266,7 @@ public class Raycaster extends JPanel {
 	private void init() {
 		zbuf = new double[WIDTH];
 		zbuf2 = new double[WIDTH * HEIGHT];
+		screen = new int[WIDTH * HEIGHT];
 		HALF_HEIGHT = HEIGHT / 2;
 		camera.setVerticalMouselookLimit(HEIGHT / 8);
 		
@@ -283,6 +289,7 @@ public class Raycaster extends JPanel {
 		g2.clearRect(0, 0, FINAL_WIDTH, FINAL_HEIGHT);
 		
 		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		Arrays.parallelSetAll(screen, i -> 0);
 	}
 	
 	// TODO: Remove this when we have a proper HUD
@@ -301,6 +308,8 @@ public class Raycaster extends JPanel {
 	}
 	
 	protected void finalizeRender() {
+		BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		img.getRaster().setDataElements(0, 0, WIDTH, HEIGHT, screen);
 		g2.drawImage(img, 0, 0, FINAL_WIDTH, FINAL_HEIGHT, null);
 	}
 	
@@ -506,7 +515,8 @@ public class Raycaster extends JPanel {
 
 							zbuf2[stripe + y * WIDTH] = transformY;
 
-							img.setRGB(stripe, y, shade(active.distance, color));
+							//img.setRGB(stripe, y, shade(active.distance, color));
+							screen[stripe + y * WIDTH] = shade(active.distance,color);
 						}
 					}
 				}
@@ -832,7 +842,8 @@ public class Raycaster extends JPanel {
 					color = 0;
 				}
 
-				img.setRGB(x, y, shade(trueDistance, color));
+				//img.setRGB(x, y, shade(trueDistance, color));
+				screen[x + y * WIDTH] = shade(trueDistance,color);
 			}
 		}
 		
@@ -867,7 +878,8 @@ public class Raycaster extends JPanel {
 					color = texture.pixels[index];
 				}
 
-				img.setRGB(x, y, shade((float) perpWallDist, color));
+				//img.setRGB(x, y, shade((float) perpWallDist, color));
+				screen[x + y * WIDTH] = shade((float)perpWallDist,color);
 			}
 		}
 		
@@ -931,8 +943,10 @@ public class Raycaster extends JPanel {
 				
 				int ceilColor = (ceilingtex.pixels[ceilingtex.SIZE * ceilTexY + ceilTexX]);
 
-				img.setRGB(x, y, shade((float) currentDist, color));
-				img.setRGB(x, HEIGHT - y, shade((float) currentDist, ceilColor));
+				//img.setRGB(x, y, shade((float) currentDist, color));
+				screen[x + y * WIDTH] = shade((float) currentDist, color);
+				//img.setRGB(x, HEIGHT - y, shade((float) currentDist, ceilColor));
+				screen[x + (HEIGHT - y) * WIDTH] = shade((float) currentDist, ceilColor);
 			}
 		}
 	}
@@ -1195,6 +1209,431 @@ public class Raycaster extends JPanel {
 
 		return new Vector2(x, y);
 	}
+	
+	private class GPURasterizer extends Kernel {
+		int[] v0;
+		int[] v1;
+		int[] v2;
+		
+		final float[] uv0 = new float[] {0,0};
+		final float[] uv1 = new float[] {0,0};
+		final float[] uv2 = new float[] {0,0};
+		int[] texture;
+		int texWidth;
+		int texHeight;
+		
+		final float[] v03 = new float[] {0,0,0};
+		final float[] v13 = new float[] {0,0,0};
+		final float[] v23 = new float[] {0,0,0};
+		final float[] cameraPos = new float[] {0,0,0};
+		final float[] cameraDir = new float[] {0,0};
+		final float[] cameraPlane = new float[] {0,0};
+		int darkenBy;
+		int color;
+
+		final float[] bv0 = new float[] {0,0,0};
+		final float[] bv1 = new float[] {0,0,0};
+		float d00;
+		float d01;
+		float d11;
+		float invDenom;
+		
+		int HUD_TRUE_HEIGHT;
+		int WIDTH;
+		int HEIGHT;
+		int startY;
+		int minX;
+		int maxX;
+		
+		int shadeType;
+		
+		boolean true3DTexturesEnabled;
+		boolean uv0Null = false;
+		boolean nullFlag = false;
+		
+		float FULL_FOG_DISTANCE;
+		int SHADE_THRESHOLD;
+		
+		int[] screen;
+		
+		public void set(Vector2 _v0, Vector2 _v1, Vector2 _v2, Triangle _triangle, Vector3 _v03, Vector3 _v13, Vector3 _v23, Vector3 _camera, Vector2 _plane, Vector2 _dir, int _HUD_TRUE_HEIGHT, int _WIDTH, int _HEIGHT, int _startY, int _minX, int _maxX, boolean _true3DTexturesEnabled, int shadeType, float _FULL_FOG_DISTANCE, int _SHADE_THRESHOLD, int[] _screen) {
+			v0 = new int[] {(int) _v0.x, (int) _v0.y};
+			v1 = new int[] {(int) _v1.x, (int) _v1.y};
+			v2 = new int[] {(int) _v2.x, (int) _v2.y};
+			
+			if (_triangle.uv0 == null) {
+				uv0Null = true;
+			} else {
+				uv0[0] = _triangle.uv0.x;
+				uv0[1] = _triangle.uv0.y;
+				
+				uv1[0] = _triangle.uv1.x;
+				uv1[1] = _triangle.uv1.y;
+				
+				uv2[0] = _triangle.uv2.x;
+				uv2[1] = _triangle.uv2.y;
+				
+				texture = _triangle.texture.pixels;
+				texWidth = _triangle.texture.width;
+				texHeight = _triangle.texture.height;
+			}	
+			
+			bv0[0] = _triangle.bv0.x;
+			bv0[1] = _triangle.bv0.y;
+			bv0[2] = _triangle.bv0.z;
+			
+			bv1[0] = _triangle.bv1.x;
+			bv1[1] = _triangle.bv1.y;
+			bv1[2] = _triangle.bv1.z;
+			
+			d00 = _triangle.d00;
+			d01 = _triangle.d01;
+			d11 = _triangle.d11;
+			invDenom = _triangle.invDenom;
+			
+			darkenBy = _triangle.darkenBy;
+			color = _triangle.color;
+			
+			v03[0] = _v03.x;
+			v03[1] = _v03.y;
+			v03[2] = _v03.z;
+			
+			v13[0] = _v13.x;
+			v13[1] = _v13.y;
+			v13[2] = _v13.z;
+			
+			v23[0] = _v23.x;
+			v23[1] = _v23.y;
+			v23[2] = _v23.z;
+			
+			cameraPos[0] = _camera.x;
+			cameraPos[1] = _camera.y;
+			cameraPos[2] = _camera.z;
+			
+			cameraDir[0] = _dir.x;
+			cameraDir[1] = _dir.y;
+			
+			cameraPlane[0] = _plane.x;
+			cameraPlane[1] = _plane.y;
+			
+			HUD_TRUE_HEIGHT = _HUD_TRUE_HEIGHT;
+			WIDTH = _WIDTH;
+			HEIGHT = _HEIGHT;
+			startY = _startY;
+			minX = _minX;
+			maxX = _maxX;
+			
+			true3DTexturesEnabled = _true3DTexturesEnabled;
+			
+			FULL_FOG_DISTANCE = _FULL_FOG_DISTANCE;
+			SHADE_THRESHOLD = _SHADE_THRESHOLD;
+			screen = _screen;
+		}
+		
+		private boolean tryDrawn = false;
+		
+		@Override
+		public void run() {
+			int y = startY + getGlobalId();
+			/*
+			boolean drawn = false;
+			for (int x = minX; x <= maxX; x++) {
+				tryDrawn = tryDraw(x,y);
+				
+				if (tryDrawn) {
+					drawn = true;
+				}
+				if (tryDrawn && !drawn) {
+					tryDrawn = false;
+					return;
+				}
+			}
+			*/	
+		}
+		
+		
+		private float dot(float[] a, float[] b) {
+			return (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]);
+		}
+		
+		
+		final float[] crossR = new float[] {0,0,0};
+		private void cross(float[] a, float[] b) {
+			float _x = (a[1] * b[2]) - (a[2] * b[1]);
+			float _y = (a[2] * b[0]) - (a[0] * b[2]);
+			float _z = (a[0] * b[1]) - (a[1] * b[0]);
+			
+			crossR[0] = _x;
+			crossR[1] = _y;
+			crossR[2] = _z;
+		}
+		
+		final float[] scale3R = new float[] {0,0,0};
+		private void scale3(float[] v, float f) {
+			scale3R[0] = v[0] * f;
+			scale3R[1] = v[1] * f;
+			scale3R[2] = v[2] * f;
+		}
+		
+		final float[] scale2R = new float[] {0,0};
+		private void scale2(float[] v, float f) {
+			scale2R[0] = v[0] * f;
+			scale2R[1] = v[1] * f;
+		}
+		
+		final float[] normalR = new float[] {0,0,0}; //Result
+		final float[] term0 = new float[] {0,0,0};
+		final float[] term1 = new float[] {0,0,0};
+		private void getNormal(float[] t0, float[] t1, float[] t2) {
+			
+			term0[0] = t1[0] - t0[0];
+			term0[1] = t1[1] - t0[1];
+			term0[2] = t1[2] - t0[2];
+			
+			term1[0] = t2[0] - t0[0];
+			term1[1] = t2[1] - t0[1];
+			term1[2] = t2[2] - t0[2];
+			
+			cross(term0, term1);
+			
+			normalR[0] = crossR[0];
+			normalR[1] = crossR[1];
+			normalR[2] = crossR[2];
+		}
+		
+		final float[] lPIR = new float[] {0,0,0}; //Result
+		final float[] lpp0 = new float[] {0,0,0};
+		final float[] lpp1 = new float[] {0,0,0};
+		final float[] p_co = new float[] {0,0,0};
+		final float[] p_no = new float[] {0,0,0};
+		final float[] lpu = new float[] {0,0,0};
+		final float[] lpw = new float[] {0,0,0};
+		private void linePlaneIntersection(float[] l0, float[] l1, float[] plane0, float[] plane1, float[] plane2) {
+			lpp0[0] = l0[0];
+			lpp0[1] = l0[1];
+			lpp0[2] = l0[2];
+			
+			lpp1[0] = l1[0];
+			lpp1[1] = l1[1];
+			lpp1[2] = l1[2];
+			
+			p_co[0] = plane0[0];
+			p_co[1] = plane0[1];
+			p_co[2] = plane0[2];
+			
+			getNormal(plane0, plane1, plane2);
+			p_no[0] = normalR[0];
+			p_no[1] = normalR[1];
+			p_no[2] = normalR[2];
+			
+			final float epsilon = 0.000001f;
+			
+			lpu[0] = lpp0[0] - lpp1[0];
+			lpu[1] = lpp0[1] - lpp1[1];
+			lpu[2] = lpp0[2] - lpp1[2];
+			
+			float dot = dot(p_no, lpu);
+			
+			if (super.abs(dot) > epsilon) {
+				lpw[0] = lpp0[0] - p_co[0];
+				lpw[1] = lpp1[0] - p_co[1];
+				lpw[2] = lpp0[2] - p_co[2];
+				
+				float fac = -dot(p_no, lpw) / dot;
+				
+				if (fac > 0) {
+					nullFlag = true;
+					return;
+				}
+				
+				scale3(lpu,fac);
+				
+				lpu[0] = scale3R[0];
+				lpu[1] = scale3R[1];
+				lpu[2] = scale3R[2];
+				
+				lPIR[0] = lpp0[0] + lpu[0];
+				lPIR[1] = lpp0[1] + lpu[1];
+				lPIR[2] = lpp0[2] + lpu[2];
+				return;
+			}
+			
+			nullFlag = true;
+		}
+		
+		private float distance(float[] v0, float[] v1) {
+			return super.sqrt(((v0[0] - v1[0]) * (v0[0] - v1[0])) + ((v0[1] - v1[1]) * (v0[1] - v1[1])) + ((v0[2] - v1[2]) * (v0[2] - v1[2])));
+		}
+		
+		private final float[] inWorld = new float[] {0,0,0};
+		private final float[] intersected = new float[] {0,0,0};
+		private final float[] weights = new float[] {0,0,0};
+		
+		private final float[] uv00 = new float[] {0,0};
+		private final float[] uv10 = new float[] {0,0};
+		private final float[] uv20 = new float[] {0,0};
+		
+		private final float[] normTexCoord = new float[] {0,0};
+		private boolean tryDraw(int x, int y) {
+			
+			reverseProject(x,y);
+			inWorld[0] = reverseProjectR[0];
+			inWorld[1] = reverseProjectR[1];
+			
+			linePlaneIntersection(cameraPos, inWorld, v03, v13, v23);
+			
+			intersected[0] = lPIR[0];
+			intersected[1] = lPIR[1];
+			intersected[2] = lPIR[2];
+
+			if (!nullFlag) {
+				computeBarycentricWeights(intersected);
+				weights[0] = baryWeights[0];
+				weights[1] = baryWeights[1];
+				weights[2] = baryWeights[2];
+
+				if (!nullFlag) {
+					float distance = distance(intersected, cameraPos);
+					int col = color;
+					
+					if (distance < zbuf2[x + y * WIDTH]) {
+						zbuf2[x + y * WIDTH] = distance;
+
+						if (!uv0Null && true3DTexturesEnabled) {
+							scale2(uv0, weights[0]);
+							uv00[0] = scale2R[0];
+							uv00[1] = scale2R[1];
+							
+							scale2(uv1, weights[1]);
+							uv10[0] = scale2R[0];
+							uv10[1] = scale2R[1];
+							
+							scale2(uv2, weights[2]);
+							uv20[0] = scale2R[0];
+							uv20[1] = scale2R[1];
+							
+							normTexCoord[0] = uv00[0] + uv10[0] + uv20[0];
+							normTexCoord[1] = uv00[1] + uv10[1] + uv20[1];
+							
+							int texX = (int) (normTexCoord[0] * texWidth);
+							int texY = (int) (normTexCoord[1] * texHeight);
+
+							int index = texX + texY * texWidth;
+
+							if (index < texture.length) {
+								col = texture[index];
+							}
+						}
+						
+						int red = (col >> 16) & 0xFF;
+						int green = (col >> 8) & 0xFF;
+						int blue = col & 0xFF;
+						
+						red -= (red - darkenBy >= 0) ? darkenBy : red;
+						green -= (green - darkenBy >= 0) ? darkenBy : green;
+						blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
+						
+						col = (red << 16) | (green << 8) | blue;
+
+						//img.setRGB(x, y, shade(distance, color));
+						screen[x + y * WIDTH] = shade(distance,col);
+					}
+					
+					return true;
+				}
+			}
+			
+			nullFlag = false;
+			return false;
+		}
+		
+		private int shade(float distance, int color) {
+			float darkenBy;
+
+			switch (shadeType) {
+				case 1:
+					float normValue = distance / FULL_FOG_DISTANCE;
+					
+					darkenBy = (normValue >= 1 ? 1 : normValue) * SHADE_THRESHOLD;
+					break;
+				
+				case 2:
+					float _x = distance >= FULL_FOG_DISTANCE ? FULL_FOG_DISTANCE : distance;
+					float a = SHADE_THRESHOLD / 100.0f;
+					float b = 2 * FULL_FOG_DISTANCE;
+					darkenBy = (-(a * _x) * (_x - b));
+					break;
+				
+				case 0:
+				default:
+					darkenBy = 0;
+			}
+			
+			int red = (color >> 16) & 0xFF;
+			int green = (color >> 8) & 0xFF;
+			int blue = color & 0xFF;
+			
+			red -= (red - darkenBy >= 0) ? darkenBy : red;
+			green -= (green - darkenBy >= 0) ? darkenBy : green;
+			blue -= (blue - darkenBy >= 0) ? darkenBy : blue;
+			
+			color = (red << 16) | (green << 8) | blue;
+			
+			return color;
+		}
+		
+		private final float[] v2bary = new float[] {0, 0, 0};
+		private final float[] baryWeights = new float[] {0, 0, 0};
+		
+		private void computeBarycentricWeights(float[] v) {
+			
+			v2bary[0] = v[0] - bv0[0];
+			v2bary[1] = v[1] - bv0[1];
+			v2bary[2] = v[2] - bv0[2];
+			
+			float d20 = dot(v2bary, bv0);
+			float d21 = dot(v2bary, bv1);
+
+			float w1 = (d11 * d20 - d01 * d21) * invDenom;
+
+			if (w1 < 0) {
+				nullFlag = true;
+				return;
+			}
+
+			float w2 = (d00 * d21 - d01 * d20) * invDenom;
+
+			if (w2 < 0) {
+				nullFlag = true;
+				return;
+			}
+
+			float w0 = 1.0f - w1 - w2;
+
+			if (w0 < 0) {
+				nullFlag = true;
+				return;
+			} else {
+				baryWeights[0] = w0;
+				baryWeights[1] = w1;
+				baryWeights[2] = w2;
+			}
+		}
+		
+		private final float[] reverseProjectR = new float[] {0,0,0};
+		private void reverseProject(int x, int y) {
+			float xNorm = (2 * x) / ((float) WIDTH) - 1.0f;
+
+			float rdirx = cameraDir[0] + cameraPlane[0] * xNorm;
+			float rdiry = cameraDir[1] + cameraPlane[1] * xNorm;
+
+			float zNorm = 1 - (y / (float) HEIGHT);
+			
+			reverseProjectR[0] = rdirx + cameraPos[0];
+			reverseProjectR[1] = rdiry + cameraPos[1];
+			reverseProjectR[2] = zNorm;
+		}
+	}
 
 	private class Rasterizer2 {
 		Vector2 v0;
@@ -1408,7 +1847,8 @@ public class Raycaster extends JPanel {
 						
 						color = (red << 16) | (green << 8) | blue;
 
-						img.setRGB(x, y, shade(distance, color));
+						//img.setRGB(x, y, shade(distance, color));
+						screen[x + y * WIDTH] = shade(distance,color);
 					}
 					
 					return true;
@@ -1522,7 +1962,8 @@ public class Raycaster extends JPanel {
 										
 										color = (red << 16) | (green << 8) | blue;
 
-										img.setRGB(x, y, shade(distance, color));
+										//img.setRGB(x, y, shade(distance, color));
+										screen[x + y * WIDTH] = shade(distance,color);
 									}
 								}
 							}
@@ -1578,6 +2019,7 @@ public class Raycaster extends JPanel {
 	}
 	
 	private Rasterizer2 rasterizer2 = new Rasterizer2();
+	private GPURasterizer gpuRasterizer = new GPURasterizer();
 	
 	// x and y correspond to world map axes; z is vertical axis; positive z points
 	// up
@@ -1649,10 +2091,60 @@ public class Raycaster extends JPanel {
 				Vector2 s0 = locateOnScreen(i0, plane2, plane0);
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
-								
-				rasterizer2.set(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
-				//rasterizer2.perspectiveCorrectRaster();
-				rasterizer2.perspectiveCorrectScanlineRaster();
+				
+				/*
+					rasterizer2.set(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
+					//rasterizer2.perspectiveCorrectRaster();
+					rasterizer2.perspectiveCorrectScanlineRaster();
+				*/
+				
+				//Rasterization with the GPU
+				int minX = (int) Math.min(s0.x, Math.min(s1.x, s2.x));
+				int maxX = (int) Math.max(s0.x, Math.max(s1.x, s2.x));
+				
+				int minY = (int) Math.min(s0.y, Math.min(s1.y, s2.y));
+				int maxY = (int) Math.max(s0.y, Math.max(s1.y, s2.y));
+				
+				if (minY < 0) {
+					minY = 0;
+				} else if (minY >= HUD_TRUE_HEIGHT) {
+					return;
+				}
+				
+				if (maxY >= HUD_TRUE_HEIGHT) {
+					maxY = HUD_TRUE_HEIGHT-1;
+				} else if (maxY < 0) {
+					return;
+				}
+				
+				if (minX < 0) {
+					minX = 0;
+				} else if (minX >= WIDTH) {
+					return;
+				}
+				
+				if (maxX >= WIDTH) {
+					maxX = WIDTH-1;
+				} else if (maxX < 0) {
+					return;
+				}
+				
+				int startY = minY;
+				//int _HUD_TRUE_HEIGHT, int _WIDTH, int _startY, int _minX, int _maxX
+				int _shadeType = 0;
+				
+				switch (shadeType) {
+					case LINEAR:
+						_shadeType = 1;
+						break;
+					case QUADRATIC:
+						_shadeType = 2;
+						break;
+				}
+				
+				gpuRasterizer.set(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos, camera.plane, camera.dir, HUD_TRUE_HEIGHT, WIDTH, HEIGHT, startY, minX, maxX, true3DTexturesEnabled, _shadeType, FULL_FOG_DISTANCE, SHADE_THRESHOLD, screen);
+				Range range = Range.create(maxY - minY);
+				gpuRasterizer.execute(range);
 			}
 		}
 	}
@@ -1852,7 +2344,8 @@ public class Raycaster extends JPanel {
 										}
 									}
 
-									img.setRGB(x, y, shade(distance, color));
+									//img.setRGB(x, y, shade(distance, color));
+									screen[x + y * WIDTH] = shade(distance,color);
 								}
 							}
 						}
@@ -1988,7 +2481,8 @@ public class Raycaster extends JPanel {
 									}
 								}
 								
-								img.setRGB(x, y, shade(distance, color));
+								//img.setRGB(x, y, shade(distance, color));
+								screen[x + y * WIDTH] = shade(distance,color);
 							}
 						}
 					}
@@ -2102,7 +2596,8 @@ public class Raycaster extends JPanel {
 						if (zbuf2[x + y * WIDTH] > distance) {
 							zbuf2[x + y * WIDTH] = distance;
 							
-							img.setRGB(x, y, shade(distance, color));
+							//img.setRGB(x, y, shade(distance, color));
+							screen[x + y * WIDTH] = shade(distance,color);
 						}
 					}
 				}
@@ -2245,7 +2740,8 @@ public class Raycaster extends JPanel {
 					color = 0x6E6E6E;
 				}
 				
-				img.setRGB(x, y, color);
+				//img.setRGB(x, y, color);
+				screen[x + y * WIDTH] = color;
 			}
 		}
 		
@@ -2274,13 +2770,15 @@ public class Raycaster extends JPanel {
 		
 		for (int y = healthY; y < healthHeight + healthY; y++) {
 			for (int x = healthX; x < healthWidth + healthX; x++) {
-				img.setRGB(x, y, HUD.HEALTH_COLOR);
+				//img.setRGB(x, y, HUD.HEALTH_COLOR);
+				screen[x + y * WIDTH] = HUD.HEALTH_COLOR;
 			}
 		}
 		
 		for (int y = coffeeY; y < coffeeHeight + coffeeY; y++) {
 			for (int x = coffeeX; x < coffeeWidth + coffeeX; x++) {
-				img.setRGB(x, y, HUD.COFFEE_COLOR);
+				//img.setRGB(x, y, HUD.COFFEE_COLOR);
+				screen[x + y * WIDTH] = HUD.COFFEE_COLOR;
 			}
 		}
 	}
@@ -2323,7 +2821,8 @@ public class Raycaster extends JPanel {
 					int color = frame.pixels[imgX + frame.SIZE * imgY];
 					
 					if (color != Texture.ALPHA) {
-						img.setRGB(x, y, color);
+						//img.setRGB(x, y, color);
+						screen[x + y * WIDTH] = color;
 					}
 				}
 			}

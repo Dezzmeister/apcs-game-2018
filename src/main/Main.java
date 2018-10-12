@@ -1,5 +1,27 @@
 package main;
 
+import static org.jocl.CL.CL_CONTEXT_PLATFORM;
+import static org.jocl.CL.CL_DEVICE_TYPE_ALL;
+import static org.jocl.CL.CL_MEM_COPY_HOST_PTR;
+import static org.jocl.CL.CL_MEM_READ_ONLY;
+import static org.jocl.CL.CL_MEM_READ_WRITE;
+import static org.jocl.CL.CL_TRUE;
+import static org.jocl.CL.clBuildProgram;
+import static org.jocl.CL.clCreateBuffer;
+import static org.jocl.CL.clCreateCommandQueueWithProperties;
+import static org.jocl.CL.clCreateContext;
+import static org.jocl.CL.clCreateKernel;
+import static org.jocl.CL.clCreateProgramWithSource;
+import static org.jocl.CL.clEnqueueNDRangeKernel;
+import static org.jocl.CL.clEnqueueReadBuffer;
+import static org.jocl.CL.clGetDeviceIDs;
+import static org.jocl.CL.clGetPlatformIDs;
+import static org.jocl.CL.clReleaseCommandQueue;
+import static org.jocl.CL.clReleaseContext;
+import static org.jocl.CL.clReleaseKernel;
+import static org.jocl.CL.clReleaseMemObject;
+import static org.jocl.CL.clReleaseProgram;
+import static org.jocl.CL.clSetKernelArg;
 import static render.core.Block.SPACE;
 import static render.core.Block.DwightElements.CUBICLE_X;
 import static render.core.Block.DwightElements.CUBICLE_Y;
@@ -9,8 +31,26 @@ import static render.core.Block.DwightElements.STANDARD_ROOM_FLOOR;
 import static render.core.Block.DwightElements.STANDARD_WALL_BLOCK;
 import static render.core.WorldMap.DEFAULT_CEILING;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.jocl.CL;
+import org.jocl.Pointer;
+import org.jocl.Sizeof;
+import org.jocl.cl_command_queue;
+import org.jocl.cl_context;
+import org.jocl.cl_context_properties;
+import org.jocl.cl_device_id;
+import org.jocl.cl_kernel;
+import org.jocl.cl_mem;
+import org.jocl.cl_platform_id;
+import org.jocl.cl_program;
+import org.jocl.cl_queue_properties;
+import org.jocl.struct.Buffers;
+import org.jocl.struct.SizeofStruct;
 
 import audio.soundjunk.SoundManager;
 import audio.soundjunk.localized.Speaker;
@@ -28,6 +68,8 @@ import render.core.Camera;
 import render.core.Raycaster;
 import render.core.Wall;
 import render.core.WorldMap;
+import render.core.gpu.GPU;
+import render.core.gpu.Vec3;
 import render.core.true3D.Model;
 import render.core.true3D.Transformer;
 import render.math.Matrix4;
@@ -46,12 +88,278 @@ public class Main {
 	public static void main(String[] args) {
 		// test();
 		// mapGenerationTest();
-		cubicleTest();
+		// cubicleTest();
+		// gpuTest();
+		// gpuTest2();
+		// gpuTestWithFile();
+		gpuStructTest();
 		// pathsTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();
 		// matrixTest();
 		// angleTest();
+	}
+	
+	static void gpuStructTest() {
+		String path = "src/render/core/gpu/struct_test.c";
+		String source = null;
+		
+		try {
+			source = Files.readAllLines(Paths.get(path)).stream().reduce((a, b) -> a + b + "\n").get();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Vec3 v0 = new Vector3(1,5,4).toStruct();
+		Vec3 v1 = new Vector3(2,9,8).toStruct();
+		v1 = Vec3.of(new Vector3(2,9,8));
+		Vec3 v2 = new Vec3();
+		int structSize = SizeofStruct.sizeof(Vec3.class);
+		
+		ByteBuffer v0b = Buffers.allocateBuffer(v0);
+		Buffers.writeToBuffer(v0b, v0);
+		
+		ByteBuffer v1b = Buffers.allocateBuffer(v1);
+		Buffers.writeToBuffer(v1b, v1);
+		
+		ByteBuffer v2b = Buffers.allocateBuffer(v2);
+		Buffers.writeToBuffer(v2b,  v2);
+		
+		cl_program program = clCreateProgramWithSource(GPU.context, 1, new String[] {source}, null, null);
+		clBuildProgram(program, 0, null, null, null, null);
+		cl_kernel kernel = clCreateKernel(program, "vecAdd", null);
+		
+		long[] global_work_size = new long[] {1};
+		long[] local_work_size = new long[] {1};
+		
+		cl_queue_properties commandQueueProperties = new cl_queue_properties();
+		
+		cl_command_queue commandQueue = clCreateCommandQueueWithProperties(GPU.context, GPU.device, commandQueueProperties, null);
+		
+		cl_mem[] memObjects = new cl_mem[3];
+		memObjects[0] = clCreateBuffer(GPU.context, CL.CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, structSize, Pointer.to(v0b), null);
+		memObjects[1] = clCreateBuffer(GPU.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, structSize, Pointer.to(v1b), null);
+		memObjects[2] = clCreateBuffer(GPU.context, CL_MEM_READ_WRITE, structSize, null, null);
+		
+		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(memObjects[0]));
+		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(memObjects[1]));
+		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(memObjects[2]));
+		
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size, local_work_size, 0, null, null);
+		
+		clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0, structSize, Pointer.to(v2b), 0, null, null);
+		
+		v2b.rewind();
+		Buffers.readFromBuffer(v2b,  v2);
+		
+		clReleaseMemObject(memObjects[0]);
+		clReleaseMemObject(memObjects[1]);
+		clReleaseMemObject(memObjects[2]);
+		clReleaseKernel(kernel);
+		clReleaseProgram(program);
+		clReleaseCommandQueue(commandQueue);
+		clReleaseContext(GPU.context);
+		
+		System.out.println(v2.x);
+	}
+	
+	static void gpuTestWithFile() {
+		String path = "src/render/core/gpu/function_test.c";
+		String source = null;
+		
+		try {
+			source = Files.readAllLines(Paths.get(path)).stream().reduce((a, b) -> a + b + "\n").get();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		float[] v0 = {12,7,4};
+		float[] v1 = {9,8,14};
+		float[] v2 = new float[3];
+		
+		Pointer srcA = Pointer.to(v0);
+		Pointer srcB = Pointer.to(v1);
+		Pointer dest = Pointer.to(v2);
+		
+		cl_program program = clCreateProgramWithSource(GPU.context, 1, new String[] {source}, null, null);
+		clBuildProgram(program, 0, null, null, null, null);
+		cl_kernel kernel = clCreateKernel(program, "dotTest", null);
+		
+		long[] global_work_size = new long[] {1};
+		long[] local_work_size = new long[] {1};
+		
+		cl_queue_properties commandQueueProperties = new cl_queue_properties();
+		
+		cl_command_queue commandQueue = clCreateCommandQueueWithProperties(GPU.context, GPU.device, commandQueueProperties, null);
+		
+		cl_mem[] memObjects = new cl_mem[3];
+		memObjects[0] = clCreateBuffer(GPU.context, CL.CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float * 3, srcA, null);
+		memObjects[1] = clCreateBuffer(GPU.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float * 3, srcB, null);
+		memObjects[2] = clCreateBuffer(GPU.context, CL_MEM_READ_WRITE, Sizeof.cl_float * 3, null, null);
+		
+		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(memObjects[0]));
+		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(memObjects[1]));
+		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(memObjects[2]));
+		
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size, local_work_size, 0, null, null);
+		
+		clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0, Sizeof.cl_float * 3, dest, 0, null, null);
+		
+		clReleaseMemObject(memObjects[0]);
+		clReleaseMemObject(memObjects[1]);
+		clReleaseMemObject(memObjects[2]);
+		clReleaseKernel(kernel);
+		clReleaseProgram(program);
+		clReleaseCommandQueue(commandQueue);
+		clReleaseContext(GPU.context);
+		
+		System.out.println(v2[0]);
+		System.out.println(v2[1]);
+		System.out.println(v2[2]);
+	}
+	
+	static void gpuTest2() {
+		String source = "__kernel void "+
+						"korn(__global const float *a,"+
+						"     __global const float *b,"+
+						"	  __global float *c)"+
+					    "{"+
+						"	int gid = get_global_id(0);"+
+					    "	c[0] = gid + ((int)(a[0] + b[0])) | 3;"+
+						"}";
+		
+		cl_program program = clCreateProgramWithSource(GPU.context, 1, new String[] {source}, null, null);
+		clBuildProgram(program, 0, null, null, null, null);
+		cl_kernel kernel = clCreateKernel(program, "korn", null);
+		
+		long[] global_work_size = new long[] {1};
+		long[] local_work_size = new long[] {1};
+		
+		cl_queue_properties commandQueueProperties = new cl_queue_properties();
+		
+		cl_command_queue commandQueue = clCreateCommandQueueWithProperties(GPU.context, GPU.device, commandQueueProperties, null);
+		
+		float a = 5;
+		float b = 7;
+		float[] c = new float[1];
+				
+		Pointer srcA = Pointer.to(new float[] {a});
+		Pointer srcB = Pointer.to(new float[] {b});
+		Pointer srcC = Pointer.to(c);
+		
+		cl_mem[] memObjects = new cl_mem[3];
+		memObjects[0] = clCreateBuffer(GPU.context, CL.CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float, srcA, null);
+		memObjects[1] = clCreateBuffer(GPU.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float, srcB, null);
+		memObjects[2] = clCreateBuffer(GPU.context, CL_MEM_READ_WRITE, Sizeof.cl_float, null, null);
+		
+		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(memObjects[0]));
+		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(memObjects[1]));
+		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(memObjects[2]));
+		
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size, local_work_size, 0, null, null);
+		
+		clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0, Sizeof.cl_float, srcC, 0, null, null);
+		
+		clReleaseMemObject(memObjects[0]);
+		clReleaseMemObject(memObjects[1]);
+		clReleaseMemObject(memObjects[2]);
+		clReleaseKernel(kernel);
+		clReleaseProgram(program);
+		clReleaseCommandQueue(commandQueue);
+		clReleaseContext(GPU.context);
+		
+		System.out.println(c[0]);		
+	}
+	
+	static void gpuTest() {
+		
+		String source = 
+				"__kernel void "+
+				"jojKernel(__global const float *a,"+
+				"          __global const float *b,"+
+				"          __global float *c)"+
+				"{"+
+				"	int gid = get_global_id(0);"+
+				"	c[gid] = a[gid] * b[gid];"+
+				"}";
+		
+		int n = 20;
+		float[] aArray = new float[n];
+		float[] bArray = new float[n];
+		float[] cArray = new float[n];
+		
+		for (int i = 0; i < n; i++) {
+			aArray[i] = i;
+			bArray[i] = i;
+		}
+		
+		Pointer srcA = Pointer.to(aArray);
+		Pointer srcB = Pointer.to(bArray);
+		Pointer srcC = Pointer.to(cArray);
+		
+		final int platformIndex = 0;
+		final long deviceType = CL_DEVICE_TYPE_ALL;
+		final int deviceIndex = 0;
+		
+		CL.setExceptionsEnabled(true);
+		
+		int[] platformsArray = new int[1];
+		clGetPlatformIDs(0, null, platformsArray);
+		int numPlatforms = platformsArray[0];
+		
+		cl_platform_id[] platforms = new cl_platform_id[numPlatforms];
+		clGetPlatformIDs(platforms.length, platforms, null);
+		cl_platform_id platform = platforms[platformIndex];
+		
+		cl_context_properties contextProperties = new cl_context_properties();
+		contextProperties.addProperty(CL_CONTEXT_PLATFORM, platform);
+		
+		int[] devicesArray = new int[1];
+		clGetDeviceIDs(platform, deviceType, 0, null, devicesArray);
+		int numDevices = devicesArray[0];
+		
+		cl_device_id[] devices= new cl_device_id[numDevices];
+		clGetDeviceIDs(platform, deviceType, numDevices, devices, null);
+		cl_device_id device = devices[deviceIndex];
+		
+		cl_context context = clCreateContext(contextProperties, 1, new cl_device_id[] {device}, null, null, null);
+		
+		cl_queue_properties commandQueueProperties = new cl_queue_properties();
+		
+		
+		//@SuppressWarnings("deprecation")
+		//cl_command_queue commandQueue = clCreateCommandQueue(context, device, 0, null);
+		cl_command_queue commandQueue = clCreateCommandQueueWithProperties(context, device, commandQueueProperties, null);
+		
+		cl_mem[] memObjects = new cl_mem[3];
+		memObjects[0] = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float * n, srcA, null);
+		memObjects[1] = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float * n, srcB, null);
+		memObjects[2] = clCreateBuffer(context, CL_MEM_READ_WRITE, Sizeof.cl_float * n, null, null);
+		
+		cl_program program = clCreateProgramWithSource(context, 1, new String[] {source}, null, null);
+		clBuildProgram(program, 0, null, null, null, null);
+		cl_kernel kernel = clCreateKernel(program, "jojKernel", null);
+		
+		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(memObjects[0]));
+		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(memObjects[1]));
+		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(memObjects[2]));
+		
+		long[] global_work_size = new long[] {n};
+		long[] local_work_size = new long[] {1};
+		
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size, local_work_size, 0, null, null);
+		
+		clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0, n * Sizeof.cl_float, srcC, 0, null, null);
+		
+		clReleaseMemObject(memObjects[0]);
+		clReleaseMemObject(memObjects[1]);
+		clReleaseMemObject(memObjects[2]);
+		clReleaseKernel(kernel);
+		clReleaseProgram(program);
+		clReleaseCommandQueue(commandQueue);
+		clReleaseContext(context);
+		
+		System.out.println(java.util.Arrays.toString(cArray));
 	}
 
 	static void pathsTest() {

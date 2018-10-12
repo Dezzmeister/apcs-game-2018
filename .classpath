@@ -12,5 +12,11 @@
 	<classpathentry kind="lib" path="lib/vorbisspi1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/aparapi-1.4.1.jar" sourcepath="libsrc/aparapi-1.4.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/aparapi-jni-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/JOCL-0.2.0RC.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="apcs-game-2018/dlls/JOCL"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/JOCL-structs-0.0.1a-alpha.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

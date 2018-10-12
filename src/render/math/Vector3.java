@@ -2,6 +2,8 @@ package render.math;
 
 import java.util.Objects;
 
+import render.core.gpu.Vec3;
+
 /**
  * Represents a Vector in 3D space. Also has a w component that can be used in
  * perspective transformations as a homogenous coordinate.
@@ -111,6 +113,15 @@ public class Vector3 {
 	 */
 	public void updateLength() {
 		length = distance(ORIGIN, this);
+	}
+	
+	public Vec3 toStruct() {
+		Vec3 v = new Vec3();
+		v.x = x;
+		v.y = y;
+		v.z = z;
+		
+		return v;
 	}
 
 	@Override
