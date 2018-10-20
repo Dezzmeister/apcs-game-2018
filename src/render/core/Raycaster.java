@@ -195,7 +195,7 @@ public class Raycaster extends JPanel {
 	private float closestWallAtCenter = 0;
 	private List<Vector3> modelQueue = Collections.synchronizedList(new ArrayList<Vector3>());
 	
-	private double[] zbuf2;
+	private float[] zbuf2;
 	private int[] screen;
 
 	private boolean true3DTexturesEnabled = true;
@@ -265,7 +265,7 @@ public class Raycaster extends JPanel {
 	
 	private void init() {
 		zbuf = new double[WIDTH];
-		zbuf2 = new double[WIDTH * HEIGHT];
+		zbuf2 = new float[WIDTH * HEIGHT];
 		screen = new int[WIDTH * HEIGHT];
 		HALF_HEIGHT = HEIGHT / 2;
 		camera.setVerticalMouselookLimit(HEIGHT / 8);
@@ -398,7 +398,7 @@ public class Raycaster extends JPanel {
 		for (int i = 0; i < WIDTH; i++) {
 			zbuf[i] = Double.POSITIVE_INFINITY;
 			for (int j = 0; j < HEIGHT; j++) {
-				zbuf2[i + j * WIDTH] = Double.POSITIVE_INFINITY;
+				zbuf2[i + j * WIDTH] = Float.POSITIVE_INFINITY;
 			}
 		}
 	}
@@ -513,7 +513,7 @@ public class Raycaster extends JPanel {
 
 						if (color != active.alpha) {
 
-							zbuf2[stripe + y * WIDTH] = transformY;
+							zbuf2[stripe + y * WIDTH] = (float)transformY;
 
 							//img.setRGB(stripe, y, shade(active.distance, color));
 							screen[stripe + y * WIDTH] = shade(active.distance,color);

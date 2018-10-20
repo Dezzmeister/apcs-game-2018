@@ -151,6 +151,27 @@ public class Main {
 		
 		v2b.rewind();
 		Buffers.readFromBuffer(v2b,  v2);
+		System.out.println(v2.x);
+		System.out.println(v2.y);
+		System.out.println(v2.z);
+		
+		v0.x = 5000;
+		
+		ByteBuffer v0b2 = Buffers.allocateBuffer(v0);
+		Buffers.writeToBuffer(v0b2, v0);
+		
+		cl_mem testmem = clCreateBuffer(GPU.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, structSize, Pointer.to(v0b2), null);
+		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(testmem));
+		
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size, local_work_size, 0, null, null);
+		
+		clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0, structSize, Pointer.to(v2b), 0, null, null);
+		
+		v2b.rewind();
+		Buffers.readFromBuffer(v2b,  v2);
+		System.out.println(v2.x);
+		System.out.println(v2.y);
+		System.out.println(v2.z);
 		
 		clReleaseMemObject(memObjects[0]);
 		clReleaseMemObject(memObjects[1]);
@@ -160,7 +181,7 @@ public class Main {
 		clReleaseCommandQueue(commandQueue);
 		clReleaseContext(GPU.context);
 		
-		System.out.println(v2.x);
+		
 	}
 	
 	static void gpuTestWithFile() {

@@ -53,5 +53,7 @@ public class GPU {
 		device = devices[deviceIndex];
 		
 		context = clCreateContext(contextProperties, 1, new cl_device_id[] {device}, null, null, null);
+		
+		
 	}
 }
