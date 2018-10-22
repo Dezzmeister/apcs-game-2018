@@ -330,8 +330,12 @@ public class Block {
 
 		public static final Model CHAIR_MODEL = loadChair();
 		public static final Block CHAIR_BLOCK;
+		/*
 		public static final Block FILE_CABINET = new Block("file cabinet")
 				.defineAsModel(new OBJModel("assets/models/filecabinet.obj").transform(MODEL_SCALER));
+				*/
+		
+		private static final Block MAILBOX = new Block("mailbox").defineAsModel(new OBJModel("assets/models/mailbox.obj").transform(MODEL_SCALER).shadeAll(100, 0.5f));
 
 		public static final Block[] OFFICE_MISC;
 
@@ -355,7 +359,7 @@ public class Block {
 
 			CHAIR_BLOCK = new Block("metal chair").defineAsModel(CHAIR_MODEL);
 
-			OFFICE_MISC = new Block[] {TABLE_BLOCK, CHAIR_BLOCK, FILE_CABINET, ILLUMINATI_SPIRE_BLOCK};
+			OFFICE_MISC = new Block[] {TABLE_BLOCK, CHAIR_BLOCK, ILLUMINATI_SPIRE_BLOCK, MAILBOX};
 			
 			try {
 				DEATH = ImageIO.read(new File("assets/overlays/death.png"));

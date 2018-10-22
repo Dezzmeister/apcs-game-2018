@@ -2092,13 +2092,13 @@ public class Raycaster extends JPanel {
 				Vector2 s1 = locateOnScreen(i1, plane2, plane0);
 				Vector2 s2 = locateOnScreen(i2, plane2, plane0);
 				
-				/*
-					rasterizer2.set(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
-					//rasterizer2.perspectiveCorrectRaster();
-					rasterizer2.perspectiveCorrectScanlineRaster();
-				*/
+				
+				rasterizer2.set(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos);
+				rasterizer2.perspectiveCorrectScanlineRaster();
+				
 				
 				//Rasterization with the GPU
+				/*
 				int minX = (int) Math.min(s0.x, Math.min(s1.x, s2.x));
 				int maxX = (int) Math.max(s0.x, Math.max(s1.x, s2.x));
 				
@@ -2145,6 +2145,7 @@ public class Raycaster extends JPanel {
 				gpuRasterizer.set(s0, s1, s2, translatedTriangle, v0, v1, v2, cameraPos, camera.plane, camera.dir, HUD_TRUE_HEIGHT, WIDTH, HEIGHT, startY, minX, maxX, true3DTexturesEnabled, _shadeType, FULL_FOG_DISTANCE, SHADE_THRESHOLD, screen);
 				Range range = Range.create(maxY - minY);
 				gpuRasterizer.execute(range);
+				*/
 			}
 		}
 	}

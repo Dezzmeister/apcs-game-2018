@@ -87,12 +87,12 @@ public class Main {
 	
 	public static void main(String[] args) {
 		// test();
-		// mapGenerationTest();
+		mapGenerationTest();
 		// cubicleTest();
 		// gpuTest();
 		// gpuTest2();
 		// gpuTestWithFile();
-		gpuStructTest();
+		// gpuStructTest();
 		// pathsTest();
 		// Arrays.toString(map.getIntMap());
 		// vectorTest();

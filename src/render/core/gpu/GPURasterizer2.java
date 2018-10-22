@@ -3,24 +3,30 @@ package render.core.gpu;
 import static org.jocl.CL.CL_MEM_COPY_HOST_PTR;
 import static org.jocl.CL.CL_MEM_READ_ONLY;
 import static org.jocl.CL.CL_MEM_READ_WRITE;
+import static org.jocl.CL.CL_TRUE;
 import static org.jocl.CL.clBuildProgram;
 import static org.jocl.CL.clCreateBuffer;
+import static org.jocl.CL.clCreateCommandQueueWithProperties;
 import static org.jocl.CL.clCreateKernel;
 import static org.jocl.CL.clCreateProgramWithSource;
+import static org.jocl.CL.clEnqueueNDRangeKernel;
+import static org.jocl.CL.clEnqueueReadBuffer;
+import static org.jocl.CL.clSetKernelArg;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.jocl.CL;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
+import org.jocl.cl_command_queue;
 import org.jocl.cl_context;
 import org.jocl.cl_device_id;
 import org.jocl.cl_kernel;
 import org.jocl.cl_mem;
 import org.jocl.cl_program;
+import org.jocl.cl_queue_properties;
 import org.jocl.struct.Buffers;
 import org.jocl.struct.SizeofStruct;
 import org.jocl.struct.Struct;
@@ -35,6 +41,9 @@ public class GPURasterizer2 {
 	
 	private cl_context context = GPU.context;
 	private cl_device_id device = GPU.device;
+	
+	private cl_queue_properties commandQueueProperties;
+	private cl_command_queue commandQueue;
 	
 	String sourcepath;
 	String source;
@@ -66,6 +75,7 @@ public class GPURasterizer2 {
 	int WIDTH;
 	int HEIGHT;
 	int startY;
+	int endY;
 	int minX;
 	int maxX;
 	int shadeType;
@@ -126,6 +136,10 @@ public class GPURasterizer2 {
 		clBuildProgram(program, 0, null, null, null, null);
 		kernel = clCreateKernel(program, kernelName, null);
 		
+		commandQueueProperties = new cl_queue_properties();
+		
+		commandQueue = clCreateCommandQueueWithProperties(context, device, commandQueueProperties, null);
+		
 		initializeMemory();
 	}
 	
@@ -135,11 +149,15 @@ public class GPURasterizer2 {
 	
 	public void prepareForFrame() {
 		zbufmem.mem = clCreateBuffer(context, CL_MEM_READ_WRITE, Sizeof.cl_float * zbuf.length, null, null);
+		clSetKernelArg(kernel, 13, Sizeof.cl_mem, Pointer.to(zbufmem.mem));
+		
 		screenmem.mem = clCreateBuffer(context, CL_MEM_READ_WRITE, Sizeof.cl_int * screen.length, null, null);
+		clSetKernelArg(kernel, 12, Sizeof.cl_mem, Pointer.to(screenmem.mem));
 	}
 	
-	public void prepareForRaster(int _startY, int _minX, int _maxX) {
+	public void prepareForRaster(int _startY, int _endY, int _minX, int _maxX) {
 		startY = _startY;
+		endY = _endY;
 		minX = _minX;
 		maxX = _maxX;
 		
@@ -148,9 +166,26 @@ public class GPURasterizer2 {
 		auxIntData[9] = maxX;
 		
 		auxIntDatamem.mem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * auxIntData.length, auxIntDatamem.ptr, null);
-		auxFloatDatamem.mem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float * auxFloatData.length, auxFloatDatamem.ptr, null);
+		clSetKernelArg(kernel, 14, Sizeof.cl_mem, Pointer.to(auxIntDatamem.mem));
 		
-		texmem.mem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * texture.length, texmem.ptr, null);	
+		auxFloatDatamem.mem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_float * auxFloatData.length, auxFloatDatamem.ptr, null);
+		clSetKernelArg(kernel, 15, Sizeof.cl_mem, Pointer.to(auxFloatDatamem.mem));
+		
+		texmem.mem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * texture.length, texmem.ptr, null);
+		clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(texmem.mem));
+	}
+	
+	public void rasterize() {
+		long[] global_work_size = new long[] {endY-startY};
+		long[] local_work_size = new long[] {1};
+		
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size, local_work_size, 0, null, null);
+		
+		clEnqueueReadBuffer(commandQueue, zbufmem.mem, CL_TRUE, 0, Sizeof.cl_float * zbuf.length, Pointer.to(zbuf), 0, null, null);
+		clEnqueueReadBuffer(commandQueue, screenmem.mem, CL_TRUE, 0, Sizeof.cl_int * screen.length, Pointer.to(screen), 0, null, null);
+		
+		//TODO: Free the device memory
+		
 	}
 	
 	public void setCameraVectors(Vector3 pos, Vector2 dir, Vector2 plane) {
@@ -167,6 +202,10 @@ public class GPURasterizer2 {
 		cameraDirmem.initStructMem(cameraDir, this::vec2mem);
 		cameraPlanemem.initStructMem(cameraPlane, this::vec2mem);
 		cameraPosmem.initStructMem(cameraPos, this::vec3mem);
+		
+		clSetKernelArg(kernel, 7, Sizeof.cl_mem, Pointer.to(cameraPosmem.mem));
+		clSetKernelArg(kernel, 8, Sizeof.cl_mem, Pointer.to(cameraDirmem.mem));
+		clSetKernelArg(kernel, 9, Sizeof.cl_mem, Pointer.to(cameraPlanemem.mem));	
 	}
 	
 	private void initializeMemory() {
@@ -210,6 +249,9 @@ public class GPURasterizer2 {
 		uv0mem.initStructMem(uv0, this::vec2mem);
 		uv1mem.initStructMem(uv1, this::vec2mem);
 		uv2mem.initStructMem(uv2, this::vec2mem);
+		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(uv0mem.mem));
+		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(uv1mem.mem));
+		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(uv2mem.mem));
 		
 		v03.x = t.v0.x;
 		v03.y = t.v0.y;
@@ -226,6 +268,9 @@ public class GPURasterizer2 {
 		v03mem.initStructMem(v03, this::vec3mem);
 		v13mem.initStructMem(v13, this::vec3mem);
 		v23mem.initStructMem(v23, this::vec3mem);
+		clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(v03mem.mem));
+		clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(v13mem.mem));
+		clSetKernelArg(kernel, 6, Sizeof.cl_mem, Pointer.to(v23mem.mem));
 		
 		bv0.x = t.bv0.x;
 		bv0.y = t.bv0.y;
@@ -237,6 +282,9 @@ public class GPURasterizer2 {
 		
 		bv0mem.initStructMem(bv0, this::vec3mem);
 		bv1mem.initStructMem(bv1, this::vec3mem);
+		//10
+		clSetKernelArg(kernel, 10, Sizeof.cl_mem, Pointer.to(bv0mem.mem));
+		clSetKernelArg(kernel, 11, Sizeof.cl_mem, Pointer.to(bv1mem.mem));
 		
 		auxIntData[0] = t.texture.width;
 		auxIntData[1] = t.texture.height;
