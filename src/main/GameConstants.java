@@ -39,6 +39,12 @@ public final class GameConstants {
 	public static int DWIGHT_SPAWN_INTERVAL = 10;
 	public static float DWIGHT_ATTACK_RANGE = 0.8f;
 	public static float DWIGHT_SPEED = 0.03f;
+	
+	public static int MAX_HEALTHKITS = 4;
+	public static int HEALTHKIT_DESPAWN_DISTANCE = 26;
+	
+	public static int MAX_GOAL_BLOCK_DISTANCE = 500;
+	public static int MIN_GOAL_BLOCK_DISTANCE = 300;
 
 	public static float TRUE_3D_MAX_RENDER_DISTANCE = 1000;
 
@@ -53,7 +59,6 @@ public final class GameConstants {
 		typeMap.put(int.class, Integer.class);
 		typeMap.put(float.class, Float.class);
 		typeMap.put(long.class, Long.class);
-		// typeMap.put(Raycaster.ShadeType.class, Raycaster.ShadeType.class);
 	}
 
 	public static Matrix4 getAspectScaleMatrix() {

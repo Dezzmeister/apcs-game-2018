@@ -40,6 +40,7 @@ public class MapGenerator {
 
 	private WorldMap finalMap;
 	private Vector2 startPos;
+	private Vector2 goalPos = null;
 
 	public MapGenerator(int _width, int _height, MapSpecification specification) {
 		WIDTH = _width;
@@ -88,6 +89,25 @@ public class MapGenerator {
 
 	private void printInformation() {
 		System.out.println("Seed: " + mapSeed);
+	}
+	
+	private void generateGoalPos() {
+		int maxDist = GameConstants.MAX_GOAL_BLOCK_DISTANCE;
+		int minDist = GameConstants.MIN_GOAL_BLOCK_DISTANCE;
+		
+		Vector2 v = new Vector2(-1,-1);
+		
+		while (v.x <= 0 || v.x >= WIDTH || v.y <= 0 || v.y >= HEIGHT || blockMap[(int)v.y][(int)v.x].isSolid()) {
+			int distance = (int)((Math.random()*(maxDist-minDist))+minDist);
+			float angle = (float) (Math.random() * Math.PI * 2.0f);
+			
+			int x = (int)(distance * Math.cos(angle));
+			int y = (int)(distance * Math.sin(angle));
+			
+			v = new Vector2(x + (WIDTH/2),y + (HEIGHT/2));
+		}
+		
+		goalPos = v;
 	}
 
 	private void convertIntMap() {
@@ -162,6 +182,9 @@ public class MapGenerator {
 				ceilMap[row][col] = ceil;
 			}
 		}
+		
+		generateGoalPos();
+		blockMap[(int)goalPos.y][(int)goalPos.x] = Block.DwightElements.GOAL_BLOCK;
 	}
 
 	public WorldMap getFinalWorldMap() {
@@ -194,6 +217,10 @@ public class MapGenerator {
 		}
 
 		return startPos;
+	}
+	
+	public Vector2 getGoalPos() {
+		return goalPos;
 	}
 
 	public void debug_saveDebugImage() {

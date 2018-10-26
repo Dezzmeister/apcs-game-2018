@@ -36,6 +36,7 @@ import main.entities.BeanList;
 import main.entities.DwightList;
 import message_loop.Messenger;
 import render.core.Raycaster;
+import render.math.Vector2;
 
 /**
  * Represents a Game object. Has a Raycaster, mouse data, and keyboard data.
@@ -73,6 +74,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	private Messenger messenger = new Messenger();
 
 	private ViewModel currentViewModel = null;
+	
+	private Vector2 goalPos = new Vector2(1,1);
 
 	{
 		addMouseMotionListener(this);
@@ -203,7 +206,12 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		pane.setCursor(BLANK_CURSOR);
 		return this;
 	}
-
+	
+	public Game setGoalPos(Vector2 _goalPos) {
+		goalPos = _goalPos;
+		return this;
+	}
+	
 	public void setStepPaths(String... paths) {
 		stepper = new Repeater(stepRate, 400, paths);
 		stepper.enable();

@@ -125,7 +125,7 @@ import render.math.Vector3;
  * that the 3D point being tested is not in the triangle, so the rasterizer
  * continues to the next point on the screen. If not, the depth value of the 3D
  * point is calculated and tested against the 2D z-buffer. If the point is
- * visible, the rasterizer scales each UV coordinate by their respective
+ * visible, the rasterizer scales each UV vector by their respective
  * barycentric weights and adds them to determine the UV texture coordinate for
  * that point. The color value for that point is obtained by scaling the
  * aforementioned UV coordinate by the dimensions of the texture. Of course, if
@@ -133,7 +133,7 @@ import render.math.Vector3;
  * color is used instead.
  * </ol>
  * <br>
- * * A z-buffer is a solution to the visiblity problem; it allows the renderer
+ * * A z-buffer is a solution to the visibility problem; it allows the renderer
  * to accurately draw concave or intersecting geometry. For the 2D elements of
  * the world, a 1D array is used as the z-buffer. For every stripe, the distance
  * from the player to whatever has been drawn at that stripe is stored in
@@ -199,6 +199,8 @@ public class Raycaster extends JPanel {
 	private int[] screen;
 
 	private boolean true3DTexturesEnabled = true;
+	
+	private Vector2 goalPos = null;
 	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -275,6 +277,11 @@ public class Raycaster extends JPanel {
 		generateDimensionLUTs();
 		createThreadPoolRenderers();
 		createFrustum();
+	}
+	
+	public Raycaster setGoalPos(Vector2 _goalPos) {
+		goalPos = _goalPos;
+		return this;
 	}
 	
 	private void getCameraVectors() {

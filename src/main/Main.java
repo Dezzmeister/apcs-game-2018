@@ -428,6 +428,8 @@ public class Main {
 
 		WorldMap world = map.getFinalWorldMap();
 		Vector2 startPos = map.getRandomStartPos();
+		Vector2 goalPos = map.getGoalPos();
+		System.out.println("Distance: " + Vector2.distance(startPos, goalPos));
 
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
@@ -438,6 +440,8 @@ public class Main {
 		game.setSoundManager(manager);
 		game.setHealthStat(health);
 		game.setCoffeeStat(coffee);
+		game.setGoalPos(goalPos);
+		
 		// String testSound = "assets/soundfx/boom.wav";
 		String step1 = "assets/soundfx/footsteps/step1.wav";
 		String step2 = "assets/soundfx/footsteps/step2.wav";

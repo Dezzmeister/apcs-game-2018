@@ -38,7 +38,7 @@ public class DwightList {
 
 		generateLUTs();
 	}
-
+	
 	public void updateDwights(double delta) {
 		moveDwights(delta);
 

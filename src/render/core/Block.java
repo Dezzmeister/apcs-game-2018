@@ -336,6 +336,8 @@ public class Block {
 				*/
 		
 		private static final Block MAILBOX = new Block("mailbox").defineAsModel(new OBJModel("assets/models/mailbox.obj").transform(MODEL_SCALER).shadeAll(100, 0.5f));
+		
+		public static final Block GOAL_BLOCK;
 
 		public static final Block[] OFFICE_MISC;
 
@@ -358,6 +360,8 @@ public class Block {
 			TABLE_BLOCK = new Block("wooden table").defineAsModel(TABLE_MODEL);
 
 			CHAIR_BLOCK = new Block("metal chair").defineAsModel(CHAIR_MODEL);
+			
+			GOAL_BLOCK = new Block("goal").defineAsModel(TABLE_MODEL);
 
 			OFFICE_MISC = new Block[] {TABLE_BLOCK, CHAIR_BLOCK, ILLUMINATI_SPIRE_BLOCK, MAILBOX};
 			
