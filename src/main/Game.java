@@ -155,6 +155,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		if (currentViewModel != null) {
 			raycaster.setCurrentViewModel(currentViewModel);
 		}
+		
+		if (goalPos != null) {
+			raycaster.setGoalPos(goalPos);
+		}
 
 		setVisible(true);
 		raycaster.setDoubleBuffered(true);
@@ -209,6 +213,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	
 	public Game setGoalPos(Vector2 _goalPos) {
 		goalPos = _goalPos;
+		
+		if (raycaster != null) {
+			raycaster.setGoalPos(goalPos);
+		}
 		return this;
 	}
 	

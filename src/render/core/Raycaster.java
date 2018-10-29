@@ -202,6 +202,8 @@ public class Raycaster extends JPanel {
 	
 	private Vector2 goalPos = null;
 	
+	private boolean touchingGoal = false;
+	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
 	 * <code>_parentGame</code> object should be whatever Game will have control of
@@ -314,6 +316,49 @@ public class Raycaster extends JPanel {
 		g.drawLine((FINAL_WIDTH / 2) - 10, FINAL_HEIGHT / 2, (FINAL_WIDTH / 2) + 10, FINAL_HEIGHT / 2);
 	}
 	
+	private void drawCompass() {
+		if (goalPos != null) {
+			float distance = Vector2.distance(goalPos, pos);
+			
+			if (distance <= 1) {
+				touchingGoal = true;
+			} else {
+				touchingGoal = false;
+			}
+			
+			Vector2 goal = new Vector2(goalPos.x - camera.pos.x, goalPos.y - camera.pos.y);
+			float angle = RenderUtils.angleBetweenVectors(camera.dir, goal);
+			
+			if (RenderUtils.isLeftOfRay(pos,dir.add(pos),goalPos)) {
+				angle = -angle;
+			}
+			
+			angle += (float)(Math.PI/2.0f);
+			
+			int length = 45;
+			int x = (int)(Math.cos(angle) * length);
+			int y = (int)(Math.sin(angle) * length);
+		
+			int radius = 50;
+		
+			g.setColor(Color.GRAY);
+			g.fillOval(FINAL_WIDTH-(radius*2), 0, radius*2, radius*2);
+			g.fillRect(FINAL_WIDTH - 3*radius/2, 9*radius/4, radius, 2*radius/5);
+			
+			g.setColor(Color.BLACK);
+			g.drawRect(FINAL_WIDTH - 3*radius/2, 9*radius/4, radius, 2*radius/5);
+			g.drawOval(FINAL_WIDTH-(radius*2), 0, radius*2, radius*2);
+			
+			g.setColor(Color.GREEN);
+			g.drawString(Integer.toString((int)distance), FINAL_WIDTH - 5*radius/4, 51*radius/20);
+			g.drawLine(FINAL_WIDTH-radius, radius, FINAL_WIDTH-radius-x, radius-y);
+		}
+	}
+	
+	public boolean playerIsTouchingGoal() {
+		return touchingGoal;
+	}
+	
 	protected void finalizeRender() {
 		BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		img.getRaster().setDataElements(0, 0, WIDTH, HEIGHT, screen);
@@ -365,6 +410,7 @@ public class Raycaster extends JPanel {
 		resetZBuffer();
 		drawDebugInfo();
 		drawCrosshair();
+		drawCompass();
 		finished = true;
 	}
 	
@@ -1641,7 +1687,7 @@ public class Raycaster extends JPanel {
 			reverseProjectR[2] = zNorm;
 		}
 	}
-
+	
 	private class Rasterizer2 {
 		Vector2 v0;
 		Vector2 v1;
@@ -2012,7 +2058,7 @@ public class Raycaster extends JPanel {
 			}
 		}
 	}
-
+	
 	private boolean isInFoV(Vector3 v0, Vector3 fovLeft, Vector3 fovRight, Vector3 camera) {
 		Vector2 origin = camera.discardZ();
 		Vector2 rightEndp = fovRight.discardZ();
