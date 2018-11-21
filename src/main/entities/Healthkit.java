@@ -28,11 +28,13 @@ public class Healthkit extends Pickup {
 	public Healthkit(Vector2 _pos) {
 		super(HEALTHKIT_MODEL, CYLINDER_RADIUS, _pos);
 	}
-
+	
+	private static final Matrix4 TRANSLATE_IN = Transformer.createTranslationMatrix(-0.5f, -0.5f, 0);
+	private static final Matrix4 TRANSLATE_OUT = TRANSLATE_IN.inverse();
+	
 	@Override
 	public void animateFrame(float delta) {
-		Matrix4 translateIn = Transformer.createTranslationMatrix(-0.5f, -0.5f, 0);
-		Matrix4 translateOut = translateIn.inverse();
+		
 		
 	}	
 }
