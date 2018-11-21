@@ -434,9 +434,10 @@ public class Main {
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
 		manager.addSound("funeral", "assets/music/funeral.ogg");
-		// manager.play("giorgio");
+		manager.play("giorgio");
 
 		Game game = new Game(width, height).noCursor();
+		game.log("Seed: " + map.mapSeed);
 		game.setSoundManager(manager);
 		game.setHealthStat(health);
 		game.setCoffeeStat(coffee);
@@ -478,7 +479,7 @@ public class Main {
 		game.setSoundManager(manager);
 
 		manager.addSound("hitman", "assets/music/exploration.ogg", new Speaker(4, 4));
-		// manager.play("hitman");
+		manager.play("hitman");
 
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
@@ -559,7 +560,7 @@ public class Main {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, block, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
-						SPACE, Block.DEFLECTOR, SPACE, SPACE, SPACE, SPACE},
+						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, block, Block.DwightElements.TABLE_BLOCK, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,

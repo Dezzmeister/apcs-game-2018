@@ -79,7 +79,7 @@ import render.math.Vector3;
  * the wall for the perspective divide.) Texture values are interpolated as
  * usual and the DDA continues through the next stripe of pixels; however, if
  * the ray does not intersect with any walls in the cell, or if the stripe of
- * texture pixels has the transparency pixel at the top, the DDA will continue
+ * texture pixels has the transparency pixel at the top ({@link image.Texture.ALPHA ALPHA}), the DDA will continue
  * to the next cell hit by the current ray.</li> <br>
  * <li>If the cell hit by the DDA is defined as a true 3D model (NOTE: A true 3D
  * model is defined as a collection of textured/colored triangles in a 1x1x1
@@ -100,7 +100,7 @@ import render.math.Vector3;
  * be displayed on the screen; it is still a point on the view plane, so its
  * normalized XY distance from the leftmost point of the viewing plane is used
  * as the x value and its z-coordinate is used as the y value since the
- * z-coordinate is already normalized (Nothing in the world can be above z=1 or
+ * z-coordinate is already normalized (Nothing in the world should be above z=1 or
  * below z=0). Of course, this normalized point is scaled with the dimensions of
  * the screen to produce the actual location of the point on the screen, in
  * pixels. <br>

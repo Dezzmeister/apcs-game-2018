@@ -36,7 +36,7 @@ public class MapGenerator {
 	private final MapSpecification spec;
 
 	private Random random = new Random();
-	private long mapSeed = GameConstants.MAP_SEED;
+	public long mapSeed = GameConstants.MAP_SEED;
 
 	private WorldMap finalMap;
 	private Vector2 startPos;

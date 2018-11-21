@@ -16,9 +16,15 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -76,6 +82,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	private ViewModel currentViewModel = null;
 	
 	private Vector2 goalPos = new Vector2(1,1);
+	
+	private List<String> logfile = new ArrayList<String>();
 
 	{
 		addMouseMotionListener(this);
@@ -99,6 +107,15 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				
 				if (soundManager != null) {
 					soundManager.shutdown();
+				}
+				
+				System.out.println("Saving latest map log file");
+				
+				try {
+					Path out = Paths.get("latest map log file.txt");
+					Files.write(out, logfile, Charset.defaultCharset());
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
 			}
 
@@ -428,9 +445,14 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			BufferedImage image = new Robot().createScreenCapture(screen);
 			ImageIO.write(image, "png", file);
 			System.out.println("Screenshot saved as " + fileName);
+			log("Screenshot saved as " + fileName);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+	}
+	
+	public void log(String s) {
+		logfile.add(s);
 	}
 
 	private class MouseListener extends MouseAdapter {
