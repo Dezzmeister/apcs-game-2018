@@ -41,7 +41,10 @@ import image.ViewModel;
 import main.entities.BeanList;
 import main.entities.DwightList;
 import message_loop.Messenger;
+import render.core.Block;
 import render.core.Raycaster;
+import render.core.true3D.Transformer;
+import render.math.Matrix4;
 import render.math.Vector2;
 
 /**
@@ -302,6 +305,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 						handleKeyboardInput(delta);
 						dwightList.updateDwights(delta);
 						beanList.update();
+						animateFrame((float)delta);
 					}
 
 					if (currentViewModel != null) {
@@ -340,6 +344,19 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				frames = 0;
 			}
 		}
+	}
+	
+	private static final float BASE_PSI = 0.01f;
+	private static final Matrix4 TRANSLATE_IN = Transformer.createTranslationMatrix(-0.5f, -0.5f, 0);
+	private static final Matrix4 TRANSLATE_OUT = Transformer.createTranslationMatrix(0.5f, 0.5f, 0);
+	
+	public void animateFrame(float delta) {
+		Matrix4 rotator = Transformer.createZRotationMatrix(BASE_PSI * delta);
+		
+		Matrix4 transformer = TRANSLATE_IN.multiply(rotator).multiply(TRANSLATE_OUT);
+		Block.DwightElements.HEALTHKIT_MODEL.transformAndApply(TRANSLATE_IN);
+		Block.DwightElements.HEALTHKIT_MODEL.transformAndApply(rotator);
+		Block.DwightElements.HEALTHKIT_MODEL.transformAndApply(TRANSLATE_OUT);
 	}
 
 	private void updateStepper() {

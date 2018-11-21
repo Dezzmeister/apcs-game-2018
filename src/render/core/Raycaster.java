@@ -2077,8 +2077,6 @@ public class Raycaster extends JPanel {
 	// x and y correspond to world map axes; z is vertical axis; positive z points
 	// up
 	// (right handed system)
-
-	@SuppressWarnings("unused")
 	private void renderAllVisibleModelsWithoutMatrices() {
 		Map<Vector3, Vector3> renderedVertices = new HashMap<Vector3, Vector3>();
 		

@@ -64,4 +64,11 @@ public class Model {
 
 		return new Model(temp);
 	}
+	
+	public void transformAndApply(Matrix4 m) {
+		for (int i = 0; i < triangles.size(); i++) {
+			Triangle transformed = m.transform(triangles.get(i));
+			triangles.set(i, transformed);
+		}
+	}
 }

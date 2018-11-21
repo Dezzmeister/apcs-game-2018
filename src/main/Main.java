@@ -537,7 +537,7 @@ public class Main {
 								  .multiply(Transformer.createScaleMatrix(hKitScaleF, hKitScaleF, hKitScaleF))
 								  .multiply(Transformer.createTranslationMatrix(0.5f, 0.5f, 0.35f));
 		
-		Block HEALTHKIT = new Block("healthkit").defineAsModel(new OBJModel("assets/models/healthkit/healthkit.obj").transform(healthKitScaler).shadeAll(100, 0.4f));
+		Block HEALTHKIT = new Block("healthkit").defineAsModel(Block.DwightElements.HEALTHKIT_MODEL);
 
 		Block[][] blocks = {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,

@@ -10,6 +10,7 @@ import render.math.geometry.OBJModel;
 public class Healthkit extends Pickup {
 	private static final Model HEALTHKIT_MODEL;
 	private static final float CYLINDER_RADIUS = 0.25f;
+	private static final float BASE_PSI = 0.01f;
 	
 	static {
 		
@@ -34,7 +35,9 @@ public class Healthkit extends Pickup {
 	
 	@Override
 	public void animateFrame(float delta) {
+		Matrix4 rotator = Transformer.createZRotationMatrix(BASE_PSI * delta);
 		
-		
+		Matrix4 transformer = TRANSLATE_IN.multiply(rotator).multiply(TRANSLATE_OUT);
+		HEALTHKIT_MODEL.transform(transformer);
 	}	
 }

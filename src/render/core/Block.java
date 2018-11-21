@@ -340,6 +340,8 @@ public class Block {
 		public static final Block GOAL_BLOCK;
 
 		public static final Block[] OFFICE_MISC;
+		
+		public static final Model HEALTHKIT_MODEL;
 
 		static {
 
@@ -364,6 +366,14 @@ public class Block {
 			GOAL_BLOCK = new Block("goal").defineAsModel(TABLE_MODEL);
 
 			OFFICE_MISC = new Block[] {TABLE_BLOCK, CHAIR_BLOCK, ILLUMINATI_SPIRE_BLOCK, MAILBOX};
+			
+			float hKitScaleF = 0.35f;
+			Matrix4 healthKitScaler = GameConstants.getAspectScaleMatrix()
+					  .multiply(Transformer.createScaleMatrix(0.01f, 0.01f, 0.01f))
+					  .multiply(Transformer.createTranslationMatrix(-0.5f,-0.5f, 0))
+					  .multiply(Transformer.createScaleMatrix(hKitScaleF, hKitScaleF, hKitScaleF))
+					  .multiply(Transformer.createTranslationMatrix(0.5f, 0.5f, 0.35f));
+			HEALTHKIT_MODEL = new OBJModel("assets/models/healthkit/healthkit.obj").transform(healthKitScaler).shadeAll(100, 0.4f);
 			
 			try {
 				DEATH = ImageIO.read(new File("assets/overlays/death.png"));
