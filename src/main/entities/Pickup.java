@@ -4,7 +4,7 @@ import render.core.true3D.Model;
 import render.math.Vector2;
 import render.math.geometry.Cylinder;
 
-public class Pickup {
+public abstract class Pickup {
 	private Model model;
 	private Cylinder boundary;
 	
@@ -35,4 +35,6 @@ public class Pickup {
 		
 		return new Vector2(x,y);
 	}
+	
+	public abstract void animateFrame(float delta);
 }

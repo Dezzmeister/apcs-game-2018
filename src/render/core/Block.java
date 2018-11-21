@@ -335,7 +335,7 @@ public class Block {
 				.defineAsModel(new OBJModel("assets/models/filecabinet.obj").transform(MODEL_SCALER));
 				*/
 		
-		private static final Block MAILBOX = new Block("mailbox").defineAsModel(new OBJModel("assets/models/mailbox.obj").transform(MODEL_SCALER).shadeAll(100, 0.5f));
+		private static final Block MAILBOX = new Block("mailbox").defineAsModel(new OBJModel("assets/models/mailbox.obj").transform(MODEL_SCALER).transform(GameConstants.getAspectScaleMatrix()).shadeAll(100, 0.5f));
 		
 		public static final Block GOAL_BLOCK;
 
@@ -379,7 +379,7 @@ public class Block {
 				 .applyAll(t -> t.setXWeight(0.7f))
 				 .computeShadeValues();
 			
-			return chair.transform(MODEL_SCALER);
+			return chair.transform(MODEL_SCALER).transform(GameConstants.getAspectScaleMatrix());
 		}
 
 		private static float thickness = 0.1f;

@@ -87,8 +87,8 @@ public class Main {
 	
 	public static void main(String[] args) {
 		// test();
-		mapGenerationTest();
-		// cubicleTest();
+		// mapGenerationTest();
+		cubicleTest();
 		// gpuTest();
 		// gpuTest2();
 		// gpuTestWithFile();
@@ -434,7 +434,7 @@ public class Main {
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
 		manager.addSound("funeral", "assets/music/funeral.ogg");
-		manager.play("giorgio");
+		//manager.play("giorgio");
 
 		Game game = new Game(width, height).noCursor();
 		game.log("Seed: " + map.mapSeed);
@@ -479,7 +479,7 @@ public class Main {
 		game.setSoundManager(manager);
 
 		manager.addSound("hitman", "assets/music/exploration.ogg", new Speaker(4, 4));
-		manager.play("hitman");
+		//manager.play("hitman");
 
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
@@ -529,6 +529,15 @@ public class Main {
 		
 		Block TORUS = new Block("torus").defineAsModel(torus);
 		Block CYLINDER = new Block("cylinder").defineAsModel(cylinder);
+		
+		float hKitScaleF = 0.35f;
+		Matrix4 healthKitScaler = GameConstants.getAspectScaleMatrix()
+								  .multiply(Transformer.createScaleMatrix(0.01f, 0.01f, 0.01f))
+								  .multiply(Transformer.createTranslationMatrix(-0.5f,-0.5f, 0))
+								  .multiply(Transformer.createScaleMatrix(hKitScaleF, hKitScaleF, hKitScaleF))
+								  .multiply(Transformer.createTranslationMatrix(0.5f, 0.5f, 0.35f));
+		
+		Block HEALTHKIT = new Block("healthkit").defineAsModel(new OBJModel("assets/models/healthkit/healthkit.obj").transform(healthKitScaler).shadeAll(100, 0.4f));
 
 		Block[][] blocks = {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
@@ -556,7 +565,7 @@ public class Main {
 				{SPACE, SPACE, SPACE, block, SPACE, block, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, CYLINDER, SPACE, SPACE, SPACE,
-						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},
+						SPACE, SPACE, SPACE, HEALTHKIT, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, block, SPACE, SPACE, SPACE},
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
