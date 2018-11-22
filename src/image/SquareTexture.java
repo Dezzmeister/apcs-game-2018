@@ -1,5 +1,11 @@
 package image;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 /**
  * A square texture.
  *
@@ -34,6 +40,30 @@ public class SquareTexture extends Texture {
 	public SquareTexture(int[] _pixels, int _size) {
 		pixels = _pixels;
 		SIZE = _size;
+	}
+	
+	public SquareTexture(String _path) {
+		path = _path;
+		load();
+		int size = -1;
+		
+		try {
+			BufferedImage image = ImageIO.read(new File(path));
+			int w = image.getWidth();
+			int h = image.getHeight();
+			size = w;
+			
+			if (w != h) {
+				System.out.println("Image at " + path + " is not square!");
+			}
+			pixels = new int[w * h];
+			
+			image.getRGB(0, 0, w, h, pixels, 0, w);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		SIZE = size;
 	}
 
 	public GeneralTexture asGeneralTexture() {

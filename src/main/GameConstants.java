@@ -18,6 +18,7 @@ public final class GameConstants {
 	public static int SCREEN_HEIGHT = 1000;
 	public static int RAYCAST_THREADS = 4;
 	public static Raycaster.ShadeType SHADE_TYPE = Raycaster.ShadeType.QUADRATIC;
+	public static boolean HIGH_RES_TEXTURES = true;
 
 	public static int MAP_SIZE = 5000;
 	/*
@@ -65,6 +66,7 @@ public final class GameConstants {
 		typeMap.put(int.class, Integer.class);
 		typeMap.put(float.class, Float.class);
 		typeMap.put(long.class, Long.class);
+		typeMap.put(boolean.class, Boolean.class);
 	}
 
 	public static Matrix4 getAspectScaleMatrix() {

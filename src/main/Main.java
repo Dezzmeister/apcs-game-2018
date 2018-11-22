@@ -87,8 +87,8 @@ public class Main {
 	
 	public static void main(String[] args) {
 		// test();
-		// mapGenerationTest();
-		cubicleTest();
+		mapGenerationTest();
+		// cubicleTest();
 		// gpuTest();
 		// gpuTest2();
 		// gpuTestWithFile();
