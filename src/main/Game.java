@@ -40,6 +40,7 @@ import game.ViewModels;
 import image.ViewModel;
 import main.entities.BeanList;
 import main.entities.DwightList;
+import main.entities.HealthkitList;
 import message_loop.Messenger;
 import render.core.Block;
 import render.core.Raycaster;
@@ -79,6 +80,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	private final AtomicInteger stepRate = new AtomicInteger(0);
 	private BoundedStat health;
 	private BoundedStat coffee;
+	private HealthkitList healthkitList;
 
 	private Messenger messenger = new Messenger();
 
@@ -170,6 +172,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		raycaster = _raycaster;
 		dwightList = new DwightList(raycaster.camera, raycaster.world);
 		beanList = new BeanList(raycaster.camera, raycaster.world, coffee);
+		healthkitList = new HealthkitList(raycaster.camera, raycaster.world, health);
+		
 		pane.add(raycaster, BorderLayout.CENTER);
 
 		if (currentViewModel != null) {
@@ -305,7 +309,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 						handleKeyboardInput(delta);
 						dwightList.updateDwights(delta);
 						beanList.update();
-						animateFrame((float)delta);
+						healthkitList.update(delta);
 					}
 
 					if (currentViewModel != null) {
@@ -354,9 +358,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		Matrix4 rotator = Transformer.createZRotationMatrix(BASE_PSI * delta);
 		
 		Matrix4 transformer = TRANSLATE_IN.multiply(rotator).multiply(TRANSLATE_OUT);
-		Block.DwightElements.HEALTHKIT_MODEL.transformAndApply(TRANSLATE_IN);
-		Block.DwightElements.HEALTHKIT_MODEL.transformAndApply(rotator);
-		Block.DwightElements.HEALTHKIT_MODEL.transformAndApply(TRANSLATE_OUT);
+		Block.DwightElements.HEALTHKIT_MODEL.transformAndApply(transformer);
 	}
 
 	private void updateStepper() {

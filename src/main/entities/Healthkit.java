@@ -9,11 +9,10 @@ import render.math.geometry.OBJModel;
 
 public class Healthkit extends Pickup {
 	private static final Model HEALTHKIT_MODEL;
-	private static final float CYLINDER_RADIUS = 0.25f;
-	private static final float BASE_PSI = 0.01f;
+	public float cylinderRadiusSquared;
+	private static final float BASE_PSI = 0.017f;
 	
-	static {
-		
+	static {		
 		float hKitScaleF = 0.35f;
 		Matrix4 healthKitScaler = GameConstants.getAspectScaleMatrix()
 				  .multiply(Transformer.createScaleMatrix(0.01f, 0.01f, 0.01f))
@@ -22,22 +21,21 @@ public class Healthkit extends Pickup {
 				  .multiply(Transformer.createTranslationMatrix(0.5f, 0.5f, 0.35f));
 		
 		HEALTHKIT_MODEL = new OBJModel("assets/models/healthkit/healthkit.obj").transform(healthKitScaler).shadeAll(100, 0.4f);
-		
-		
 	}
 	
 	public Healthkit(Vector2 _pos) {
-		super(HEALTHKIT_MODEL, CYLINDER_RADIUS, _pos);
+		super(HEALTHKIT_MODEL.transform(Matrix4.IDENTITY), GameConstants.DEFAULT_HEALTHKIT_CYLINDER_RADIUS, _pos);
+		cylinderRadiusSquared = boundary.radius * boundary.radius;
 	}
 	
 	private static final Matrix4 TRANSLATE_IN = Transformer.createTranslationMatrix(-0.5f, -0.5f, 0);
 	private static final Matrix4 TRANSLATE_OUT = TRANSLATE_IN.inverse();
 	
 	@Override
-	public void animateFrame(float delta) {
-		Matrix4 rotator = Transformer.createZRotationMatrix(BASE_PSI * delta);
+	public void animateFrame(double delta) {
+		Matrix4 rotator = Transformer.createZRotationMatrix(BASE_PSI * (float)delta);
 		
 		Matrix4 transformer = TRANSLATE_IN.multiply(rotator).multiply(TRANSLATE_OUT);
-		HEALTHKIT_MODEL.transform(transformer);
+		model.transformAndApply(transformer);
 	}	
 }

@@ -144,6 +144,10 @@ public class WorldMap {
 	public void setFloorAt(int x, int y, SquareTexture texture) {
 		floorMap[y][x] = texture;
 	}
+	
+	public void setCeilingAt(int x, int y, SquareTexture texture) {
+		ceilMap[y][x] = texture;
+	}
 
 	public Block getBlockAt(int x, int y) {
 		return blocks[y][x];

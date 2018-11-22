@@ -20,6 +20,9 @@ public final class GameConstants {
 	public static Raycaster.ShadeType SHADE_TYPE = Raycaster.ShadeType.QUADRATIC;
 
 	public static int MAP_SIZE = 5000;
+	/*
+	 * A seed of -1 tells the game to generate a new map
+	 */
 	public static long MAP_SEED = -1;
 	
 	public static int MAX_HEALTH = 100;
@@ -42,6 +45,9 @@ public final class GameConstants {
 	
 	public static int MAX_HEALTHKITS = 4;
 	public static int HEALTHKIT_DESPAWN_DISTANCE = 26;
+	public static float DEFAULT_HEALTHKIT_CYLINDER_RADIUS = 0.45f;
+	public static int HEALTHKIT_HEALTH_VALUE = 25;
+	public static int MAX_HEALTHKIT_SPAWN_RANGE = 250;
 	
 	public static int MAX_GOAL_BLOCK_DISTANCE = 500;
 	public static int MIN_GOAL_BLOCK_DISTANCE = 300;
@@ -70,7 +76,7 @@ public final class GameConstants {
 	/**
 	 * insane reflection
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static void loadConfig() {
 		String path = "config/config.txt";
 

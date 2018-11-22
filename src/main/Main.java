@@ -87,8 +87,8 @@ public class Main {
 	
 	public static void main(String[] args) {
 		// test();
-		// mapGenerationTest();
-		cubicleTest();
+		mapGenerationTest();
+		// cubicleTest();
 		// gpuTest();
 		// gpuTest2();
 		// gpuTestWithFile();
@@ -538,7 +538,7 @@ public class Main {
 								  .multiply(Transformer.createTranslationMatrix(0.5f, 0.5f, 0.35f));
 		
 		Block HEALTHKIT = new Block("healthkit").defineAsModel(Block.DwightElements.HEALTHKIT_MODEL);
-
+		
 		Block[][] blocks = {
 				{SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE,
 						SPACE, SPACE, SPACE, SPACE, SPACE, SPACE},

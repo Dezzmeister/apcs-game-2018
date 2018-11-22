@@ -5,8 +5,8 @@ import render.math.Vector2;
 import render.math.geometry.Cylinder;
 
 public abstract class Pickup {
-	private Model model;
-	private Cylinder boundary;
+	protected Model model;
+	public Cylinder boundary;
 	
 	public Pickup(Model _model, float _radius, Vector2 _pos) {
 		model = _model;
@@ -36,5 +36,5 @@ public abstract class Pickup {
 		return new Vector2(x,y);
 	}
 	
-	public abstract void animateFrame(float delta);
+	public abstract void animateFrame(double delta);
 }
