@@ -5,7 +5,6 @@ import java.util.List;
 
 import audio.soundjunk.Wav;
 import game.BoundedStat;
-import image.SquareTexture;
 import main.GameConstants;
 import render.core.Block;
 import render.core.Camera;
@@ -89,5 +88,9 @@ public class HealthkitList {
 		}
 		
 		return coord;
+	}
+	
+	public void reset() {
+		list = new ArrayList<Healthkit>();
 	}
 }

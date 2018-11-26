@@ -95,4 +95,8 @@ public class BeanList {
 
 		return false;
 	}
+	
+	public void reset() {
+		beans = new ArrayList<Bean>();
+	}
 }

@@ -240,4 +240,8 @@ public class DwightList {
 
 		dwights.add(dwight);
 	}
+	
+	public void reset() {
+		dwights = new ArrayList<Dwight>();
+	}
 }

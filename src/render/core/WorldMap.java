@@ -33,6 +33,17 @@ public class WorldMap {
 	public int width;
 	public int height;
 	
+	public void initializeInPlace(WorldMap other) {
+		blocks = other.blocks;
+		floorMap = other.floorMap;
+		ceilMap = other.ceilMap;
+		lightmaps = other.lightmaps;
+		lights = other.lights;
+		entities = other.entities;
+		width = other.width;
+		height = other.height;
+	}
+	
 	// private Speaker[] speakers;
 
 	public WorldMap(Block[][] _blocks) {

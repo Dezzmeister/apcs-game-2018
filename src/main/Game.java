@@ -41,9 +41,11 @@ import image.ViewModel;
 import main.entities.BeanList;
 import main.entities.DwightList;
 import main.entities.HealthkitList;
+import mapGen.MapGenerator;
 import message_loop.Messenger;
 import render.core.Block;
 import render.core.Raycaster;
+import render.core.WorldMap;
 import render.core.true3D.Transformer;
 import render.math.Matrix4;
 import render.math.Vector2;
@@ -350,6 +352,29 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		}
 	}
 	
+	private void newMap() {
+		MapGenerator map = new MapGenerator(GameConstants.MAP_SIZE, GameConstants.MAP_SIZE, Block.DwightElements.DWIGHTSPEC);
+		map.generate();
+
+		WorldMap newWorld = map.getFinalWorldMap();
+		Vector2 newStartPos = map.getRandomStartPos();
+		Vector2 newGoalPos = map.getGoalPos();
+		
+		raycaster.world.initializeInPlace(newWorld);
+		raycaster.camera.pos.x = newStartPos.x;
+		raycaster.camera.pos.y = newStartPos.y;
+		goalPos = newGoalPos;
+		
+		raycaster.setGoalPos(newGoalPos);
+		
+		dwightList.reset();
+		beanList.reset();
+		healthkitList.reset();
+		
+		health.toMax();
+		coffee.toMax();
+	}
+	
 	private static final float BASE_PSI = 0.01f;
 	private static final Matrix4 TRANSLATE_IN = Transformer.createTranslationMatrix(-0.5f, -0.5f, 0);
 	private static final Matrix4 TRANSLATE_OUT = Transformer.createTranslationMatrix(0.5f, 0.5f, 0);
@@ -379,20 +404,20 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	private void handleKeyboardInput(double delta) {
 
 		// Movement
-		float sprintfactor = (float) (delta * ((keys[controls.sprint]) ? 2 : 1));
+		float sprintfactor = (float) (delta * ((keys[GameConstants.CT_SPRINT]) ? 2 : 1));
 		stepRate.set(0);
 
 		if (health.get() > 0) {
-			if (keys[controls.moveForward]) {
+			if (keys[GameConstants.CT_FORWARD]) {
 				raycaster.camera.moveForward(raycaster.world, sprintfactor);
 			}
-			if (keys[controls.moveBackward]) {
+			if (keys[GameConstants.CT_BACKWARD]) {
 				raycaster.camera.moveBackward(raycaster.world, sprintfactor);
 			}
-			if (keys[controls.moveLeft]) {
+			if (keys[GameConstants.CT_LEFT]) {
 				raycaster.camera.moveLeft(raycaster.world, sprintfactor);
 			}
-			if (keys[controls.moveRight]) {
+			if (keys[GameConstants.CT_RIGHT]) {
 				raycaster.camera.moveRight(raycaster.world, sprintfactor);
 			}
 		}
@@ -416,19 +441,21 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		if (e.getKeyCode() < 256) {
 			keys[e.getKeyCode()] = false;
 		}
-
-		if (e.getKeyChar() == 'k') {
-			// soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
-			// soundManager.play("boom");
-			Wav.playSound("assets/soundfx/boom.wav");
+		
+		if (GameConstants.DEBUG_MODE) {
+			if (e.getKeyCode() == GameConstants.CT_DEBUG_EXPLOSION) {
+				// soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
+				// soundManager.play("boom");
+				Wav.playSound("assets/soundfx/boom.wav");
+			}
 		}
 
-		if (e.getKeyCode() == controls.screenshot) {
+		if (e.getKeyCode() == GameConstants.CT_SCREENSHOT) {
 			saveScreenShot();
 		}
-
-		if (e.getKeyChar() == 'l') {
-			dwightList.maxDwights = 5;
+		
+		if (e.getKeyCode() == GameConstants.CT_NEWLEVEL) {
+			newMap();
 		}
 	}
 	

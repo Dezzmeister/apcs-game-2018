@@ -1,5 +1,10 @@
 package render.core;
 
+import static render.core.Block.DwightElements.STANDARD_HALL_CEILING;
+import static render.core.Block.DwightElements.STANDARD_HALL_FLOOR;
+import static render.core.Block.DwightElements.STANDARD_ROOM_FLOOR;
+import static render.core.Block.DwightElements.STANDARD_WALL_BLOCK;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -8,6 +13,7 @@ import javax.imageio.ImageIO;
 import image.GeneralTexture;
 import image.SquareTexture;
 import main.GameConstants;
+import mapGen.MapGenerator.MapSpecification;
 import render.core.true3D.Model;
 import render.core.true3D.Transformer;
 import render.math.Matrix4;
@@ -326,7 +332,7 @@ public class Block {
 
 		private static final Matrix4 MODEL_SCALER = Transformer.createScaleMatrix(0.01f, 0.01f, 0.01f);
 		
-		private static final Matrix4 FLATTENER = Transformer.createScaleMatrix(1, 1, 0.6f);
+		private static final Matrix4 FLATTENER = Transformer.createScaleMatrix(1, 1, 0.7f);
 		
 		public static final Model CHAIR_MODEL = loadChair();
 		public static final Block CHAIR_BLOCK;
@@ -346,6 +352,9 @@ public class Block {
 		public static final Block[] OFFICE_MISC;
 		
 		public static final Model HEALTHKIT_MODEL;
+		
+		public static final MapSpecification DWIGHTSPEC = new MapSpecification(STANDARD_WALL_BLOCK, STANDARD_HALL_FLOOR, STANDARD_HALL_CEILING,
+				STANDARD_ROOM_FLOOR, STANDARD_HALL_CEILING);
 
 		static {
 			TABLE_LEG_0 = TABLE_LEG_0.transform(translateIn);

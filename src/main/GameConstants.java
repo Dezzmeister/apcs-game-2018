@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.event.KeyEvent;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,6 +55,19 @@ public final class GameConstants {
 	public static int MIN_GOAL_BLOCK_DISTANCE = 300;
 
 	public static float TRUE_3D_MAX_RENDER_DISTANCE = 1000;
+	
+	public static boolean DEBUG_MODE = false;
+	
+	public static int CT_FORWARD = KeyEvent.VK_W;
+	public static int CT_BACKWARD = KeyEvent.VK_S;
+	public static int CT_LEFT = KeyEvent.VK_A;
+	public static int CT_RIGHT = KeyEvent.VK_D;
+	public static int CT_SPRINT = KeyEvent.VK_SHIFT;
+	
+	public static int CT_SCREENSHOT = KeyEvent.VK_I;
+	public static int CT_NEWLEVEL = KeyEvent.VK_R;
+	
+	public static int CT_DEBUG_EXPLOSION = KeyEvent.VK_K;
 
 	private static Map<Class<?>, Class<?>> typeMap = new HashMap<Class<?>, Class<?>>();
 
@@ -67,6 +81,7 @@ public final class GameConstants {
 		typeMap.put(float.class, Float.class);
 		typeMap.put(long.class, Long.class);
 		typeMap.put(boolean.class, Boolean.class);
+		typeMap.put(char.class, Character.class);
 	}
 
 	public static Matrix4 getAspectScaleMatrix() {
@@ -93,7 +108,10 @@ public final class GameConstants {
 			for (String s : file) {
 				if (s.contains("=")) {
 					String name = s.substring(0, s.indexOf("="));
+					name = removeWhiteSpace(name);
+					
 					String stringValue = s.substring(s.indexOf("=") + 1);
+					stringValue = removeWhiteSpace(stringValue);
 					
 					Field field = GameConstants.class.getDeclaredField(name);
 
@@ -104,11 +122,28 @@ public final class GameConstants {
 							field.set(null, Enum.valueOf((Class<Enum>) field.getType(), stringValue));
 						}
 					} else {
-						String conversionMethodName = "parse"
-								+ field.getType().getSimpleName().substring(0, 1).toUpperCase()
-								+ field.getType().getSimpleName().substring(1);
-						Object value = type.getDeclaredMethod(conversionMethodName, String.class).invoke(null,
-								stringValue);
+						Object value;
+						
+						if (type == Character.class) {
+							
+							value = stringValue.charAt(0);
+						
+						} else if (type == Integer.class && !stringValue.matches("[0-9]+")) {
+							//The value is a control
+							
+							stringValue = "VK_" + stringValue.toUpperCase();
+							Field charField = KeyEvent.class.getDeclaredField(stringValue);
+							value = charField.get(null);
+							
+						} else {
+							
+							String conversionMethodName = "parse"
+									+ field.getType().getSimpleName().substring(0, 1).toUpperCase()
+									+ field.getType().getSimpleName().substring(1);
+							value = type.getDeclaredMethod(conversionMethodName, String.class).invoke(null,
+									stringValue);
+							
+						}
 						field.set(null, value);
 					}
 				}
@@ -117,5 +152,9 @@ public final class GameConstants {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static String removeWhiteSpace(String s) {
+		return s.replace(" ", "");
 	}
 }

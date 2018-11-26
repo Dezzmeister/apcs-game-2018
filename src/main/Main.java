@@ -420,10 +420,8 @@ public class Main {
 
 		final BoundedStat health = new BoundedStat(0, GameConstants.MAX_HEALTH);
 		final BoundedStat coffee = new BoundedStat(0, GameConstants.MAX_COFFEE);
-
-		MapSpecification spec = new MapSpecification(STANDARD_WALL_BLOCK, STANDARD_HALL_FLOOR, STANDARD_HALL_CEILING,
-				STANDARD_ROOM_FLOOR, STANDARD_HALL_CEILING);
-		MapGenerator map = new MapGenerator(GameConstants.MAP_SIZE, GameConstants.MAP_SIZE, spec);
+		
+		MapGenerator map = new MapGenerator(GameConstants.MAP_SIZE, GameConstants.MAP_SIZE, Block.DwightElements.DWIGHTSPEC);
 		map.generate();
 
 		WorldMap world = map.getFinalWorldMap();

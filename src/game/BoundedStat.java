@@ -30,4 +30,12 @@ public final class BoundedStat {
 	public float get() {
 		return level.get();
 	}
+	
+	public void toMax() {
+		level.set((float)max);
+	}
+	
+	public void toMin() {
+		level.set((float)min);
+	}
 }
