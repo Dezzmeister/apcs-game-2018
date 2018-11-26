@@ -306,6 +306,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					secondPassed = false;
 				}
 				
+				if (raycaster.wonGame) {
+					newMap();
+				}
+				
 				while (delta >= 1 && raycaster.finished) {
 					if (raycaster != null) {
 						handleKeyboardInput(delta);
@@ -334,9 +338,17 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					delta--;
 				}
 			} else {
+				deadInit = true;
+				
 				if (!deadInit) {
+					deadInit = false;
 					// play music
 				}
+				newMap();
+			}
+			
+			if (Vector2.distance(raycaster.camera.pos, goalPos) <= 1.2) {
+				raycaster.wonGame = true;
 			}
 
 			repaint();
@@ -353,6 +365,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	}
 	
 	private void newMap() {
+		
 		MapGenerator map = new MapGenerator(GameConstants.MAP_SIZE, GameConstants.MAP_SIZE, Block.DwightElements.DWIGHTSPEC);
 		map.generate();
 
@@ -373,6 +386,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		
 		health.toMax();
 		coffee.toMax();
+		
+		raycaster.wonGame = false;
 	}
 	
 	private static final float BASE_PSI = 0.01f;
@@ -447,6 +462,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				// soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
 				// soundManager.play("boom");
 				Wav.playSound("assets/soundfx/boom.wav");
+			}
+			
+			if (e.getKeyCode() == GameConstants.CT_DEBUG_WIN) {
+				raycaster.wonGame = true;
 			}
 		}
 

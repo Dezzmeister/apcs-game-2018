@@ -246,6 +246,7 @@ public class Block {
 		public static final SquareTexture HUD_OVERLAY = new SquareTexture("assets/overlays/hud.png", 200);
 
 		public static BufferedImage DEATH = null;
+		public static BufferedImage WIN = null;
 
 		private static final Matrix4 aspectScaleMatrix = GameConstants.getAspectScaleMatrix();
 
@@ -389,6 +390,7 @@ public class Block {
 			
 			try {
 				DEATH = ImageIO.read(new File("assets/overlays/death.png"));
+				WIN = ImageIO.read(new File("assets/overlays/win.png"));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

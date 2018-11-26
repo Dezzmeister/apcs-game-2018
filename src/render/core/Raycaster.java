@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,10 +18,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import com.aparapi.Kernel;
-import com.aparapi.Range;
 
 import image.Entity;
 import image.GeneralTexture;
@@ -389,8 +391,10 @@ public class Raycaster extends JPanel {
 		resetModelQueue();
 		resetImage();
 	}
+	
+	public boolean wonGame = false;
 
-	protected void render() {
+	protected void render() {		
 		if (hud.getHealth() > 0) {
 			preRender();
 			parallelRender();
@@ -402,6 +406,10 @@ public class Raycaster extends JPanel {
 			postRender();
 		} else {
 			drawDeathScreen();
+		}
+		
+		if (wonGame) {
+			drawWinScreen();
 		}
 	}
 	
@@ -419,10 +427,20 @@ public class Raycaster extends JPanel {
 		drawCurrentViewModel();
 	}
 	
+	private void drawWinScreen() {
+		if (Block.DwightElements.WIN != null) {
+			resetImage();
+			img = Block.DwightElements.WIN;
+			finalizeRender();
+		}
+	}
+	
 	private void drawDeathScreen() {
-		resetImage();
-		img = Block.DwightElements.DEATH;
-		finalizeRender();
+		if (Block.DwightElements.DEATH != null) {
+			resetImage();
+			img = Block.DwightElements.DEATH;
+			finalizeRender();
+		}
 	}
 	
 	private void saveClosestWallAtCenter() {

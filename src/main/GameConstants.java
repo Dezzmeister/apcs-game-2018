@@ -68,6 +68,7 @@ public final class GameConstants {
 	public static int CT_NEWLEVEL = KeyEvent.VK_R;
 	
 	public static int CT_DEBUG_EXPLOSION = KeyEvent.VK_K;
+	public static int CT_DEBUG_WIN = KeyEvent.VK_P;
 
 	private static Map<Class<?>, Class<?>> typeMap = new HashMap<Class<?>, Class<?>>();
 
