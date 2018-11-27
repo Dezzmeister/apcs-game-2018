@@ -247,7 +247,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	}
 	
 	public void setStepPaths(String... paths) {
-		stepper = new Repeater(stepRate, 400, paths);
+		stepper = new Repeater(stepRate, 500, paths);
 		stepper.enable();
 		stepperThread = new Thread(stepper);
 		stepperThread.start();
@@ -344,6 +344,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					deadInit = false;
 					// play music
 				}
+				raycaster.addDeath();
 				repaint();
 				
 				stepRate.set(0);
@@ -352,6 +353,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			
 			if (Vector2.distance(raycaster.camera.pos, goalPos) <= 1.2) {
 				raycaster.wonGame = true;
+				raycaster.addWin();
+				stepRate.set(0);
 			}
 
 			repaint();
@@ -471,6 +474,8 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 			
 			if (keyCode == GameConstants.CT_DEBUG_WIN) {
 				raycaster.wonGame = true;
+				raycaster.addWin();
+				stepRate.set(0);
 			}
 			
 			if (keyCode == GameConstants.CT_DEBUG_DIE) {

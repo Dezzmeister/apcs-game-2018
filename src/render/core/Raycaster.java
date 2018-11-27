@@ -68,7 +68,7 @@ import render.math.Vector3;
  * perspective-correct x value for the stripe, and the stripe of pixels at this
  * x value in the texture is then used to texture the stripe on the screen.</li>
  * <br>
- * <li>If the cell hit by the DDA ray is defined as a custom block, different
+ * <li>If the cell hit by the DDA ray is defined as a <b>custom block</b>, different
  * steps must be taken. (NOTE: A custom block is defined as a collection of
  * variable-length lines within a 1x1 space. Walls can be non-orthogonal;
  * however, collision still occurs with the cell's boundaries.) For each line in
@@ -93,7 +93,7 @@ import render.math.Vector3;
  * iterates through all of the model's triangles. For each triangle in the
  * model, the triangle is translated to world space and a ray/plane intersection
  * algorithm is used to project the vertices of the triangle onto the viewing
- * plane (the screen in the world). (NOTE: The player is always looking at the
+ * plane (the screen in the world). (NOTE: The player is <b>always</b> looking at the
  * world from 0.5 units above the ground; z=0.5.) A {@link java.util.HashMap
  * HashMap} is kept containing all previously calculated triangle vertices and
  * their projected counterparts. If any vertex of the triangle exists in this
@@ -152,7 +152,7 @@ import render.math.Vector3;
  *
  * @author Joe Desmond
  */
-public class Raycaster extends JPanel {
+public final class Raycaster extends JPanel {
 
 	/**
 	 *
@@ -205,6 +205,8 @@ public class Raycaster extends JPanel {
 	private Vector2 goalPos = null;
 	
 	private boolean touchingGoal = false;
+	private int winCount = 0;
+	private int deathCount = 0;
 	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -310,6 +312,8 @@ public class Raycaster extends JPanel {
 		g.drawString("y: " + pos.y, 5, 35);
 		
 		g.drawString("Dwights killed: " + dwightsKilled, 5, 50);
+		g.drawString("Wins: " + winCount, 5, 65);
+		g.drawString("Deaths: " + deathCount, 5, 80);
 	}
 	
 	private void drawCrosshair() {
@@ -491,6 +495,14 @@ public class Raycaster extends JPanel {
 	
 	public synchronized void stop() {
 		enabled.set(false);
+	}
+	
+	public void addWin() {
+		winCount++;
+	}
+	
+	public void addDeath() {
+		deathCount++;
 	}
 	
 	private void handleMouseInput() {

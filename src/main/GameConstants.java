@@ -57,6 +57,7 @@ public final class GameConstants {
 	public static float TRUE_3D_MAX_RENDER_DISTANCE = 1000;
 	
 	public static boolean DEBUG_MODE = false;
+	public static boolean NO_SOUND = true;
 	
 	public static int CT_FORWARD = KeyEvent.VK_W;
 	public static int CT_BACKWARD = KeyEvent.VK_S;

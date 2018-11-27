@@ -10,6 +10,8 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import main.GameConstants;
+
 /**
  * Represents a Vorbis .ogg file. This class should only be used by
  * SoundManager, therefore it is package-private.
@@ -27,26 +29,28 @@ final class OggFile extends JavaSoundFile {
 	@Override
 	public synchronized void play() {
 		ended = false;
-		try {
-			File file = new File(path);
-			AudioInputStream in = AudioSystem.getAudioInputStream(file);
-			
-			if (in != null) {
-				AudioFormat baseFormat = in.getFormat();
-				AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(),
-						16, baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
-				din = AudioSystem.getAudioInputStream(decodedFormat, in);
-				if (waitingForFirstUpdate) {
-					while (!firstUpdate) {
-
+		if (!GameConstants.NO_SOUND) { 
+			try {
+				File file = new File(path);
+				AudioInputStream in = AudioSystem.getAudioInputStream(file);
+				
+				if (in != null) {
+					AudioFormat baseFormat = in.getFormat();
+					AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(),
+							16, baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
+					din = AudioSystem.getAudioInputStream(decodedFormat, in);
+					if (waitingForFirstUpdate) {
+						while (!firstUpdate) {
+							
+						}
 					}
+					rawPlay(decodedFormat);
+					
+					in.close();
 				}
-				rawPlay(decodedFormat);
-
-				in.close();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
