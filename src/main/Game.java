@@ -344,6 +344,9 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 					deadInit = false;
 					// play music
 				}
+				repaint();
+				
+				stepRate.set(0);
 				newMap();
 			}
 			
@@ -453,27 +456,34 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() < 256) {
-			keys[e.getKeyCode()] = false;
+		int keyCode = e.getKeyCode();
+		
+		if (keyCode < 256) {
+			keys[keyCode] = false;
 		}
 		
 		if (GameConstants.DEBUG_MODE) {
-			if (e.getKeyCode() == GameConstants.CT_DEBUG_EXPLOSION) {
+			if (keyCode == GameConstants.CT_DEBUG_EXPLOSION) {
 				// soundManager.quickPlayAt("assets/soundfx/boom.ogg", 6, 7);
 				// soundManager.play("boom");
 				Wav.playSound("assets/soundfx/boom.wav");
 			}
 			
-			if (e.getKeyCode() == GameConstants.CT_DEBUG_WIN) {
+			if (keyCode == GameConstants.CT_DEBUG_WIN) {
 				raycaster.wonGame = true;
+			}
+			
+			if (keyCode == GameConstants.CT_DEBUG_DIE) {
+				health.toMin();
+				stepRate.set(0);
 			}
 		}
 
-		if (e.getKeyCode() == GameConstants.CT_SCREENSHOT) {
+		if (keyCode == GameConstants.CT_SCREENSHOT) {
 			saveScreenShot();
 		}
 		
-		if (e.getKeyCode() == GameConstants.CT_NEWLEVEL) {
+		if (keyCode == GameConstants.CT_NEWLEVEL) {
 			newMap();
 		}
 	}

@@ -445,7 +445,7 @@ public class Main {
 		String step1 = "assets/soundfx/footsteps/step1.wav";
 		String step2 = "assets/soundfx/footsteps/step2.wav";
 		String step3 = "assets/soundfx/footsteps/step3.wav";
-		// game.setStepPaths(step1, step2, step3);
+		game.setStepPaths(step1, step2, step3);
 
 		Camera camera = new Camera().setPos(startPos).setDir(new Vector2(-0.75f, 0)).setPlane(new Vector2(0, 0.5f));
 
