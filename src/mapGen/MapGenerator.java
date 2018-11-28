@@ -97,7 +97,18 @@ public class MapGenerator {
 		
 		Vector2 v = new Vector2(-1,-1);
 		
-		while (v.x <= 0 || v.x >= WIDTH || v.y <= 0 || v.y >= HEIGHT || blockMap[(int)v.y][(int)v.x].isSolid()) {
+		if (startPos == null) {
+			startPos = getRandomStartPos();
+		}
+		
+		int tries = 0;
+		int maxTries = 500;
+		
+		while ((v.x <= 0 || v.x >= WIDTH || v.y <= 0 || v.y >= HEIGHT || blockMap[(int)v.y][(int)v.x].isSolid() 
+				|| Vector2.distance(v, startPos) <= GameConstants.MIN_GOAL_BLOCK_DISTANCE
+				|| Vector2.distance(v, startPos) >= GameConstants.MAX_GOAL_BLOCK_DISTANCE) &&
+				tries++ < maxTries) {
+			
 			int distance = (int)((Math.random()*(maxDist-minDist))+minDist);
 			float angle = (float) (Math.random() * Math.PI * 2.0f);
 			
@@ -108,6 +119,10 @@ public class MapGenerator {
 		}
 		
 		goalPos = v;
+		
+		if (tries >= maxTries) {
+			System.out.println("Goal block could not be generated properly. Make the map bigger or increase the range between the maximum and minimum goal block distances.");
+		}
 	}
 
 	private void convertIntMap() {

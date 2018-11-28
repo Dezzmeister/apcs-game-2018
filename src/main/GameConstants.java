@@ -12,6 +12,12 @@ import render.core.Raycaster;
 import render.core.true3D.Transformer;
 import render.math.Matrix4;
 
+/**
+ * Contains constants and values integral to the functionality of the Dwight Game. Loads these values
+ * from a config file located at "config/config.txt."
+ *
+ * @author Joe Desmond
+ */
 public final class GameConstants {
 	
 	public static int RENDER_SIZE = 300;

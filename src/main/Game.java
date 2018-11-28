@@ -51,7 +51,8 @@ import render.math.Matrix4;
 import render.math.Vector2;
 
 /**
- * Represents a Game object. Has a Raycaster, mouse data, and keyboard data.
+ * Represents a Dwight Game. Manages timing and player input and links other crucial game functions such as rendering,
+ * audio, and logic.
  *
  * @author Joe Desmond
  */
@@ -221,7 +222,7 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 	}
 
 	/**
-	 * Creates a new Thread and starts this Game on it.
+	 * Creates a new Thread and starts this Game on it, then returns the new Thread.
 	 *
 	 * @return the Thread running this Game
 	 */

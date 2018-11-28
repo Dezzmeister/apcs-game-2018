@@ -87,7 +87,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		// test();
-		mapGenerationTest();
+		dwightGame();
 		// cubicleTest();
 		// gpuTest();
 		// gpuTest2();
@@ -413,8 +413,8 @@ public class Main {
 
 		System.out.println(transform.transform(point));
 	}
-
-	static void mapGenerationTest() {
+	
+	static void dwightGame() {
 		int width = GameConstants.SCREEN_WIDTH;
 		int height = GameConstants.SCREEN_HEIGHT;
 

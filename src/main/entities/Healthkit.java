@@ -13,9 +13,13 @@ public class Healthkit extends Pickup {
 	private static final float BASE_PSI = 0.017f;
 	private static final float MAX_ADDED_HEIGHT = 0.17f;
 	private static final float MIN_ADDED_HEIGHT = 0.05f;
+	
 	private float addedHeight = 0;
 	private static final float SINE_PERIOD = 2;
 	private float sineClock = 0;
+	private static final float SINE_B = (float) ((2 * Math.PI) / SINE_PERIOD);
+	private static final float SINE_AMP = MAX_ADDED_HEIGHT - MIN_ADDED_HEIGHT;
+	private static final float SINE_VSHIFT = (MAX_ADDED_HEIGHT - MIN_ADDED_HEIGHT) / 2;
 	
 	static {		
 		float hKitScaleF = 0.35f;
@@ -32,10 +36,6 @@ public class Healthkit extends Pickup {
 		super(HEALTHKIT_MODEL.transform(Matrix4.IDENTITY), GameConstants.DEFAULT_HEALTHKIT_CYLINDER_RADIUS, _pos);
 		cylinderRadiusSquared = boundary.radius * boundary.radius;
 	}
-	
-	private static final float SINE_B = (float) ((2 * Math.PI) / SINE_PERIOD);
-	private static final float SINE_AMP = MAX_ADDED_HEIGHT - MIN_ADDED_HEIGHT;
-	private static final float SINE_VSHIFT = (MAX_ADDED_HEIGHT - MIN_ADDED_HEIGHT) / 2;
 	
 	@Override
 	public void animateFrame(double delta) {
