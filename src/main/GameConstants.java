@@ -19,9 +19,9 @@ public final class GameConstants {
 	public static int SCREEN_HEIGHT = 1000;
 	public static int RAYCAST_THREADS = 4;
 	public static Raycaster.ShadeType SHADE_TYPE = Raycaster.ShadeType.QUADRATIC;
-	public static boolean HIGH_RES_TEXTURES = true;
+	public static boolean HIGH_RES_TEXTURES = false;
 
-	public static int MAP_SIZE = 5000;
+	public static int MAP_SIZE = 500;
 	/*
 	 * A seed of -1 tells the game to generate a new map
 	 */

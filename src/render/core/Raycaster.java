@@ -153,7 +153,7 @@ import render.math.Vector3;
  * @author Joe Desmond
  */
 public final class Raycaster extends JPanel {
-
+	
 	/**
 	 *
 	 */
@@ -207,6 +207,9 @@ public final class Raycaster extends JPanel {
 	private boolean touchingGoal = false;
 	private int winCount = 0;
 	private int deathCount = 0;
+	
+	private static final int MEGABYTE = 1024 * 1024;
+	private Runtime runtime = Runtime.getRuntime();
 	
 	/**
 	 * Creates a <code>Raycaster</code> object that can render a WorldMap. The
@@ -316,6 +319,19 @@ public final class Raycaster extends JPanel {
 		g.drawString("Deaths: " + deathCount, 5, 80);
 	}
 	
+	private void drawMemoryInfo() {
+		g.setColor(Color.RED);
+		
+		g.drawString("Memory Usage", 5, 110);
+		
+		g.setColor(Color.GREEN);
+		int used = (int) ((runtime.totalMemory() - runtime.freeMemory()) / MEGABYTE);
+		g.drawString("Used memory: " + used + " MB", 5, 130);
+		g.drawString("Free Memory: " + (runtime.freeMemory() / MEGABYTE) + " MB", 5, 145);
+		g.drawString("Total memory: " + (runtime.totalMemory() / MEGABYTE) + " MB", 5, 160);
+		g.drawString("Max memory: " + (runtime.maxMemory() / MEGABYTE) + " MB", 5, 175);
+	}
+	
 	private void drawCrosshair() {
 		g.setColor(Color.GREEN);
 		g.drawLine(FINAL_WIDTH / 2, (FINAL_HEIGHT / 2) - 10, FINAL_WIDTH / 2, (FINAL_HEIGHT / 2) + 10);
@@ -421,6 +437,7 @@ public final class Raycaster extends JPanel {
 		saveClosestWallAtCenter();
 		resetZBuffer();
 		drawDebugInfo();
+		drawMemoryInfo();
 		drawCrosshair();
 		drawCompass();
 		finished = true;
