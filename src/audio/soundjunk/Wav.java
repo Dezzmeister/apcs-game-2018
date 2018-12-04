@@ -23,4 +23,20 @@ public class Wav {
 			}
 		}
 	}
+	
+	public static Clip createClip(String path) {
+		File url = new File(path);
+		
+		try {
+			Clip clip = AudioSystem.getClip();
+			AudioInputStream ais = AudioSystem.getAudioInputStream(url);
+			clip.open(ais);
+			
+			return clip;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 }

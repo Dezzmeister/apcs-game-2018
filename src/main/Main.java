@@ -423,7 +423,7 @@ public class Main {
 		
 		MapGenerator map = new MapGenerator(GameConstants.MAP_SIZE, GameConstants.MAP_SIZE, Block.DwightElements.DWIGHTSPEC);
 		map.generate();
-
+		
 		WorldMap world = map.getFinalWorldMap();
 		Vector2 startPos = map.getRandomStartPos();
 		Vector2 goalPos = map.getGoalPos();
@@ -433,7 +433,7 @@ public class Main {
 		manager.addSound("giorgio", "assets/music/chase.ogg");
 		manager.addSound("funeral", "assets/music/funeral.ogg");
 		//manager.play("giorgio");
-
+		
 		Game game = new Game(width, height).noCursor();
 		game.log("Seed: " + map.mapSeed);
 		game.setSoundManager(manager);
