@@ -19,6 +19,9 @@ public class MouseRobot {
 	
 	private AtomicInteger x = new AtomicInteger(0);
 	private AtomicInteger y = new AtomicInteger(0);
+	
+	private AtomicInteger gX = new AtomicInteger(0);
+	private AtomicInteger gY = new AtomicInteger(0);
 
 	private AtomicInteger px = new AtomicInteger(0);
 	private AtomicInteger py = new AtomicInteger(0);

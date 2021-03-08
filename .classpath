@@ -18,5 +18,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/JOCL-structs-0.0.1a-alpha.jar"/>
+	<classpathentry kind="lib" path="lib/neuronz2-math.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -5,8 +5,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,12 +16,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import com.aparapi.Kernel;
 
 import image.Entity;
+import image.Filter;
 import image.GeneralTexture;
 import image.HUD;
 import image.SquareTexture;
@@ -196,6 +194,7 @@ public final class Raycaster extends JPanel {
 	private List<Entity> hitEntities = new ArrayList<Entity>();
 	private float closestWallAtCenter = 0;
 	private List<Vector3> modelQueue = Collections.synchronizedList(new ArrayList<Vector3>());
+	private final List<Filter> filters = new ArrayList<Filter>();
 	
 	private float[] zbuf2;
 	private int[] screen;
@@ -420,6 +419,7 @@ public final class Raycaster extends JPanel {
 			parallelRender();
 			renderSprites();
 			renderAllVisibleModelsWithoutMatrices();
+			applyFilters();
 			drawOverlays();
 			finalizeRender();
 			// renderAllVisibleModelsWithMatrices();
@@ -441,6 +441,18 @@ public final class Raycaster extends JPanel {
 		drawCrosshair();
 		drawCompass();
 		finished = true;
+	}
+	
+	public void addFilters(final Filter ... _filters) {
+		for (final Filter filter : _filters) {
+			filters.add(filter);
+		}
+	}
+	
+	protected void applyFilters() {
+		for (final Filter filter : filters) {
+			screen = filter.transform(screen, WIDTH, HEIGHT);
+		}
 	}
 	
 	protected void drawOverlays() {
@@ -522,8 +534,7 @@ public final class Raycaster extends JPanel {
 		deathCount++;
 	}
 	
-	private void handleMouseInput() {
-		// System.out.println(parentGame.mouse.dx());
+	public void handleMouseInput() {
 		if (parentGame.mouse.dx() < 0) {
 			camera.rotateLeft(Math.abs(parentGame.mouse.dx()));
 		} else if (parentGame.mouse.dx() > 0) {

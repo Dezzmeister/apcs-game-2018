@@ -25,10 +25,6 @@ import static org.jocl.CL.clSetKernelArg;
 import static render.core.Block.SPACE;
 import static render.core.Block.DwightElements.CUBICLE_X;
 import static render.core.Block.DwightElements.CUBICLE_Y;
-import static render.core.Block.DwightElements.STANDARD_HALL_CEILING;
-import static render.core.Block.DwightElements.STANDARD_HALL_FLOOR;
-import static render.core.Block.DwightElements.STANDARD_ROOM_FLOOR;
-import static render.core.Block.DwightElements.STANDARD_WALL_BLOCK;
 import static render.core.WorldMap.DEFAULT_CEILING;
 
 import java.io.IOException;
@@ -61,8 +57,8 @@ import image.GeneralTexture;
 import image.HUD;
 import image.Item;
 import image.SquareTexture;
+import image.filters.BenisFilter;
 import mapGen.MapGenerator;
-import mapGen.MapGenerator.MapSpecification;
 import render.core.Block;
 import render.core.Camera;
 import render.core.Raycaster;
@@ -86,8 +82,8 @@ public class Main {
 	public static final int COFFEE_CANNON_COST = 10;
 	
 	public static void main(String[] args) {
-		// test();
-		dwightGame();
+		test();
+		// dwightGame();
 		// cubicleTest();
 		// gpuTest();
 		// gpuTest2();
@@ -432,7 +428,7 @@ public class Main {
 		SoundManager manager = new SoundManager();
 		manager.addSound("giorgio", "assets/music/chase.ogg");
 		manager.addSound("funeral", "assets/music/funeral.ogg");
-		//manager.play("giorgio");
+		manager.play("giorgio");
 		
 		Game game = new Game(width, height).noCursor();
 		game.log("Seed: " + map.mapSeed);
@@ -477,7 +473,7 @@ public class Main {
 		game.setSoundManager(manager);
 
 		manager.addSound("hitman", "assets/music/exploration.ogg", new Speaker(4, 4));
-		//manager.play("hitman");
+		manager.play("hitman");
 
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
 				.setPlane(new Vector2(0, 0.5f));
@@ -610,8 +606,8 @@ public class Main {
 	}
 
 	static void test() {
-		int width = 1000;
-		int height = 1000;
+		int width = 1200;
+		int height = 600;
 
 		Game game = new Game(width, height).noCursor();
 		Camera camera = new Camera().setPos(new Vector2(2, 2)).setDir(new Vector2(-0.75f, 0))
@@ -654,11 +650,30 @@ public class Main {
 				{DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING, DEFAULT_CEILING}};
 
 		WorldMap world = new WorldMap(worldArray, floorMap, ceilMap).setBorder(block);
+		final BoundedStat health = new BoundedStat(0, 100);
+		final BoundedStat coffee = new BoundedStat(0, 100);
+
+		game.setHealthStat(health);
+		game.setCoffeeStat(coffee);
+		//game.setGoalPos(new Vector2(-100, -100));
 		
-		Raycaster raycaster = new Raycaster(game, camera, world, width, height, 400, 400, 4);
+		final int rDim = 600;
+		final int rWidth = rDim;
+		final int rHeight = rDim;
+		
+		Raycaster raycaster = new Raycaster(game, camera, world, width, height, rWidth, rHeight, 8);
+		HUD hud = new HUD("assets/overlays/hud.png", health, coffee).fitTo(HUD.Fit.BOTTOM).autoFindBars()
+				.autoFindTransparency();
+
+		raycaster.setHUD(hud);
+		
+		// raycaster.addFilters(new BootiFilter());
+		// raycaster.addFilters(new ChannelReducer(), new Booti2Filter(64), new Gaussian(rWidth, rHeight), new ChannelExpander());
+		raycaster.addFilters(new BenisFilter(rWidth, rHeight, 32));
 
 		game.setRaycaster(raycaster);
 		raycaster.start();
+		
 		// Messenger.post("RENDER_ENABLE");
 		// game.run();
 

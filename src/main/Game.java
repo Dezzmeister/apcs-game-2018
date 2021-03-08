@@ -263,6 +263,10 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 		double delta = 0;
 		long timer = System.currentTimeMillis();
 		int frames = 0;
+		int lastFrames = 0;
+		int targetFrames = 60;
+		float deltaF = (1000 / targetFrames);
+		long lastFrameTime = 0;
 		isRunning.set(true);
 
 		boolean secondPassed = false;
@@ -357,15 +361,18 @@ public class Game extends JFrame implements Runnable, MouseMotionListener, KeyLi
 				raycaster.addWin();
 				stepRate.set(0);
 			}
-
-			repaint();
-
-			frames++;
+			
+			if (System.currentTimeMillis() - lastFrameTime > deltaF) {
+				lastFrameTime = System.currentTimeMillis();
+				repaint();
+				frames++;
+			}
 
 			if (System.currentTimeMillis() - timer > 1000) {
-				timer += 1000;
+				timer = System.currentTimeMillis();
 				secondPassed = true;
-
+				
+				lastFrames = frames;
 				frames = 0;
 			}
 		}
